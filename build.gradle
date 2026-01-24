@@ -20,7 +20,7 @@ sonar {
     properties {
         property "sonar.projectKey", "codeit-team2-advanced-project_sb06-otboo-team2"
         property "sonar.organization", "codeit-team2-advanced-project"
-        property "sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
 
         // SonarQube 분석에서 제외할 파일 및 디렉토리 설정
         property "sonar.exclusions", [

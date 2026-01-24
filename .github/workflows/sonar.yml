@@ -38,4 +38,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         # build(테스트 포함) -> 리포트 생성 -> 소나 분석 순서로 실행
         # 로그 상세히 보기 위해 --stacktrace --info 옵션 추가
-        run: ./gradlew build jacocoTestReport sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }} --stacktrace --info
+        run: ./gradlew build jacocoTestReport sonar -Dsonar.token=$SONAR_TOKEN --stacktrace --info
