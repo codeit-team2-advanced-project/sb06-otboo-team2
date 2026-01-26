@@ -12,6 +12,7 @@ import codeit.sb06.otboo.dto.UserDto;
 import codeit.sb06.otboo.security.OtbooUserDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -67,5 +68,36 @@ class JwtLoginSuccessHandlerTest {
         assertEquals(userDto, info.getUserDto());
         assertEquals("access-token", info.getAccessToken());
         assertEquals("refresh-token", info.getRefreshToken());
+    }
+
+    @Test
+    void writesErrorResponseWhenTokenGenerationFails() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JwtTokenProvider tokenProvider = Mockito.mock(JwtTokenProvider.class);
+        JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
+        JwtLoginSuccessHandler handler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
+
+        UserDto userDto = new UserDto(
+            UUID.randomUUID(),
+            "user@example.com",
+            "User",
+            null,
+            "USER",
+            false
+        );
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
+
+        when(tokenProvider.generateAccessToken(eq(userDetails)))
+            .thenThrow(new JOSEException("signing failed"));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        handler.onAuthenticationSuccess(request, response, authentication);
+
+        JsonNode body = objectMapper.readTree(response.getContentAsString());
+        assertEquals("RuntimeException", body.get("exceptionName").asText());
+        assertEquals("Failed to generate JWT token", body.get("message").asText());
     }
 }

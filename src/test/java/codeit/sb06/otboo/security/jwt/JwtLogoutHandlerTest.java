@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.Cookie;
@@ -54,5 +55,25 @@ class JwtLogoutHandlerTest {
         assertNotNull(response.getCookie("refreshToken"));
         assertEquals(0, response.getCookie("refreshToken").getMaxAge());
         verify(jwtRegistry).invalidateJwtInformationByUserId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+    }
+
+    @Test
+    void skipsRegistryWhenUserIdIsNull() {
+        JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
+        JwtRegistry jwtRegistry = mock(JwtRegistry.class);
+        JwtLogoutHandler handler = new JwtLogoutHandler(tokenProvider, jwtRegistry);
+
+        Cookie expirationCookie = new Cookie("refreshToken", "");
+        expirationCookie.setMaxAge(0);
+        when(tokenProvider.generateRefreshTokenExpirationCookie()).thenReturn(expirationCookie);
+        when(tokenProvider.getUserId("refresh-token")).thenReturn(null);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("refreshToken", "refresh-token"));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        handler.logout(request, response, null);
+
+        verifyNoMoreInteractions(jwtRegistry);
     }
 }

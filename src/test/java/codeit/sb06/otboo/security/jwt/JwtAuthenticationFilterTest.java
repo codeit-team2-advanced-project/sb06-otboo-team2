@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.dto.UserDto;
@@ -93,5 +94,29 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
         verifyNoInteractions(chain);
+    }
+
+    @Test
+    void continuesWhenNoAuthorizationHeader() throws Exception {
+        JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
+        JwtRegistry jwtRegistry = mock(JwtRegistry.class);
+        UserDetailsService userDetailsService = mock(UserDetailsService.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(
+            tokenProvider,
+            userDetailsService,
+            objectMapper,
+            jwtRegistry
+        );
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(chain).doFilter(request, response);
+        verifyNoMoreInteractions(tokenProvider, jwtRegistry, userDetailsService);
     }
 }
