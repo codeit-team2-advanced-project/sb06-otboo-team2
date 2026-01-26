@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s # 5초마다 데이터 수집
+
+scrape_configs:
+  - job_name: 'otboo-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8080'] # 로컬 앱 접속 주소
+
+# 도커 네트워크를 사용하는 경우 아래 설정 사용
+#    metrics_path: '/actuator/prometheus'
+#      dns_sd_configs:
+#        - names: ['otboo-app']
+#          type: 'A'
+#          port: 8080
