@@ -37,10 +37,10 @@ public class JwtTokenProvider {
     private final JWSVerifier refreshTokenVerifier;
 
     public JwtTokenProvider(
-        @Value("${discodeit.jwt.access-token.secret}") String accessTokenSecret,
-        @Value("${discodeit.jwt.access-token.expiration-ms}") int accessTokenExpirationMs,
-        @Value("${discodeit.jwt.refresh-token.secret}") String refreshTokenSecret,
-        @Value("${discodeit.jwt.refresh-token.expiration-ms}") int refreshTokenExpirationMs)
+        @Value("${otboo.jwt.access-token.secret}") String accessTokenSecret,
+        @Value("${otboo.jwt.access-token.expiration-ms}") int accessTokenExpirationMs,
+        @Value("${otboo.jwt.refresh-token.secret}") String refreshTokenSecret,
+        @Value("${otboo.jwt.refresh-token.expiration-ms}") int refreshTokenExpirationMs)
         throws JOSEException {
         this.accessTokenExpirationMs = accessTokenExpirationMs;
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
@@ -139,7 +139,7 @@ public class JwtTokenProvider {
         Date expiration = new Date(now.getTime() + expirationMs);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-            .subject(user.name())
+            .subject(user.email())
             .jwtID(tokenId)
             .claim("userId", user.id().toString())
             .claim("type", tokenType)
@@ -158,7 +158,7 @@ public class JwtTokenProvider {
         signedJWT.sign(signer);
         String token = signedJWT.serialize();
 
-        log.debug("Generated {} token for user {}", tokenType, user.name());
+        log.debug("Generated {} token for user {}", tokenType, user.email());
 
         return token;
     }

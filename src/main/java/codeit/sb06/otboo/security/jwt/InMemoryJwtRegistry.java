@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.RequiredArgsConstructor;
-//
+
 @RequiredArgsConstructor
 public class InMemoryJwtRegistry implements JwtRegistry {
 
