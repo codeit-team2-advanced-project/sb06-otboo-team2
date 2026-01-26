@@ -2,6 +2,23 @@ spring:
   application:
     name: otboo
 
+  websocket:
+    pool:
+      inbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      outbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      heartbeat:
+        pool-size: 1
+        await-termination-seconds: 10
+        period: 10000
+
 management:
   endpoints:
     web:
