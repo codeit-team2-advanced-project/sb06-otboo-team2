@@ -2,7 +2,9 @@ package codeit.sb06.otboo.dto.response;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 
+@Getter
 public class ErrorResponse {
 
     private String exceptionName;

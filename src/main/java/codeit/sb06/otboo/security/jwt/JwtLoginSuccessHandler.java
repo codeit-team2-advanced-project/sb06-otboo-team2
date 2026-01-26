@@ -62,7 +62,6 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("JWT 로그인 성공: userId={}", userDetails.getUserDto().id());
             } catch (JOSEException e) {
                 log.error("Failed to generate JWT token for user: {}", userDetails.getUsername(), e);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to generate JWT token");
                 ErrorResponse errorResponse = new ErrorResponse(
                     new RuntimeException("Failed to generate JWT token")
                 );

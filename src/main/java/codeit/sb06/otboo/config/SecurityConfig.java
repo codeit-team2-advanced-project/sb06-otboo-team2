@@ -55,7 +55,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
-                .accessDeniedHandler( new Http403ForbiddenAccessDeniedHandler(objectMapper))
+                .accessDeniedHandler(new Http403ForbiddenAccessDeniedHandler(objectMapper))
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
