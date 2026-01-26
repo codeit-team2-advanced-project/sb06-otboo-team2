@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import codeit.sb06.otboo.dto.UserDto;
+import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.OtbooUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;

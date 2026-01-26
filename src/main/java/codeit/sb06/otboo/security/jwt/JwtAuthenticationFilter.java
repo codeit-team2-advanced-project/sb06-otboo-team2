@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.security.jwt;
 
-import codeit.sb06.otboo.dto.response.ErrorResponse;
+import codeit.sb06.otboo.user.dto.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

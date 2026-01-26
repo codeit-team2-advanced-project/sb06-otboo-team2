@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.security;
 
-import codeit.sb06.otboo.dto.UserDto;
+import codeit.sb06.otboo.user.dto.UserDto;
 import java.util.Collection;
 import java.util.List;
 import lombok.EqualsAndHashCode;

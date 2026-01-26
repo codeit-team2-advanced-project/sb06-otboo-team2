@@ -1,6 +1,6 @@
-package codeit.sb06.otboo.dto;
+package codeit.sb06.otboo.user.dto;
 
-import codeit.sb06.otboo.entity.Users;
+import codeit.sb06.otboo.user.entity.Users;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

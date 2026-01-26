@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.entity;
+package codeit.sb06.otboo.user.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

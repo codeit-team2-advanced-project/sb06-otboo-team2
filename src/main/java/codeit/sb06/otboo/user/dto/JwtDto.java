@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.dto;
+package codeit.sb06.otboo.user.dto;
 
 public record JwtDto(
     UserDto userDto,

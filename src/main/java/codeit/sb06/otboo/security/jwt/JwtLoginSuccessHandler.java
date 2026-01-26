@@ -1,8 +1,8 @@
 package codeit.sb06.otboo.security.jwt;
 
-import codeit.sb06.otboo.dto.JwtDto;
-import codeit.sb06.otboo.dto.JwtInformation;
-import codeit.sb06.otboo.dto.response.ErrorResponse;
+import codeit.sb06.otboo.user.dto.JwtDto;
+import codeit.sb06.otboo.user.dto.JwtInformation;
+import codeit.sb06.otboo.user.dto.response.ErrorResponse;
 import codeit.sb06.otboo.security.OtbooUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
