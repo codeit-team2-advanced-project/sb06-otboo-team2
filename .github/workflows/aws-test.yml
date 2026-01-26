@@ -1,5 +1,6 @@
 name: AWS Connection Test
 
+# trigger
 on:
   workflow_dispatch:
   push:
