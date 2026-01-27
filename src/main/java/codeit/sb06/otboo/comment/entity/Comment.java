@@ -38,20 +38,20 @@ public class Comment {
 
 //  @ManyToOne(fetch = FetchType.LAZY)
 //  @JoinColumn(name = "user_id", nullable = false)
-//  private User userId;
+//  private User user;
 //
 //  @ManyToOne
 //  @JoinColumn(name = "feed_id",nullable = false)
-//  private Feed feedId;
+//  private Feed feed;
 
   @Builder
   public Comment(
       String content
-//      ,User userId
-//      ,Feed feedId
+//      ,User user
+//      ,Feed feed
   ) {
     this.content = content;
-//    this.userId = userId;
-//    this.feedId = feedId;
+//    this.user = user;
+//    this.feed = feed;
   }
 }
