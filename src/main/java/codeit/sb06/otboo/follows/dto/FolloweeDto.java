@@ -1,7 +1,9 @@
 package codeit.sb06.otboo.follows.dto;
 
+import java.util.UUID;
+
 public record FolloweeDto(
-    String userId,
+    UUID userId,
     String name,
     String profileImageUrl
 ) {

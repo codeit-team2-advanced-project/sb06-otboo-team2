@@ -1,11 +1,13 @@
 package codeit.sb06.otboo.follows.dto;
 
+import java.util.UUID;
+
 public record FollowSummaryDto(
-    String followeeId,
+    UUID followeeId,
     Long followerCount,
     Long followingCount,
     boolean followedByMe,
-    String followedByMeId,
+    UUID followedByMeId,
     boolean followingMe
 ) {
 

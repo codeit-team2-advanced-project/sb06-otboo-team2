@@ -1,8 +1,10 @@
 package codeit.sb06.otboo.follows.dto;
 
+import java.util.UUID;
+
 public record FollowCreateRequest(
-    String followeeId,
-    String followerId
+    UUID followeeId,
+    UUID followerId
 ) {
 
 }
