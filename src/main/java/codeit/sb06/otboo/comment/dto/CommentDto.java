@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.comment.dto;
 
-import codeit.sb06.otboo.comment.domain.Comment;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

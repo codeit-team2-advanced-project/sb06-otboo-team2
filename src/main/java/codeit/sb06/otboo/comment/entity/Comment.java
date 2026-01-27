@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.comment.domain;
+package codeit.sb06.otboo.comment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
