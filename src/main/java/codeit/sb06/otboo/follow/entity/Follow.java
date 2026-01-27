@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.follows.domain;
+package codeit.sb06.otboo.follow.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

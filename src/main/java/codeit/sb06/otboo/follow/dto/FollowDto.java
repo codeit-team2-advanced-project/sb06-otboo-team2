@@ -1,6 +1,6 @@
-package codeit.sb06.otboo.follows.dto;
+package codeit.sb06.otboo.follow.dto;
 
-import codeit.sb06.otboo.follows.domain.Follow;
+import codeit.sb06.otboo.follow.entity.Follow;
 import java.util.UUID;
 
 public record FollowDto(

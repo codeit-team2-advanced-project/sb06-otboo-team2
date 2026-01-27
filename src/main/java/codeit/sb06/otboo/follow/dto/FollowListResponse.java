@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.follows.dto;
+package codeit.sb06.otboo.follow.dto;
 
 import java.util.List;
 import java.util.UUID;
