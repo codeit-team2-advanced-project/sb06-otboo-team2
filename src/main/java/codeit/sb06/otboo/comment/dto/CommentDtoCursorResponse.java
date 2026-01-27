@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.comments.dto;
+package codeit.sb06.otboo.comment.dto;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +11,6 @@ public record CommentDtoCursorResponse(
     Long totalCount,
     String sortBy,
     String sortDirection
-
 
 ) {
 

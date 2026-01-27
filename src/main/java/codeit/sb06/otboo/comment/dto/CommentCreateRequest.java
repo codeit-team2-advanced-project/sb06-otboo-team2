@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.comments.dto;
+package codeit.sb06.otboo.comment.dto;
 
 import java.util.UUID;
 
