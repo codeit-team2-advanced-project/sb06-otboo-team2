@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,7 +22,7 @@ public class DirectMessage {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "sender_id", nullable = false)
