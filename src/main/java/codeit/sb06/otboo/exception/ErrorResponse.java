@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.user.dto.response;
+package codeit.sb06.otboo.exception;
 
 import java.util.HashMap;
 import java.util.Map;
