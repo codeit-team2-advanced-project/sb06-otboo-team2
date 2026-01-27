@@ -26,8 +26,9 @@ public class AuthServiceImpl {
     private final JwtRegistry jwtRegistry;
     private final UserDetailsService userDetailsService;
 
-    public JwtDto refreshToken(String refreshToken) {
-        if(!jwtTokenProvider.validateRefreshToken(refreshToken) || jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+    public JwtInformation refreshToken(String refreshToken) {
+        if(!jwtTokenProvider.validateRefreshToken(refreshToken)
+            || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             throw new InvalidTokenException("Invalid refresh token");
         }
 
@@ -51,10 +52,7 @@ public class AuthServiceImpl {
 
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            return new JwtDto(
-                otbooUserDetails.getUserDto(),
-                newAccessToken
-            );
+            return newJwtInformation;
         } catch (JOSEException e){
             log.error("failed to generate new JWT tokens for user: {}", userEmail, e);
             throw new RootException("Failed to generate new tokens", e);

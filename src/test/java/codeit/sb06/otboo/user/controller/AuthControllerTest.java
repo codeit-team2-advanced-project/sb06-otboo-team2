@@ -1,0 +1,65 @@
+package codeit.sb06.otboo.user.controller;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import codeit.sb06.otboo.security.dto.JwtInformation;
+import codeit.sb06.otboo.security.jwt.JwtRegistry;
+import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
+import codeit.sb06.otboo.user.dto.UserDto;
+import codeit.sb06.otboo.user.service.AuthServiceImpl;
+import jakarta.servlet.http.Cookie;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(AuthController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class AuthControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private AuthServiceImpl authServiceImpl;
+
+    @MockBean
+    private JwtRegistry jwtRegistry;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Test
+    void refreshSetsNewRefreshCookieAndReturnsAccessToken() throws Exception {
+        UserDto userDto = new UserDto(
+            UUID.randomUUID(),
+            "user@example.com",
+            "User",
+            null,
+            "USER",
+            false
+        );
+        JwtInformation info = new JwtInformation(userDto, "access-new", "refresh-new");
+
+        when(authServiceImpl.refreshToken(eq("refresh-old"))).thenReturn(info);
+        when(jwtTokenProvider.generateRefreshTokenCookie(eq("refresh-new")))
+            .thenReturn(new Cookie("REFRESH_TOKEN", "refresh-new"));
+
+        mockMvc.perform(
+                post("/api/auth/refresh")
+                    .cookie(new Cookie("REFRESH_TOKEN", "refresh-old"))
+            )
+            .andExpect(status().isOk())
+            .andExpect(cookie().value("REFRESH_TOKEN", "refresh-new"))
+            .andExpect(jsonPath("$.accessToken").value("access-new"))
+            .andExpect(jsonPath("$.userDto.email").value("user@example.com"));
+    }
+}
