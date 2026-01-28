@@ -11,9 +11,11 @@ import codeit.sb06.otboo.message.service.ChatRoomService;
 import codeit.sb06.otboo.message.service.DirectMessageService;
 import codeit.sb06.otboo.user.entity.Users;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -41,6 +43,8 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 .build();
 
         DirectMessage saved = directMessageRepository.save(dm);
+
+        log.info("DM 저장: {}", saved);
 
         // 알림 이벤트 발행
 
