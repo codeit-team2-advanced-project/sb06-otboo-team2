@@ -20,7 +20,7 @@ public class ChatMember {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "chatroom_id", nullable = false)
+    @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
     @ManyToOne

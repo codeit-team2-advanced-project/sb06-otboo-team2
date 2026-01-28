@@ -33,7 +33,7 @@ public class DirectMessage {
     private Users sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom_id", nullable = false)
+    @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
     @Column(nullable = false)
