@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
-// 외부에서는 빌더로만 생성하도록 설정
+// 아무 인자도 받지 않는 외부 생성 막음
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
