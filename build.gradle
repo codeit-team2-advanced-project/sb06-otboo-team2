@@ -31,7 +31,8 @@ sonar {
                 "**/Q*.java",                       // Querydsl 생성 파일
                 "**/*Request.java",
                 "**/*Response.java",
-                "**/*Exception.java"
+                "**/*Exception.java",
+                "**/enums/**"
         ].join(",")
     }
 }
