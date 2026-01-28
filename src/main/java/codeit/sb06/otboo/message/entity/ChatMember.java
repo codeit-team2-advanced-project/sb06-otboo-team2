@@ -10,7 +10,7 @@ import java.util.UUID;
 @Table(name = "chat_members")
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ChatMember {
 

@@ -2,10 +2,7 @@ package codeit.sb06.otboo.message.entity;
 
 import codeit.sb06.otboo.user.entity.Users;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,7 +13,9 @@ import java.util.UUID;
 @Table(name = "direct_messages")
 @Getter
 @Builder
-@NoArgsConstructor
+@ToString
+// 외부에서는 빌더로만 생성하도록 설정
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class DirectMessage {
