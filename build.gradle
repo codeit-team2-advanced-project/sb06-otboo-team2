@@ -32,7 +32,8 @@ sonar {
                 "**/*Request.java",
                 "**/*Response.java",
                 "**/*Exception.java",
-                "**/enums/**"
+                "**/enums/**",
+                "**/*Event.java",
         ].join(",")
     }
 }
