@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import codeit.sb06.otboo.user.dto.JwtInformation;
+import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;

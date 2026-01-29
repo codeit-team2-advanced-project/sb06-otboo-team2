@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.security;
 
-import codeit.sb06.otboo.user.dto.response.ErrorResponse;
+import codeit.sb06.otboo.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
