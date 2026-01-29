@@ -7,6 +7,7 @@ import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.message.service.impl.DirectMessageServiceImpl;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.Users;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.util.EasyRandomUtil;
@@ -41,6 +42,9 @@ class DirectMessageServiceImplTest {
 
     @Mock
     private ChatRoomService chatRoomService;
+
+    @Mock
+    private NotificationEventPublisher notificationEventPublisher;
 
     // 실제 변환을 위해 spy 사용
     @Spy
