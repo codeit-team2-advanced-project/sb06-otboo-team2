@@ -13,8 +13,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -35,6 +37,8 @@ class DirectMessageRepositoryTest {
     @BeforeEach
     void setUp() {
         Users sender = new Users();
+        // 유저 아이디 생성 전략 없으므로 임시로 ReflectionTestUtils 사용
+        ReflectionTestUtils.setField(sender, "id", UUID.randomUUID());
         em.persist(sender);
 
         String dmKey = "uuid_test_dm_key";
