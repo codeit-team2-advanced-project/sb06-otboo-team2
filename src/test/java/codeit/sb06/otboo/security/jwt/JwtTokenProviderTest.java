@@ -121,7 +121,7 @@ class JwtTokenProviderTest {
             120_000
         );
 
-        assertEquals("refreshToken", provider.generateRefreshTokenCookie("token").getName());
+        assertEquals("REFRESH_TOKEN", provider.generateRefreshTokenCookie("token").getName());
         assertEquals(0, provider.generateRefreshTokenExpirationCookie().getMaxAge());
     }
 }

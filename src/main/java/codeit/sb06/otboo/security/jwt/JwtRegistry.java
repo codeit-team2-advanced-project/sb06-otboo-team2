@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.security.jwt;
 
-import codeit.sb06.otboo.user.dto.JwtInformation;
+import codeit.sb06.otboo.security.dto.JwtInformation;
 import java.util.UUID;
 
 public interface JwtRegistry {

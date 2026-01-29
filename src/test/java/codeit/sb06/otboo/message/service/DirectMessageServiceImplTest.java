@@ -2,9 +2,11 @@ package codeit.sb06.otboo.message.service;
 
 import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.message.dto.request.DirectMessageCreateRequest;
+import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
+import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.message.service.impl.DirectMessageServiceImpl;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
@@ -19,13 +21,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
-
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -45,6 +50,9 @@ class DirectMessageServiceImplTest {
 
     @Mock
     private NotificationEventPublisher notificationEventPublisher;
+
+    @Mock
+    private ChatRoomRepository chatRoomRepository;
 
     // 실제 변환을 위해 spy 사용
     @Spy
@@ -75,6 +83,40 @@ class DirectMessageServiceImplTest {
         assertAll(
                 () -> assertThat(dmDto).isNotNull(),
                 () -> assertThat(dmDto.content()).isEqualTo(request.content())
+        );
+    }
+
+    @Test
+    @DisplayName("Direct Message 커서 페이지네이션 조회 테스트를 성공한다.")
+    void getDirectMessagesWithCursorTest() {
+        // given
+        UUID myUserId = UUID.randomUUID();
+        UUID senderId = UUID.randomUUID();
+        int limit = 10;
+        ChatRoom mockChatRoom = mock(ChatRoom.class);
+        List<DirectMessage> directMessages = easyRandom.objects(DirectMessage.class, limit + limit).toList();
+        List<DirectMessage> expectedMessages = directMessages.subList(0, limit + 1);
+
+        given(chatRoomRepository.findByDmKey(anyString()))
+                .willReturn(Optional.of(mockChatRoom));
+        given(directMessageRepository.findByChatRoomWithCursor(
+                mockChatRoom, null, null, PageRequest.of(0, limit + 1)))
+                .willReturn(expectedMessages);
+        given(directMessageRepository.countByChatRoom(mockChatRoom))
+                .willReturn(100L);
+
+        // when
+        DirectMessageDtoCursorResponse response = directMessageService.getDirectMessages(
+                myUserId,
+                senderId,
+                null,
+                null,
+                limit);
+
+        // then
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.data()).hasSize(limit)
         );
     }
 }

@@ -1,5 +1,6 @@
-package codeit.sb06.otboo.user.dto;
+package codeit.sb06.otboo.security.dto;
 
+import codeit.sb06.otboo.user.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
