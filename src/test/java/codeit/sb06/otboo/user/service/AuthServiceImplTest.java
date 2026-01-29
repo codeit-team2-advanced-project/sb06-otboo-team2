@@ -15,7 +15,8 @@ import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;
-import codeit.sb06.otboo.user.repository.UsersRepository;
+import codeit.sb06.otboo.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,7 @@ class AuthServiceImplTest {
 
     @Test
     void refreshTokenRotatesAndReturnsNewInformation() throws Exception {
-        UsersRepository userRepository = mock(UsersRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = mock(JwtRegistry.class);
         UserDetailsService userDetailsService = mock(UserDetailsService.class);
@@ -45,8 +46,7 @@ class AuthServiceImplTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
+            LocalDateTime.of(2026, 1, 1, 0, 0),
             "USER",
             false
         );
@@ -67,7 +67,7 @@ class AuthServiceImplTest {
 
     @Test
     void refreshTokenThrowsWhenTokenInvalid() {
-        UsersRepository userRepository = mock(UsersRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = mock(JwtRegistry.class);
         UserDetailsService userDetailsService = mock(UserDetailsService.class);
@@ -87,7 +87,7 @@ class AuthServiceImplTest {
 
     @Test
     void refreshTokenThrowsWhenUserDetailsInvalid() {
-        UsersRepository userRepository = mock(UsersRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = mock(JwtRegistry.class);
         UserDetailsService userDetailsService = mock(UserDetailsService.class);

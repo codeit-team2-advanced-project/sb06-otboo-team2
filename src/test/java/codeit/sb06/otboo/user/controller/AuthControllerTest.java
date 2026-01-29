@@ -11,14 +11,17 @@ import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;
+import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.service.AuthServiceImpl;
 import jakarta.servlet.http.Cookie;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthController.class)
@@ -28,13 +31,13 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private AuthServiceImpl authServiceImpl;
 
-    @MockBean
+    @MockitoBean
     private JwtRegistry jwtRegistry;
 
-    @MockBean
+    @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @Test
@@ -42,9 +45,8 @@ class AuthControllerTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            Role.USER.name(),
             false
         );
         JwtInformation info = new JwtInformation(userDto, "access-new", "refresh-new");

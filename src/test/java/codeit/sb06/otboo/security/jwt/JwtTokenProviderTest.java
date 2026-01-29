@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.user.entity.Role;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -25,9 +27,8 @@ class JwtTokenProviderTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
@@ -52,10 +53,9 @@ class JwtTokenProviderTest {
 
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
-            "refresh@example.com",
-            "User",
-            null,
-            "USER",
+            "user@example.com",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
@@ -64,7 +64,7 @@ class JwtTokenProviderTest {
 
         assertTrue(provider.validateRefreshToken(refreshToken));
         assertFalse(provider.validateAccessToken(refreshToken));
-        assertEquals("refresh@example.com", provider.getUserNameFromToken(refreshToken));
+        assertEquals("user@example.com", provider.getUserNameFromToken(refreshToken));
         assertEquals(userDto.id(), provider.getUserId(refreshToken));
     }
 
@@ -86,9 +86,8 @@ class JwtTokenProviderTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");

@@ -9,6 +9,8 @@ import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
+import codeit.sb06.otboo.user.entity.Role;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +21,8 @@ class InMemoryJwtRegistryTest {
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         InMemoryJwtRegistry registry = new InMemoryJwtRegistry(1, tokenProvider);
 
-        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", "User", null, "USER", false);
+        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", LocalDateTime.now(),
+            Role.USER.name(), false);
         JwtInformation first = new JwtInformation(userDto, "access-1", "refresh-1");
         JwtInformation second = new JwtInformation(userDto, "access-2", "refresh-2");
 
@@ -35,7 +38,7 @@ class InMemoryJwtRegistryTest {
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         InMemoryJwtRegistry registry = new InMemoryJwtRegistry(2, tokenProvider);
 
-        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", "User", null, "USER", false);
+        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", LocalDateTime.now(), Role.USER.name(), false);
         JwtInformation original = new JwtInformation(userDto, "access-old", "refresh-old");
         JwtInformation replacement = new JwtInformation(userDto, "access-new", "refresh-new");
 
@@ -52,7 +55,7 @@ class InMemoryJwtRegistryTest {
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         InMemoryJwtRegistry registry = new InMemoryJwtRegistry(2, tokenProvider);
 
-        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", "User", null, "USER", false);
+        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", LocalDateTime.now(), Role.USER.name(), false);
         JwtInformation info = new JwtInformation(userDto, "access", "refresh");
         registry.registerJwtInformation(info);
 
@@ -71,7 +74,7 @@ class InMemoryJwtRegistryTest {
         JwtTokenProvider tokenProvider = mock(JwtTokenProvider.class);
         InMemoryJwtRegistry registry = new InMemoryJwtRegistry(2, tokenProvider);
 
-        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", "User", null, "USER", false);
+        UserDto userDto = new UserDto(UUID.randomUUID(), "user@example.com", LocalDateTime.now(), Role.USER.name(),false);
         JwtInformation info = new JwtInformation(userDto, "access", "refresh");
         registry.registerJwtInformation(info);
 
