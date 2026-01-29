@@ -6,6 +6,7 @@ import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.message.service.ChatRoomService;
 import codeit.sb06.otboo.message.service.DirectMessageService;
@@ -25,6 +26,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private final UserRepository userRepository;
     private final ChatRoomService chatRoomService;
     private final DirectMessageMapper directMessageMapper;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     @Override
     public DirectMessageDto create(DirectMessageCreateRequest request) {
@@ -46,7 +48,10 @@ public class DirectMessageServiceImpl implements DirectMessageService {
 
         log.info("DM 저장: {}", saved);
 
-        // 알림 이벤트 발행
+        notificationEventPublisher.publishDirectMessageCreatedEvent(
+                receiver.getId(),
+                sender.getName(),
+                request.content());
 
         return directMessageMapper.toDto(saved, receiver);
     }
