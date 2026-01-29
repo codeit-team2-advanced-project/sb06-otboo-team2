@@ -41,7 +41,6 @@ public class KakaoLocationClient {
     }
 
     KakaoRegionDocument picked = docs.stream()
-        .filter(d -> "H".equals(d.regionType()))
         .findFirst()
         .orElse(docs.get(0));
 

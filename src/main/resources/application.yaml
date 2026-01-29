@@ -36,3 +36,8 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+kakao:
+  key: ${KAKAO_KEY}
+openweather:
+  key: ${OPENWEATHER_KEY}
