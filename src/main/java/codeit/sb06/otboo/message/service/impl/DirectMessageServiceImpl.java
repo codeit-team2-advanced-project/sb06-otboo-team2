@@ -57,7 +57,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
 
         log.info("DM 저장: {}", saved);
 
-        notificationEventPublisherImpl.publishDirectMessageCreatedEvent(
+        notificationEventPublisher.publishDirectMessageCreatedEvent(
                 receiver.getId(),
                 sender.getName(),
                 request.content());
