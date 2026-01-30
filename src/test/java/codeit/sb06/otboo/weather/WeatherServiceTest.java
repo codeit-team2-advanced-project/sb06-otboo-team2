@@ -80,4 +80,91 @@ class WeatherServiceTest {
     assertThat(result.windSpeed().asWord()).isEqualTo(WindStrength.WEAK);
     assertThat(result.forecastAt().getEpochSecond()).isEqualTo(1700000000L);
   }
+
+  @Test
+  void 비_오는_경우_강수와_하늘상태를_매핑한다() throws Exception {
+    // given
+    double lat = 37.5665;
+    double lon = 126.9780;
+
+    LocationDto location = new LocationDto(
+        lat, lon, 127.0, 37.5, List.of("서울특별시 중구")
+    );
+
+    String openWeatherJson = """
+      {
+        "main": {
+          "temp": 12.0,
+          "temp_min": 10.0,
+          "temp_max": 13.0,
+          "humidity": 70
+        },
+        "weather": [
+          { "main": "Rain" }
+        ],
+        "wind": { "speed": 5.0 },
+        "rain": { "1h": 2.5 },
+        "dt": 1700000100
+      }
+    """;
+
+    JsonNode openWeatherNode = new ObjectMapper().readTree(openWeatherJson);
+
+    given(kakaoLocationClient.resolveLocationSafely(lon, lat))
+        .willReturn(location);
+
+    given(openWeatherClient.fetchCurrentWeatherJson(lat, lon))
+        .willReturn(openWeatherNode);
+
+    // when
+    WeatherResponseDto result =
+        weatherService.getCurrentWeather(lon, lat);
+
+    // then
+    assertThat(result.precipitation().type()).isEqualTo(PrecipitationType.RAIN);
+    assertThat(result.precipitation().amount()).isEqualTo(2.5);
+    assertThat(result.skyStatus()).isEqualTo(SkyStatus.MOSTLY_CLOUDY);
+  }
+
+  @Test
+  void 바람세기_경계값을_매핑한다() throws Exception {
+    // given
+    double lat = 37.5665;
+    double lon = 126.9780;
+
+    LocationDto location = new LocationDto(
+        lat, lon, 127.0, 37.5, List.of("서울특별시 중구")
+    );
+
+    String openWeatherJson = """
+      {
+        "main": {
+          "temp": 10.0,
+          "temp_min": 9.0,
+          "temp_max": 12.0,
+          "humidity": 60
+        },
+        "weather": [
+          { "main": "Clear" }
+        ],
+        "wind": { "speed": 8.0 },
+        "dt": 1700000200
+      }
+    """;
+
+    JsonNode openWeatherNode = new ObjectMapper().readTree(openWeatherJson);
+
+    given(kakaoLocationClient.resolveLocationSafely(lon, lat))
+        .willReturn(location);
+
+    given(openWeatherClient.fetchCurrentWeatherJson(lat, lon))
+        .willReturn(openWeatherNode);
+
+    // when
+    WeatherResponseDto result =
+        weatherService.getCurrentWeather(lon, lat);
+
+    // then
+    assertThat(result.windSpeed().asWord()).isEqualTo(WindStrength.STRONG);
+  }
 }

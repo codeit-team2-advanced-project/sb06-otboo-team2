@@ -18,12 +18,6 @@ public class WeatherController {
 
   private final WeatherService weatherService;
 
-  @PostConstruct
-  public void checkEnv() {
-    System.out.println("ENV KAKAO_KEY=" + System.getenv("KAKAO_KEY"));
-    System.out.println("PROP kakao.key=" + System.getProperty("kakao.key"));
-  }
-
   @GetMapping
   public ResponseEntity<WeatherResponseDto> getCurrentWeather(
       @RequestParam double longitude,
