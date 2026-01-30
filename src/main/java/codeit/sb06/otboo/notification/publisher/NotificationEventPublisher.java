@@ -9,7 +9,7 @@ public interface NotificationEventPublisher {
     void publishRoleUpdatedEvent(UUID targetId, Role role);
     void publishClothesAttributeAddedEvent(UUID targetId, String attributeName);
     void publishFeedLikedEvent(UUID targetId, String feedTitle, String likerName);
-    void publishFeedCommentedEvent(UUID targetId, String feedTitle, String content);
+    void publishFeedCommentedEvent(UUID targetId, String commenterName, String feedTitle, String content);
     void publishFolloweeFeedPostedEvent(UUID targetId, String followeeName, String feedTitle);
     void publishFollowedEvent(UUID targetId, String followerName);
 }

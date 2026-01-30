@@ -61,10 +61,11 @@ public class NotificationEventPublisherImpl implements NotificationEventPublishe
     }
 
     @Override
-    public void publishFeedCommentedEvent(UUID targetId, String feedTitle, String content) {
+    public void publishFeedCommentedEvent(UUID targetId, String commenterName,String feedTitle, String content) {
 
         FeedCommentedEvent event = FeedCommentedEvent.builder()
                 .targetId(targetId)
+                .commenterName(commenterName)
                 .feedTitle(feedTitle)
                 .content(content)
                 .build();
