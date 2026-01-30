@@ -15,7 +15,7 @@ import java.util.UUID;
 public class NotificationMapper {
 
     public static final String CURSOR_SORT_BY = "createdAt";
-    public static final SortDirection CURSOR_SORT_DIRECTION = SortDirection.DESCENDING;
+    public static final SortDirection CURSOR_SORT_DIRECTION = SortDirection.ASCENDING;
 
     public NotificationDto toDto(Notification notification) {
 

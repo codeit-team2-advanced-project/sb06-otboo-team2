@@ -63,8 +63,8 @@ class NotificationRepositoryTest {
         // then
         assertAll(
                 () -> assertThat(firstPage).hasSize(10),
-                () -> assertThat(firstPageContents.get(0).getContent()).isEqualTo("알림 내용 20"),
-                () -> assertThat(firstPageContents.get(9).getContent()).isEqualTo("알림 내용 11")
+                () -> assertThat(firstPageContents.get(0).getContent()).isEqualTo("알림 내용 1"),
+                () -> assertThat(firstPageContents.get(9).getContent()).isEqualTo("알림 내용 10")
         );
     }
 }
