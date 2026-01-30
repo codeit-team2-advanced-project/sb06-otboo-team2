@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
-
+//
 @Builder(access = AccessLevel.PRIVATE)
 public record ProfileDto(
     UUID userId,
