@@ -4,7 +4,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
-@Validated
+
 public record ClothesAttributeDefUpdateRequest(
         String name,
         List<String> selectableValues
