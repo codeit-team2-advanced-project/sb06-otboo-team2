@@ -2,11 +2,13 @@ package codeit.sb06.otboo.exception.user;
 
 public class UserAlreadyExistException extends UserException{
 
-    public UserAlreadyExistException(String message) {
-        super(message);
+    private static final String DEFAULT_MESSAGE = "User already exists";
+
+    public UserAlreadyExistException() {
+        super(DEFAULT_MESSAGE, 400);
     }
 
-    public UserAlreadyExistException(String message, Throwable cause) {
-        super(message, cause);
+    public UserAlreadyExistException(Throwable cause) {
+        super(DEFAULT_MESSAGE, cause, 400);
     }
 }

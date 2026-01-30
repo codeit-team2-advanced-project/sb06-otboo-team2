@@ -2,11 +2,13 @@ package codeit.sb06.otboo.exception.user;
 
 public class UserNotFoundException extends UserException{
 
-    public UserNotFoundException(String message) {
-        super(message);
+    private static final String DEFAULT_MESSAGE = "User not found";
+
+    public UserNotFoundException() {
+        super(DEFAULT_MESSAGE, 404);
     }
 
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    public UserNotFoundException(Throwable cause) {
+        super(DEFAULT_MESSAGE, cause, 404);
     }
 }

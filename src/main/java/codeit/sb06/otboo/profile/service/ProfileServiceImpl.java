@@ -21,7 +21,7 @@ public class ProfileServiceImpl {
     public ProfileDto create(User user){
         log.debug("create profile start: {}", user.getId());
         if(userRepository.findByEmail(user.getEmail()).isEmpty()){
-            throw new UserNotFoundException("user not found");
+            throw new UserNotFoundException();
         }
 
         Profile profile = Profile.from(user);

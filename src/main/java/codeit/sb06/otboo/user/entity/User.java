@@ -60,4 +60,12 @@ public class User {
     public void setEncryptPassword(PasswordEncoder passwordEncoder, String rawPassword) {
         this.password = passwordEncoder.encode(rawPassword);
     }
+
+    public void changeRole(Role role) {
+        this.role = role;
+    }
+
+    public void changeLockStatus(boolean isLocked) {
+        this.isLocked = isLocked;
+    }
 }

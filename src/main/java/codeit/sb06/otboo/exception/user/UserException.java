@@ -4,11 +4,11 @@ import codeit.sb06.otboo.exception.RootException;
 
 public class UserException extends RootException {
 
-    public UserException(String message) {
-        super(message);
+    public UserException(String message, int status) {
+        super(message, status);
     }
 
-    public UserException(String message, Throwable cause) {
-        super(message, cause);
+    public UserException(String message, Throwable cause, int status) {
+        super(message, cause, status);
     }
 }

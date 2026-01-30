@@ -28,14 +28,14 @@ public class AuthServiceImpl {
     public JwtInformation refreshToken(String refreshToken) {
         if(!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new InvalidTokenException();
         }
 
         String userEmail = jwtTokenProvider.getUserNameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
         if(!(userDetails instanceof OtbooUserDetails otbooUserDetails)){
-            throw new InvalidUserDetailException("Invalid user details");
+            throw new InvalidUserDetailException();
         }
 
         try{
@@ -54,7 +54,7 @@ public class AuthServiceImpl {
             return newJwtInformation;
         } catch (JOSEException e){
             log.error("failed to generate new JWT tokens for user: {}", userEmail, e);
-            throw new RootException("Failed to generate new tokens", e);
+            throw new RootException("Failed to generate new tokens", e, 401);
         }
 
     }
