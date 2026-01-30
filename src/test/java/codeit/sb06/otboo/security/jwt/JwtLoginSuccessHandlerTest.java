@@ -10,10 +10,13 @@ import static org.mockito.Mockito.when;
 import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.user.entity.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,7 +31,7 @@ class JwtLoginSuccessHandlerTest {
 
     @Test
     void writesJwtResponseAndRegistersInformation() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         JwtTokenProvider tokenProvider = Mockito.mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
         JwtLoginSuccessHandler handler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
@@ -36,9 +39,8 @@ class JwtLoginSuccessHandlerTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
@@ -72,7 +74,7 @@ class JwtLoginSuccessHandlerTest {
 
     @Test
     void writesErrorResponseWhenTokenGenerationFails() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         JwtTokenProvider tokenProvider = Mockito.mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
         JwtLoginSuccessHandler handler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
@@ -80,9 +82,8 @@ class JwtLoginSuccessHandlerTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");

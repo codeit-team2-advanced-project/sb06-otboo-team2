@@ -4,11 +4,10 @@ import codeit.sb06.otboo.exception.RootException;
 import codeit.sb06.otboo.exception.auth.InvalidTokenException;
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;
 import codeit.sb06.otboo.security.OtbooUserDetails;
-import codeit.sb06.otboo.security.dto.JwtDto;
 import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
-import codeit.sb06.otboo.user.repository.UsersRepository;
+import codeit.sb06.otboo.user.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl {
 
-    private final UsersRepository userRepository;
+    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
     private final UserDetailsService userDetailsService;
@@ -29,14 +28,14 @@ public class AuthServiceImpl {
     public JwtInformation refreshToken(String refreshToken) {
         if(!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new InvalidTokenException();
         }
 
         String userEmail = jwtTokenProvider.getUserNameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
         if(!(userDetails instanceof OtbooUserDetails otbooUserDetails)){
-            throw new InvalidUserDetailException("Invalid user details");
+            throw new InvalidUserDetailException();
         }
 
         try{
@@ -55,7 +54,7 @@ public class AuthServiceImpl {
             return newJwtInformation;
         } catch (JOSEException e){
             log.error("failed to generate new JWT tokens for user: {}", userEmail, e);
-            throw new RootException("Failed to generate new tokens", e);
+            throw new RootException("Failed to generate new tokens", e, 401);
         }
 
     }

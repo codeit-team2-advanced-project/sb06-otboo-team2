@@ -6,7 +6,7 @@ import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.repository.ChatMemberRepository;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -73,8 +73,8 @@ class DirectMessageWebSocketControllerTest {
     void sendDirectMessageTest() throws Exception {
 
         // 0. 테스트용 유저 생성
-        Users sender = userRepository.save(new Users());
-        Users receiver = userRepository.save(new Users());
+        User sender = userRepository.save(new User());
+        User receiver = userRepository.save(new User());
 
         // 1. 연결 세션 확보
         String url = "ws://localhost:" + port + "/ws/websocket"; // 서버의 WebSocket 엔드포인트 + with SockJS

@@ -11,7 +11,9 @@ import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.user.entity.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -50,9 +52,8 @@ class JwtAuthenticationFilterTest {
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
             "user@example.com",
-            "User",
-            null,
-            "USER",
+            LocalDateTime.now(),
+            Role.USER.name(),
             false
         );
         UserDetails userDetails = new OtbooUserDetails(userDto, "password");

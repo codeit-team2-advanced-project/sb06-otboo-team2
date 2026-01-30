@@ -1,9 +1,12 @@
 package codeit.sb06.otboo.user.repository;
 
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
+public interface UserRepository extends JpaRepository<User, UUID>, UserRepositoryCustom{
 
-public interface UserRepository extends JpaRepository<Users, UUID> {
+    Optional<User> findByEmail(String email);
+
 }

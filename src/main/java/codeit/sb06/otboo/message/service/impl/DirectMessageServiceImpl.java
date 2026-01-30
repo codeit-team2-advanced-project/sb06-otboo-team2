@@ -8,12 +8,12 @@ import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
+import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisherImpl;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.message.service.ChatRoomService;
 import codeit.sb06.otboo.message.service.DirectMessageService;
-import codeit.sb06.otboo.user.entity.Users;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -40,9 +40,9 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     @Override
     public DirectMessageDto create(DirectMessageCreateRequest request) {
 
-        Users sender = userRepository.findById(request.senderId())
+        User sender = userRepository.findById(request.senderId())
                 .orElseThrow(()-> new IllegalArgumentException("Sender not found"));
-        Users receiver = userRepository.findById(request.receiverId())
+        User receiver = userRepository.findById(request.receiverId())
                 .orElseThrow(()-> new IllegalArgumentException("Receiver not found"));
 
         ChatRoom chatRoom = chatRoomService.getOrCreatePrivateRoom(request.senderId(), request.receiverId());
