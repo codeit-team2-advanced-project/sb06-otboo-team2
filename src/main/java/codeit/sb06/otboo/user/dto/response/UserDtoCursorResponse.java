@@ -27,7 +27,7 @@ public record UserDtoCursorResponse(
 
         String nextCursor = null;
         String nextIdAfter = null;
-        if (!slice.getContent().isEmpty()) {
+        if (slice.hasNext() && !slice.getContent().isEmpty()) {
             User last = slice.getContent().get(slice.getContent().size() - 1);
             nextCursor = cursorValue(last, sortBy);
             nextIdAfter = last.getId() == null ? null : last.getId().toString();
