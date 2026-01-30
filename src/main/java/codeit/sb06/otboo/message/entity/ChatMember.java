@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.message.entity;
 
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +25,5 @@ public class ChatMember {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private User user;
 }

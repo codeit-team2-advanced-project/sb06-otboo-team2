@@ -5,7 +5,7 @@ import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.enums.SortDirection;
 import codeit.sb06.otboo.user.dto.UserSummary;
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public class DirectMessageMapper {
     public static final String CURSOR_SORT_BY = "createdAt";
     public static final SortDirection CURSOR_SORT_DIRECTION = SortDirection.DESCENDING;
 
-    public DirectMessageDto toDto(DirectMessage dm, Users receiver) {
+    public DirectMessageDto toDto(DirectMessage dm, User receiver) {
 
         UserSummary senderSummary = UserSummary.builder()
                 .userId(dm.getId())
