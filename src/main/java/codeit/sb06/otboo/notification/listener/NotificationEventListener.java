@@ -17,7 +17,7 @@ public class NotificationEventListener {
     private final NotificationService notificationService;
 
     @TransactionalEventListener
-    void handleDirectMessageCreatedEvent(DirectMessageCreatedEvent event) {
+    public void handleDirectMessageCreatedEvent(DirectMessageCreatedEvent event) {
 
         String title = event.senderName() + "님이 메시지를 보냈습니다.";
 
@@ -25,7 +25,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
+    public void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
 
         String title = "나의 권한이 " + event.role().name() + "(으)로 변경되었습니다.";
 
@@ -33,7 +33,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleClothesAttributeAddedEvent(ClothesAttributeAddedEvent event) {
+    public void handleClothesAttributeAddedEvent(ClothesAttributeAddedEvent event) {
 
         String title = event.attributeName() + " 의상 속성이 추가되었습니다.";
 
@@ -41,7 +41,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleFeedLikedEvent(FeedLikedEvent event) {
+    public void handleFeedLikedEvent(FeedLikedEvent event) {
 
         String title = event.feedTitle() + " 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.";
 
@@ -49,7 +49,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleFeedCommentedEvent(FeedCommentedEvent event) {
+    public void handleFeedCommentedEvent(FeedCommentedEvent event) {
 
         String title = event.commenterName() + "님이 " + event.feedTitle() + " 피드에 댓글을 달았습니다.";
 
@@ -57,7 +57,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleFolloweeFeedPostedEvent(FolloweeFeedPostedEvent event) {
+    public void handleFolloweeFeedPostedEvent(FolloweeFeedPostedEvent event) {
 
         String title = event.followeeName() + "님이 " + event.feedTitle() + " 피드를 게시했습니다.";
 
@@ -65,7 +65,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener
-    void handleFollowedEvent(FollowedEvent event) {
+    public void handleFollowedEvent(FollowedEvent event) {
 
         String title = event.followerName() + "님이 회원님을 팔로우했습니다.";
 
