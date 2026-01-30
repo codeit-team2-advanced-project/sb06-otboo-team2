@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.feed.entity;
 
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -43,7 +43,7 @@ public class Feed {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author",nullable = false)
-  private Users user;
+  private User user;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -58,7 +58,7 @@ public class Feed {
       String content,
       Long likeCount,
       int commentCount,
-      Users user
+      User user
   ){
     this.content = content;
     this.likeCount = likeCount;
