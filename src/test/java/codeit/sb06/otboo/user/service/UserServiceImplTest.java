@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.exception.user.UserAlreadyExistException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
@@ -141,5 +142,69 @@ class UserServiceImplTest {
         assertEquals(userB.getCreatedAt().toString(), response.nextCursor());
         assertEquals(2, response.totalCount());
         assertEquals(true, response.hasNext());
+    }
+
+    @Test
+    void changeUserRoleUpdatesRoleAndSaves() {
+        UUID userId = UUID.randomUUID();
+        User user = new User(
+            userId,
+            "user@example.com",
+            "name",
+            Role.USER,
+            false,
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            null,
+            "password"
+        );
+        when(userRepository.findById(eq(userId))).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto result = userService.changeUserRole(userId, Role.ADMIN.name());
+
+        assertEquals(Role.ADMIN.name(), result.role());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void changeUserRoleThrowsWhenUserMissing() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(eq(userId))).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+            () -> userService.changeUserRole(userId, Role.ADMIN.name()));
+    }
+
+    @Test
+    void changeLockStatusUpdatesUserAndSaves() {
+        UUID userId = UUID.randomUUID();
+        User user = new User(
+            userId,
+            "user@example.com",
+            "name",
+            Role.USER,
+            false,
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            null,
+            "password"
+        );
+        when(userRepository.findById(eq(userId))).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto result = userService.changeLockStatus(userId, true);
+
+        assertEquals(true, result.isLocked());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void changeLockStatusThrowsWhenUserMissing() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(eq(userId))).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+            () -> userService.changeLockStatus(userId, true));
     }
 }

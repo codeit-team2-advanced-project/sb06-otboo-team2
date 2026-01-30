@@ -7,7 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import codeit.sb06.otboo.config.WebMvcConfig;
+import codeit.sb06.otboo.security.CurrentUserIdArgumentResolver;
 import codeit.sb06.otboo.security.dto.JwtInformation;
+import codeit.sb06.otboo.security.RoleAuthorizationInterceptor;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;
@@ -20,12 +23,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import({
+    WebMvcConfig.class,
+    RoleAuthorizationInterceptor.class,
+    CurrentUserIdArgumentResolver.class
+})
 class AuthControllerTest {
 
     @Autowired
@@ -39,6 +51,17 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
+
+    @TestConfiguration
+    static class RoleHierarchyTestConfig {
+        @Bean
+        RoleHierarchy roleHierarchy() {
+            return RoleHierarchyImpl.withDefaultRolePrefix()
+                .role(Role.ADMIN.name())
+                .implies(Role.USER.name())
+                .build();
+        }
+    }
 
     @Test
     void refreshSetsNewRefreshCookieAndReturnsAccessToken() throws Exception {
