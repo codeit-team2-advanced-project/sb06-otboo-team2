@@ -3,6 +3,7 @@ package codeit.sb06.otboo.feed.entity;
 import codeit.sb06.otboo.user.entity.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,10 +19,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "feeds")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public class Feed {
 
@@ -55,15 +58,11 @@ public class Feed {
       String content,
       Long likeCount,
       int commentCount,
-      Users user,
-      LocalDateTime createdAt,
-      LocalDateTime updatedAt
+      Users user
   ){
     this.content = content;
     this.likeCount = likeCount;
     this.commentCount = commentCount;
     this.user = user;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 }
