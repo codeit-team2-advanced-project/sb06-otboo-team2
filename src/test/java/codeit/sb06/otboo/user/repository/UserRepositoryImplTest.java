@@ -30,6 +30,7 @@ class UserRepositoryImplTest {
     private UserRepository userRepository;
 
     private LocalDateTime baseTime;
+    private List<User> savedUsers;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +42,7 @@ class UserRepositoryImplTest {
             user("gamma@example.com", Role.ADMIN, false, baseTime.minusDays(2)),
             user("delta@example.com", Role.USER, true, baseTime.minusDays(1))
         );
-        userRepository.saveAll(users);
+        savedUsers = userRepository.saveAll(users);
     }
 
     @Test
@@ -83,6 +84,106 @@ class UserRepositoryImplTest {
         assertFalse(result.getContent().isEmpty());
         assertTrue(result.getContent().stream()
             .allMatch(user -> user.getEmail().compareToIgnoreCase("c") > 0));
+    }
+
+    @Test
+    void appliesCursorForUpdatedAtSort() {
+        String cursor = baseTime.minusDays(3).toString();
+        UserSliceRequest request = new UserSliceRequest(
+            cursor,
+            null,
+            10,
+            "updatedAt",
+            "ASC",
+            null,
+            null,
+            null
+        );
+
+        Slice<User> result = userRepository.findUsersBySlice(request);
+
+        assertFalse(result.getContent().isEmpty());
+        assertTrue(result.getContent().stream()
+            .allMatch(user -> user.getUpdatedAt().isAfter(baseTime.minusDays(3))));
+    }
+
+    @Test
+    void appliesCursorForRoleSort() {
+        UserSliceRequest request = new UserSliceRequest(
+            "ADMIN",
+            null,
+            10,
+            "role",
+            "ASC",
+            null,
+            null,
+            null
+        );
+
+        Slice<User> result = userRepository.findUsersBySlice(request);
+
+        assertFalse(result.getContent().isEmpty());
+        assertTrue(result.getContent().stream()
+            .allMatch(user -> user.getRole() == Role.USER));
+    }
+
+    @Test
+    void appliesCursorForIdSort() {
+        User target = savedUsers.stream()
+            .max((a, b) -> a.getId().compareTo(b.getId()))
+            .orElseThrow();
+        UserSliceRequest request = new UserSliceRequest(
+            target.getId().toString(),
+            null,
+            10,
+            "id",
+            "DESC",
+            null,
+            null,
+            null
+        );
+
+        Slice<User> result = userRepository.findUsersBySlice(request);
+
+        assertTrue(result.getContent().stream()
+            .allMatch(user -> !user.getId().equals(target.getId())));
+    }
+
+    @Test
+    void ignoresInvalidRoleAndIdAfter() {
+        UserSliceRequest request = new UserSliceRequest(
+            "invalid-date",
+            "not-a-uuid",
+            10,
+            "createdAt",
+            "DESC",
+            null,
+            "not-a-role",
+            null
+        );
+
+        Slice<User> result = userRepository.findUsersBySlice(request);
+
+        assertEquals(4, result.getContent().size());
+    }
+
+    @Test
+    void appliesDefaultSortAndLimit() {
+        UserSliceRequest request = new UserSliceRequest(
+            null,
+            null,
+            0,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
+        Slice<User> result = userRepository.findUsersBySlice(request);
+
+        assertEquals(4, result.getContent().size());
+        assertEquals(4, result.getNumberOfElements());
     }
 
     private User user(String email, Role role, boolean locked, LocalDateTime createdAt) {

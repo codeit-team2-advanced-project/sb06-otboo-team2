@@ -54,6 +54,24 @@ class CurrentUserIdArgumentResolverTest {
     }
 
     @Test
+    void supportsParameterWhenAnnotationPresentAndUuid() throws Exception {
+        MethodParameter parameter = methodParameter("endpoint", UUID.class);
+        assertEquals(true, resolver.supportsParameter(parameter));
+    }
+
+    @Test
+    void supportsParameterReturnsFalseWhenAnnotationMissing() throws Exception {
+        MethodParameter parameter = methodParameter("noAnnotation", UUID.class);
+        assertEquals(false, resolver.supportsParameter(parameter));
+    }
+
+    @Test
+    void supportsParameterReturnsFalseWhenTypeMismatch() throws Exception {
+        MethodParameter parameter = methodParameter("endpointString", String.class);
+        assertEquals(false, resolver.supportsParameter(parameter));
+    }
+
+    @Test
     void throwsWhenAuthenticationMissing() throws Exception {
         MethodParameter parameter = methodParameter("endpoint", UUID.class);
         assertThrows(InvalidUserDetailException.class, () ->
@@ -90,5 +108,9 @@ class CurrentUserIdArgumentResolverTest {
 
     static class TestController {
         public void endpoint(@CurrentUserId UUID userId) {}
+
+        public void noAnnotation(UUID userId) {}
+
+        public void endpointString(@CurrentUserId String userId) {}
     }
 }
