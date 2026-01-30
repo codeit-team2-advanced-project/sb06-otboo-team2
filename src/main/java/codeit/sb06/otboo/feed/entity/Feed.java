@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class Feed {
   private int commentCount = 0;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "author",nullable = false)
+  @JoinColumn(name = "author_id",nullable = false)
   private User user;
 
   @CreatedDate
@@ -61,4 +62,11 @@ public class Feed {
     this.content = content;
     this.user = user;
   }
+
+  @PrePersist
+  public void prePersist() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
 }
+
