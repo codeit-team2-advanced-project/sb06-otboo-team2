@@ -36,10 +36,10 @@ public class Feed {
   private String content;
 
   @Column(name = "like_count", nullable = false)
-  private Long likeCount;
+  private Long likeCount = 0L;
 
   @Column(name = "comment_count", nullable = false)
-  private int commentCount;
+  private int commentCount = 0;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author",nullable = false)
@@ -56,13 +56,9 @@ public class Feed {
   @Builder
   public Feed(
       String content,
-      Long likeCount,
-      int commentCount,
       User user
   ){
     this.content = content;
-    this.likeCount = likeCount;
-    this.commentCount = commentCount;
     this.user = user;
   }
 }
