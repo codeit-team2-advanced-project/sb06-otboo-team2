@@ -2,6 +2,23 @@ spring:
   application:
     name: otboo
 
+  websocket:
+    pool:
+      inbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      outbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      heartbeat:
+        pool-size: 1
+        await-termination-seconds: 10
+        period: 10000
+
 otboo:
   jwt:
     access-token:
@@ -10,7 +27,6 @@ otboo:
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
-
 
 management:
   endpoints:
