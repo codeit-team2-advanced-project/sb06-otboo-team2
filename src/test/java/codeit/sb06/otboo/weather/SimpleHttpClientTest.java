@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.client.RestClient;
 
 class SimpleHttpClientTest {
 
@@ -57,7 +58,7 @@ class SimpleHttpClientTest {
 
   @BeforeEach
   void setUp() {
-    client = new SimpleHttpClient();
+    client = new SimpleHttpClient(RestClient.builder());
     lastHeaderValue.set(null);
   }
 
