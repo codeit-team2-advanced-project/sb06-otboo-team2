@@ -5,7 +5,7 @@ import codeit.sb06.otboo.message.entity.ChatMember;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.repository.ChatMemberRepository;
 import codeit.sb06.otboo.message.service.impl.ChatMemberServiceImpl;
-import codeit.sb06.otboo.user.entity.Users;
+import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
@@ -43,7 +43,7 @@ class ChatMemberServiceImplTest {
     void createChatMemberTest() {
         //given
         ChatRoom chatRoom = mock(ChatRoom.class);
-        Users user = easyRandom.nextObject(Users.class);
+        User user = easyRandom.nextObject(User.class);
         ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
 
         given(userRepository.findById(any(UUID.class)))
