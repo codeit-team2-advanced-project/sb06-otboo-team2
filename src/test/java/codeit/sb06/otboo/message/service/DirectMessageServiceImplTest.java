@@ -10,6 +10,8 @@ import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.message.service.impl.DirectMessageServiceImpl;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.user.entity.Users;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
@@ -46,6 +48,9 @@ class DirectMessageServiceImplTest {
 
     @Mock
     private ChatRoomService chatRoomService;
+
+    @Mock
+    private NotificationEventPublisher notificationEventPublisher;
 
     @Mock
     private ChatRoomRepository chatRoomRepository;
