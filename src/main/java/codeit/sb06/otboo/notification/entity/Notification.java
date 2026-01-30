@@ -1,12 +1,11 @@
 package codeit.sb06.otboo.notification.entity;
 
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
-import codeit.sb06.otboo.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,6 +15,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Notification {
 
     @Id
