@@ -77,16 +77,10 @@ public class ClothesAttributeDefService {
         );
     }
     private String normalizeName(String raw) {
-        if (raw == null) throw new IllegalArgumentException("name은 필수입니다.");
-        String name = raw.trim();
-        if (name.isBlank()) throw new IllegalArgumentException("name은 비어있을 수 없습니다.");
-        if (name.length() > 100) throw new IllegalArgumentException("name은 100자 이하여야 합니다.");
-        return name;
+        return raw.trim();
     }
 
     private List<String> normalizeSelectableValues(List<String> raw) {
-        if (raw == null) throw new IllegalArgumentException("selectableValues는 필수입니다.");
-        if (raw.isEmpty()) throw new IllegalArgumentException("selectableValues는 최소 1개 이상이어야 합니다.");
 
         List<String> values = raw.stream()
                 .map(v -> v == null ? "" : v.trim())

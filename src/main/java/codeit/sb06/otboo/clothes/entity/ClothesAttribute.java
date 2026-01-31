@@ -5,21 +5,16 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "clothes_attribute",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_clothes_attribute_clothes_def",
-                        columnNames = {"clothes_id", "definition_id"}
-                )
-        }
-)
+@Table(name = "clothes_attribute")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public class ClothesAttribute {
 
@@ -39,7 +34,7 @@ public class ClothesAttribute {
     @Column(name = "value", nullable = false, length = 100)
     private String value;
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

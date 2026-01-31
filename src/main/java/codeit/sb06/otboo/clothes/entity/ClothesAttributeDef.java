@@ -8,6 +8,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,13 +18,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "clothes_attribute_def",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_clothes_attribute_def_name", columnNames = "name")
-        }
-)
+@Table(name = "clothes_attribute_def")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public class ClothesAttributeDef {
     @Id
@@ -36,11 +35,11 @@ public class ClothesAttributeDef {
     @Column(name = "selectable_values", nullable = false, columnDefinition = "jsonb")
     private List<String> selectableValues = new ArrayList<>();
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
