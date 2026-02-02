@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.comment.repository;
 
+import static codeit.sb06.otboo.comment.entity.QComment.comment;
+
 import codeit.sb06.otboo.comment.entity.Comment;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -15,6 +17,14 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
   @Override
   public List<Comment> findCommentListByCursor(UUID feedId, UUID idAfter, int limit) {
-    return List.of();
+    var query = jpaQueryFactory.selectFrom(comment)
+        .where(comment.feed.id.eq(feedId))
+        .orderBy(comment.createdAt.asc())
+        .limit(limit);
+
+    if(idAfter != null){
+      query = query.where(comment.id.gt(idAfter));
+    }
+    return query.fetch();
   }
 }
