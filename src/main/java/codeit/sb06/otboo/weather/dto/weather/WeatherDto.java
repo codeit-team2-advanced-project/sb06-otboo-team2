@@ -3,7 +3,7 @@ package codeit.sb06.otboo.weather.dto.weather;
 import java.time.Instant;
 import java.util.UUID;
 
-public record WeatherResponseDto(
+public record WeatherDto(
     UUID id,
     Instant forecastedAt,
     Instant forecastAt,
