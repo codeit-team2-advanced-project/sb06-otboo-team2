@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/feeds/{feedId}/comments")
+@RequestMapping("/api/feeds")
 @Tag(name = "Comment", description = "댓글 API")
 public class CommentController{
 
@@ -31,7 +31,7 @@ public class CommentController{
       @ApiResponse(responseCode = "400", description = "피드 댓글 등록 실패")
   })
 
-  @PostMapping
+  @PostMapping("/{feedId}/comments")
   public ResponseEntity<CommentDto> createComment(
       @Parameter(description = "피드 Id", required = true)
       @PathVariable UUID feedId,
