@@ -1,10 +1,15 @@
 package codeit.sb06.otboo.comment.entity;
 
+import codeit.sb06.otboo.feed.entity.Feed;
+import codeit.sb06.otboo.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -36,22 +41,22 @@ public class Comment {
   @Column(name = "updated_at",nullable = false)
   private LocalDateTime updatedAt;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "user_id", nullable = false)
-//  private User user;
-//
-//  @ManyToOne
-//  @JoinColumn(name = "feed_id",nullable = false)
-//  private Feed feed;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @ManyToOne
+  @JoinColumn(name = "feed_id",nullable = false)
+  private Feed feed;
 
   @Builder
   public Comment(
       String content
-//      ,User user
-//      ,Feed feed
+      ,User user
+      ,Feed feed
   ) {
     this.content = content;
-//    this.user = user;
-//    this.feed = feed;
+    this.user = user;
+    this.feed = feed;
   }
 }
