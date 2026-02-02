@@ -1,6 +1,8 @@
 package codeit.sb06.otboo.feed.entity;
 
+import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.weather.entity.Weather;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -10,9 +12,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -42,9 +47,17 @@ public class Feed {
   @Column(name = "comment_count", nullable = false)
   private int commentCount = 0;
 
+  // MARK: - 유저 삭제 시 게시물 삭제 여부 (cascade)
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "author_id",nullable = false)
+  @JoinColumn(name = "author_id", nullable = false)
   private User user;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "weather_id", nullable = false)
+  private Weather weather;
+
+  @OneToMany(mappedBy = "feed")
+  private List<FeedClothes> feedClothes = new ArrayList<>();
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -57,10 +70,27 @@ public class Feed {
   @Builder
   public Feed(
       String content,
-      User user
-  ){
+      User user,
+      Weather weather
+  ) {
     this.content = content;
     this.user = user;
+    this.weather = weather;
+  }
+
+  public static Feed create(
+      User author,
+      Weather weather,
+      List<Clothes> clothes,
+      String content
+  ) {
+    Feed feed = new Feed(content, author, weather);
+    if (clothes != null) {
+      for (Clothes item : clothes) {
+        feed.feedClothes.add(FeedClothes.of(feed, item));
+      }
+    }
+    return feed;
   }
 
   @PrePersist
@@ -69,4 +99,3 @@ public class Feed {
     this.updatedAt = LocalDateTime.now();
   }
 }
-
