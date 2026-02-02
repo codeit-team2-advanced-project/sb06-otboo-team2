@@ -1,10 +1,10 @@
 package codeit.sb06.otboo.weather.controller;
 
 import codeit.sb06.otboo.weather.dto.weather.LocationDto;
-import codeit.sb06.otboo.weather.dto.weather.WeatherResponseDto;
+import codeit.sb06.otboo.weather.dto.weather.WeatherDto;
 import codeit.sb06.otboo.weather.service.WeatherService;
-import jakarta.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class WeatherController {
   private final WeatherService weatherService;
 
   @GetMapping
-  public ResponseEntity<WeatherResponseDto> getCurrentWeather(
+  public ResponseEntity<List<WeatherDto>> getCurrentWeather(
       @RequestParam double longitude,
       @RequestParam double latitude
   ) throws Exception {
