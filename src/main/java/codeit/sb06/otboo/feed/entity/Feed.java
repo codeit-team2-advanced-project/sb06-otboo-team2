@@ -82,6 +82,10 @@ public class Feed {
     return new Feed(user, weather, content, new ArrayList<>(mapped));
   }
 
+  public void updateContent(String content) {
+    this.content = content;
+  }
+
   @PrePersist
   public void prePersist() {
     this.createdAt = LocalDateTime.now();

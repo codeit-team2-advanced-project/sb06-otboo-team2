@@ -26,9 +26,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class FeedService {
 
   private final UserRepository userRepository;
-  private final WeatherRepository weatherRepository;
-  private final ClothesRepository clothesRepository;
+  private final WeatherService weatherService;
+//  private final WeatherRepository weatherRepository;
+//  private final ClothesRepository clothesRepository;
   private final FeedRepository feedRepository;
+
+  public FeedService(
+      UserRepository userRepository,
+    WeatherService weatherService,
+//      ClothesRepository clothesRepository,
+      FeedRepository feedRepository
+  ) {
+    this.userRepository = userRepository;
+    this.weatherService = weatherService;
+//    this.clothesRepository = clothesRepository;
+    this.feedRepository = feedRepository;
+  }
 
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
@@ -61,5 +74,29 @@ public class FeedService {
     }
 
     return clothes;
+  }
+
+  @Transactional
+  public void delete(UUID feedId) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> FeedException.feedNotFound(feedId));
+    feedRepository.delete(feed);
+  }
+
+  @Transactional
+  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> FeedException.feedNotFound(feedId));
+
+    if (!feed.getUser().getId().equals(currentUserId)) {
+      User user = userRepository.findById(currentUserId)
+          .orElseThrow(() -> FeedException.userNotFound(currentUserId));
+      if (user.getRole() != Role.ADMIN) {
+        throw new ForbiddenException();
+      }
+    }
+
+    feed.updateContent(content);
+    return FeedDto.from(feed);
   }
 }
