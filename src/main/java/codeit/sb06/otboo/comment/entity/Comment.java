@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -52,14 +51,17 @@ public class Comment {
   @JoinColumn(name = "feed_id",nullable = false)
   private Feed feed;
 
-  @Builder
-  public Comment(
-      String content
-      ,User user
-      ,Feed feed
+  private Comment(
+      String content,
+      User user,
+      Feed feed
   ) {
     this.content = content;
     this.user = user;
     this.feed = feed;
+  }
+
+  public static Comment create(User user, Feed feed, String content) {
+    return new Comment(content, user, feed);
   }
 }

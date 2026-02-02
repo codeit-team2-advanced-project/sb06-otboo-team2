@@ -65,10 +65,7 @@ public class CommentCreateServiceTest {
         null
     );
 
-    feed = Feed.builder()
-        .content("테스트 피드 내용")
-        .user(author)
-        .build();
+    feed = Feed.create(author, null, null, "테스트 피드 내용");
   }
 
   // 댓글 성공 테스트

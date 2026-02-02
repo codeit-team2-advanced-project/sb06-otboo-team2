@@ -3,6 +3,7 @@ package codeit.sb06.otboo.feed.entity;
 import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.weather.entity.Weather;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -56,8 +57,9 @@ public class Feed {
   @JoinColumn(name = "weather_id", nullable = false)
   private Weather weather;
 
-  @OneToMany(mappedBy = "feed")
-  private List<FeedClothes> feedClothes = new ArrayList<>();
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "feed_id")
+  private List<Clothes> clothes = new ArrayList<>();
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -67,30 +69,12 @@ public class Feed {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  @Builder
-  public Feed(
-      String content,
-      User user,
-      Weather weather
-  ) {
-    this.content = content;
+  @Builder(access = AccessLevel.PACKAGE)
+  public Feed(User user, Weather weather, String content, List<Clothes> clothes) {
     this.user = user;
     this.weather = weather;
-  }
-
-  public static Feed create(
-      User author,
-      Weather weather,
-      List<Clothes> clothes,
-      String content
-  ) {
-    Feed feed = new Feed(content, author, weather);
-    if (clothes != null) {
-      for (Clothes item : clothes) {
-        feed.feedClothes.add(FeedClothes.of(feed, item));
-      }
-    }
-    return feed;
+    this.content = content;
+    this.clothes = clothes;
   }
 
   @PrePersist

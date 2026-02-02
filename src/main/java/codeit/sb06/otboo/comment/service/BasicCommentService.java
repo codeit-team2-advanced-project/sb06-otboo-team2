@@ -37,12 +37,7 @@ public class BasicCommentService implements CommentService {
         .orElseThrow();
     User author = userRepository.findById(commentCreateRequest.authorId())
         .orElseThrow();
-    Comment comment = Comment.builder()
-        .content(commentCreateRequest.content())
-        .feed(feed)
-        .user(author)
-        .build()
-        ;
+    Comment comment = Comment.create(author, feed, commentCreateRequest.content());
 
     log.debug("댓글 생성 '{}'", feedId);
 

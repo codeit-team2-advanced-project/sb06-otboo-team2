@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.feed.service;
 
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
+import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
 import codeit.sb06.otboo.feed.entity.Feed;
@@ -11,10 +13,12 @@ import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.service.WeatherService;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class FeedService {
 
   private final UserRepository userRepository;
@@ -23,26 +27,14 @@ public class FeedService {
 //  private final ClothesRepository clothesRepository;
   private final FeedRepository feedRepository;
 
-  public FeedService(
-      UserRepository userRepository,
-    WeatherService weatherService,
-//      ClothesRepository clothesRepository,
-      FeedRepository feedRepository
-  ) {
-    this.userRepository = userRepository;
-    this.weatherService = weatherService;
-//    this.clothesRepository = clothesRepository;
-    this.feedRepository = feedRepository;
-  }
-
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
     UUID userId = request.authorId();
     User author = userRepository.findById(userId)
-        .orElseThrow(() -> FeedException.userNotFound(userId));
+        .orElseThrow(() -> new UserNotFoundException());
 
     Weather weather = weatherRepository.findById(request.weatherId())
-        .orElseThrow(() -> FeedException.weatherNotFound(request.weatherId()));
+        .orElseThrow(() -> new WeatherNotFoundException(request.weatherId()));
 
     // 중복 제거 + 조회
     List<UUID> uniqueClothesIds = request.clothesIds().stream().distinct().toList();

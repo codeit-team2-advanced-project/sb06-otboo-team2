@@ -1,15 +1,14 @@
 package codeit.sb06.otboo.feed.dto;
 
 import codeit.sb06.otboo.feed.entity.Feed;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public record FeedDto(
     UUID id,
-    Instant createdAt,
-    Instant updatedAt,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt,
     AuthorDto author,
 //    WeatherSummaryDto weather,
 //    List<OotdDto> ootds,
@@ -19,12 +18,8 @@ public record FeedDto(
     boolean likedByMe
 ) {
   public static FeedDto from(Feed feed) {
-    Instant created = feed.getCreatedAt() == null
-        ? null
-        : feed.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant();
-    Instant updated = feed.getUpdatedAt() == null
-        ? null
-        : feed.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant();
+    LocalDateTime created = feed.getCreatedAt();
+    LocalDateTime updated = feed.getUpdatedAt();
     AuthorDto author = new AuthorDto(
         feed.getUser().getId(),
         feed.getUser().getName(),
