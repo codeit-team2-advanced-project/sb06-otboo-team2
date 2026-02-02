@@ -10,6 +10,7 @@ import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,37 @@ public class BasicCommentService implements CommentService {
   @Override
   public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
       Integer limit) {
-    return null;
+
+    feedRepository.findById(feedId)
+        .orElseThrow();
+
+    List<Comment> commentList = commentRepository.findCommentListByCursor(feedId, idAfter, limit);
+
+    String nextCursor = null;
+    UUID nextIdAfter = null;
+
+    boolean hasNext = commentList.size() > limit;
+
+    if(hasNext) {
+      nextCursor = commentList.get(commentList.size() - 1).getId().toString();
+      nextIdAfter = commentList.get(commentList.size() - 1).getId();
+    }
+
+    List<CommentDto> data = commentList.stream()
+        .map(c -> CommentDto.of(c,AuthorDto.of(c.getUser())))
+        .toList();
+
+    long totalCount = commentRepository.countByFeedId(feedId);
+
+    return new CommentDtoCursorResponse(
+        data,
+        nextCursor,
+        nextIdAfter,
+        hasNext,
+        totalCount,
+        "createdAt",
+        "ASCENDING"
+    );
+
   }
 }
