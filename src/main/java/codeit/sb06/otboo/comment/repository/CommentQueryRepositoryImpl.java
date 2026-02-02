@@ -19,7 +19,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
   public List<Comment> findCommentListByCursor(UUID feedId, UUID idAfter, int limit) {
     var query = jpaQueryFactory.selectFrom(comment)
         .where(comment.feed.id.eq(feedId))
-        .orderBy(comment.createdAt.asc())
+        .orderBy(comment.createdAt.desc())
         .limit(limit);
 
     if(idAfter != null){

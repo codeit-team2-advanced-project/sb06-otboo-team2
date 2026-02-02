@@ -76,6 +76,7 @@ public class BasicCommentService implements CommentService {
 
     long totalCount = commentRepository.countByFeedId(feedId);
 
+    log.debug("");
     return new CommentDtoCursorResponse(
         data,
         nextCursor,
@@ -83,7 +84,7 @@ public class BasicCommentService implements CommentService {
         hasNext,
         totalCount,
         "createdAt",
-        "ASCENDING"
+        "DESCENDING"
     );
 
   }
