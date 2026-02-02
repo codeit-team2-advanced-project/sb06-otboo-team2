@@ -1,5 +1,6 @@
 package codeit.sb06.otboo.comment.service;
 
+import codeit.sb06.otboo.comment.dto.CommentDtoCursorResponse;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
@@ -47,5 +48,11 @@ public class BasicCommentService implements CommentService {
         commentRepository.save(comment),
         AuthorDto.of(author)
     );
+  }
+
+  @Override
+  public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
+      Integer limit) {
+    return null;
   }
 }
