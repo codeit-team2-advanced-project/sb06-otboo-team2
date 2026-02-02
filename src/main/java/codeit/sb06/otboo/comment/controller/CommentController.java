@@ -2,6 +2,7 @@ package codeit.sb06.otboo.comment.controller;
 
 import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
 import codeit.sb06.otboo.comment.dto.CommentDto;
+import codeit.sb06.otboo.comment.dto.CommentDtoCursorResponse;
 import codeit.sb06.otboo.comment.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,10 +12,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,6 +42,23 @@ public class CommentController{
   ){
     CommentDto response = commentService.createComment(feedId, commentCreateRequest);
     return ResponseEntity.ok(response);
+  }
+
+
+  @Operation(summary = "피드 댓글 조회")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "피드 댓글 조회 성공"),
+      @ApiResponse(responseCode = "400", description = "피드 댓글 조회 실패")
+  })
+
+  @GetMapping
+  public ResponseEntity<CommentDtoCursorResponse> getCommentList(
+      @PathVariable UUID feedId,
+      @RequestParam(required = false) String Cursosr,
+      @RequestParam(required = false) UUID idAfter,
+      @RequestParam int limit
+  ){
+    return ResponseEntity.ok(null);
   }
 
 }
