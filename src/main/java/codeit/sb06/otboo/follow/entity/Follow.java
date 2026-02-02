@@ -1,5 +1,6 @@
 package codeit.sb06.otboo.follow.entity;
 
+import codeit.sb06.otboo.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,28 +30,28 @@ public class Follow {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "follower_id", nullable = false)
-//  private User follower;
-//
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "followee_id", nullable = false)
-//  private User followee;
-//
-//
-//  @Builder
-//  public Follow(User follower, User followee) {
-//    this.follower = follower;
-//    this.followee = followee;
-//  }
-//
-//  public static Follow of(
-//      User follower,
-//      User followee
-//  ){
-//    if(follower.getId().equals(followee.getId())){
-//      throw new IllegalArgumentException("자기 자신을 팔로우 할 수 없음");
-//    }
-//    return new Follow(follower, followee);
-//  }
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "follower_id", nullable = false)
+  private User follower;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "followee_id", nullable = false)
+  private User followee;
+
+
+  @Builder
+  public Follow(User follower, User followee) {
+    this.follower = follower;
+    this.followee = followee;
+  }
+
+  public static Follow of(
+      User follower,
+      User followee
+  ){
+    if(follower.getId().equals(followee.getId())){
+      throw new IllegalArgumentException("자기 자신을 팔로우 할 수 없음");
+    }
+    return new Follow(follower, followee);
+  }
 }
