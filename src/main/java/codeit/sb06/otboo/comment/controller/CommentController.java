@@ -56,7 +56,7 @@ public class CommentController{
       @PathVariable UUID feedId,
       @RequestParam(required = false) String Cursosr,
       @RequestParam(required = false) UUID idAfter,
-      @RequestParam int limit
+      @RequestParam Integer limit
   ){
     return ResponseEntity.ok(null);
   }
