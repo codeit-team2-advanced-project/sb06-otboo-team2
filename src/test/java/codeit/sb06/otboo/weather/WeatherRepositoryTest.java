@@ -10,6 +10,7 @@ import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import codeit.sb06.otboo.config.QueryDslConfig;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -43,8 +44,8 @@ class WeatherRepositoryTest {
         .humidity(55.0)
         .windSpeed(2.0)
         .windStrength(WindStrength.WEAK)
-        .forecastAt(Instant.now())
-        .createdAt(Instant.now())
+        .forecastAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now())
         .build();
 
     weatherRepository.save(weather);

@@ -2,7 +2,7 @@ package codeit.sb06.otboo.weather.client;
 
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionDocument;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
-import codeit.sb06.otboo.weather.dto.weather.LocationDto;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;

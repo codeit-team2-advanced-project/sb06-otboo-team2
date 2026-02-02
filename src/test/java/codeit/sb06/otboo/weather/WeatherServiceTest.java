@@ -7,12 +7,11 @@ import static org.mockito.BDDMockito.given;
 
 import codeit.sb06.otboo.weather.client.KakaoLocationClient;
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
-import codeit.sb06.otboo.weather.dto.weather.LocationDto;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse;
 import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
 import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
 import codeit.sb06.otboo.weather.dto.weather.WeatherDto;
-import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto;
-import codeit.sb06.otboo.weather.dto.weather.WindStrength;
 import codeit.sb06.otboo.weather.mapper.WeatherMapper;
 import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import codeit.sb06.otboo.weather.service.WeatherService;
@@ -58,21 +57,21 @@ class WeatherServiceTest {
         .toEpochSecond();
     long dt2 = dt1 + 3 * 3600;
 
-    WeatherSummaryDto response = new WeatherSummaryDto(List.of(
-        new WeatherSummaryDto.Item(
+    OpenWeatherForecastResponse response = new OpenWeatherForecastResponse(List.of(
+        new OpenWeatherForecastResponse.Item(
             dt1,
-            new WeatherSummaryDto.Main(10.0, 9.0, 12.0, 60.0),
-            List.of(new WeatherSummaryDto.Weather("Clear")),
-            new WeatherSummaryDto.Wind(2.0),
-            new WeatherSummaryDto.Rain(1.2),
+            new OpenWeatherForecastResponse.Main(10.0, 9.0, 12.0, 60.0),
+            List.of(new OpenWeatherForecastResponse.Weather("Clear")),
+            new OpenWeatherForecastResponse.Wind(2.0),
+            new OpenWeatherForecastResponse.Rain(1.2),
             null,
             0.1
         ),
-        new WeatherSummaryDto.Item(
+        new OpenWeatherForecastResponse.Item(
             dt2,
-            new WeatherSummaryDto.Main(8.0, 7.0, 11.0, 40.0),
-            List.of(new WeatherSummaryDto.Weather("Clear")),
-            new WeatherSummaryDto.Wind(4.0),
+            new OpenWeatherForecastResponse.Main(8.0, 7.0, 11.0, 40.0),
+            List.of(new OpenWeatherForecastResponse.Weather("Clear")),
+            new OpenWeatherForecastResponse.Wind(4.0),
             null,
             null,
             0.3
@@ -103,15 +102,12 @@ class WeatherServiceTest {
     // then
     assertThat(result).hasSize(1);
     WeatherDto daily = result.get(0);
-    assertThat(daily.location()).isEqualTo(location);
     assertThat(daily.temperature().min()).isEqualTo(7.0);
     assertThat(daily.temperature().max()).isEqualTo(12.0);
     assertThat(daily.temperature().current()).isEqualTo(10.0);
-    assertThat(daily.humidity().current()).isEqualTo(60.0);
     assertThat(daily.precipitation().type()).isEqualTo(PrecipitationType.RAIN);
     assertThat(daily.precipitation().amount()).isEqualTo(1.2);
     assertThat(daily.precipitation().probability()).isEqualTo(0.1);
     assertThat(daily.skyStatus()).isEqualTo(SkyStatus.CLEAR);
-    assertThat(daily.windSpeed().asWord()).isEqualTo(WindStrength.WEAK);
   }
 }

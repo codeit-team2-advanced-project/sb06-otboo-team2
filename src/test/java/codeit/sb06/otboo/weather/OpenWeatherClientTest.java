@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.client.SimpleHttpClient;
-import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -64,7 +64,7 @@ class OpenWeatherClientTest {
     given(httpClient.get(eq(expectedUrl), anyMap())).willReturn(json);
 
     // when
-    WeatherSummaryDto result = client.fetchForecast(lat, lon);
+    OpenWeatherForecastResponse result = client.fetchForecast(lat, lon);
 
     // then
     assertThat(result).isNotNull();

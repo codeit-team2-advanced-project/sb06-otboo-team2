@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.weather.controller;
 
-import codeit.sb06.otboo.weather.dto.weather.LocationDto;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.WeatherDto;
 import codeit.sb06.otboo.weather.service.WeatherService;
 import java.io.IOException;

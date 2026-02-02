@@ -10,9 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,13 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-    name = "weathers",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uk_weather_date_location",
-        columnNames = {"date", "latitude", "longitude"}
-    )
-)
+@Table(name = "weathers")
 public class Weather {
 
   @Id
@@ -60,6 +53,6 @@ public class Weather {
   private double latitude;
   private double longitude;
 
-  private Instant forecastAt;
-  private Instant createdAt;
+  private LocalDateTime forecastAt;
+  private LocalDateTime createdAt;
 }

@@ -3,15 +3,15 @@ package codeit.sb06.otboo.weather.service;
 import codeit.sb06.otboo.weather.client.KakaoLocationClient;
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.*;
-import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto;
-import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto.Item;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse.Item;
 import codeit.sb06.otboo.weather.entity.Weather;
-import codeit.sb06.otboo.weather.model.SnapshotCandidate;
 import codeit.sb06.otboo.weather.mapper.WeatherMapper;
+import codeit.sb06.otboo.weather.model.SnapshotCandidate;
 import codeit.sb06.otboo.weather.repository.WeatherRepository;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class WeatherService {
       throws Exception {
     double normalizedLatitude = round2(latitude);
     double normalizedLongitude = round2(longitude);
-    WeatherSummaryDto response = openWeatherClient.fetchForecast(latitude, longitude);
+    OpenWeatherForecastResponse response = openWeatherClient.fetchForecast(latitude, longitude);
     LocationDto location = kakaoLocationClient.resolveLocationSafely(longitude, latitude);
     List<SnapshotCandidate> candidates = aggregateDaily(response, FORECAST_ZONE);
 
@@ -50,7 +50,7 @@ public class WeatherService {
     return candidates.stream()
         .map(c -> existingByDate.get(c.date()))
         .filter(s -> s != null)
-        .map(s -> toSummaryDto(s, location))
+        .map(s -> weatherMapper.toWeatherDto(s, location))
         .toList();
   }
 
@@ -60,7 +60,7 @@ public class WeatherService {
   }
 
   public List<SnapshotCandidate> aggregateDaily(
-      WeatherSummaryDto response,
+      OpenWeatherForecastResponse response,
       ZoneId zoneId
   ) {
     if (response == null || response.list() == null || response.list().isEmpty()) {
@@ -70,7 +70,10 @@ public class WeatherService {
     Map<LocalDate, List<Item>> byDate =
         response.list().stream()
             .collect(Collectors.groupingBy(item ->
-                Instant.ofEpochSecond(item.dt()).atZone(zoneId).toLocalDate()
+                LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochSecond(item.dt()),
+                    zoneId
+                ).toLocalDate()
             ));
 
     return byDate.entrySet().stream()
@@ -81,13 +84,13 @@ public class WeatherService {
 
   private SnapshotCandidate toCandidate(
       LocalDate date,
-      List<WeatherSummaryDto.Item> items,
+      List<OpenWeatherForecastResponse.Item> items,
       ZoneId zoneId
   ) {
     if (items == null || items.isEmpty()) {
       return new SnapshotCandidate(
           date,
-          date.atTime(12, 0).atZone(zoneId).toInstant(),
+          date.atTime(12, 0),
           SkyStatus.CLEAR,
           new PrecipitationDto(PrecipitationType.NONE, 0.0, 0.0),
           new TemperatureDto(0.0, 0.0, 0.0, 0.0),
@@ -99,8 +102,8 @@ public class WeatherService {
     double minTemp = items.stream().mapToDouble(i -> i.main().tempMin()).min().orElse(0);
     double maxTemp = items.stream().mapToDouble(i -> i.main().tempMax()).max().orElse(0);
 
-    Instant target = date.atTime(12, 0).atZone(zoneId).toInstant();
-    long targetEpoch = target.getEpochSecond();
+    LocalDateTime target = date.atTime(12, 0);
+    long targetEpoch = target.atZone(zoneId).toEpochSecond();
 
     Item closest = items.stream()
         .min((a, b) -> Long.compare(
@@ -130,7 +133,7 @@ public class WeatherService {
       representativeMain = "N/A";
     }
 
-    Instant forecastAt = target;
+    LocalDateTime forecastAt = target;
 
     return new SnapshotCandidate(
         date,
@@ -143,7 +146,7 @@ public class WeatherService {
     );
   }
 
-  private String firstWeatherMain(List<WeatherSummaryDto.Weather> weatherList) {
+  private String firstWeatherMain(List<OpenWeatherForecastResponse.Weather> weatherList) {
     if (weatherList == null || weatherList.isEmpty() || weatherList.get(0) == null) return null;
     var w = weatherList.get(0);
     return w.main();
@@ -199,28 +202,5 @@ public class WeatherService {
     if (speed < 3) return WindStrength.WEAK;
     if (speed < 8) return WindStrength.MODERATE;
     return WindStrength.STRONG;
-  }
-
-  private WeatherDto toSummaryDto(Weather s, LocationDto location) {
-    return new WeatherDto(
-        s.getId(),
-        s.getCreatedAt() != null ? s.getCreatedAt() : Instant.now(),
-        s.getForecastAt(),
-        location,
-        s.getSkyStatus(),
-        new PrecipitationDto(
-            s.getPrecipitationType(),
-            s.getPrecipitationAmount(),
-            s.getPrecipitationProbability()
-        ),
-        new HumidityDto(s.getHumidity(), 0.0),
-        new TemperatureDto(
-            s.getTempCurrent(),
-            0.0,
-            s.getTempMin(),
-            s.getTempMax()
-        ),
-        new WindSpeedDto(s.getWindSpeed(), s.getWindStrength())
-    );
   }
 }
