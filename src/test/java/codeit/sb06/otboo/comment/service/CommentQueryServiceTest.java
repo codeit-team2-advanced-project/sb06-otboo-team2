@@ -2,6 +2,8 @@ package codeit.sb06.otboo.comment.service;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -109,10 +111,39 @@ public class CommentQueryServiceTest {
 
   }
 
+  // 다음 페이지 조회 테스트
   @Test
   void getComments_nextPage(){
+    //given
+    int limit = 2;
+
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
+
+    // 다음 페이지 기준 c2
+    String cursor = c2.getCreatedAt().toString();
+    UUID idAfter = c2.getId();
+
+    when(commentRepository.findCommentListByCursor(
+        eq(feedId),
+        eq(c2.getCreatedAt()),
+        eq(idAfter),
+        eq(limit + 1)
+    )).thenReturn(List.of(c1)); // 다음페이지 나온는거 c1
+
+    //when
+    var response = basicCommentService.getComments(feedId, cursor, idAfter, limit);
+
+    // then
+    assertEquals(1, response.data().size());
+    assertEquals("테스트 댓글 1", response.data().get(0).content());
+    assertEquals(c1.getCreatedAt().toString(), response.nextCursor());
+    assertEquals(c1.getId(), response.nextIdAfter());
+    assertFalse(response.hasNext());
+
   }
 
+  // 페이지 없을 때
   @Test
   void getComments_NonePage(){
   }
