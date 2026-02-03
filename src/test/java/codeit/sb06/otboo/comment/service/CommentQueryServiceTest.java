@@ -146,5 +146,31 @@ public class CommentQueryServiceTest {
   // 페이지 없을 때
   @Test
   void getComments_NonePage(){
+
+    // given
+    int limit = 2;
+
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
+
+    // 마지막 페이지 c1 기준
+    String cursor = c1.getCreatedAt().toString();
+    UUID idAfter = c1.getId();
+
+    when(commentRepository.findCommentListByCursor(
+        eq(feedId),
+        eq(c1.getCreatedAt()),
+        eq(idAfter),
+        eq(limit + 1)
+    )).thenReturn(List.of()); // 빈 리스트 반환
+
+    // when
+    var response = basicCommentService.getComments(feedId, cursor, idAfter, limit);
+
+    // then
+    assertEquals(0, response.data().size());
+    assertFalse(response.hasNext());
+    assertNull(response.nextCursor());
+    assertNull(response.nextIdAfter());
   }
 }
