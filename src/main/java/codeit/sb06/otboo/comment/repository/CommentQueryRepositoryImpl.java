@@ -4,6 +4,7 @@ import static codeit.sb06.otboo.comment.entity.QComment.comment;
 
 import codeit.sb06.otboo.comment.entity.Comment;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +17,23 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public List<Comment> findCommentListByCursor(UUID feedId, UUID idAfter, int limit) {
+  public List<Comment> findCommentListByCursor(UUID feedId, LocalDateTime lastCreatedAt, UUID idAfter, int limit) {
     var query = jpaQueryFactory.selectFrom(comment)
         .where(comment.feed.id.eq(feedId))
-        .orderBy(comment.createdAt.desc())
+        .orderBy(
+            comment.createdAt.desc()
+            ,comment.id.desc()
+            )
         .limit(limit);
 
-    if(idAfter != null){
-      query = query.where(comment.id.gt(idAfter));
+    if(lastCreatedAt != null && idAfter != null){
+      query.where(
+          comment.createdAt.lt(lastCreatedAt)
+              .or(
+                  comment.createdAt.eq(lastCreatedAt)
+                      .and(comment.id.lt(idAfter))
+              )
+      );
     }
     return query.fetch();
   }
