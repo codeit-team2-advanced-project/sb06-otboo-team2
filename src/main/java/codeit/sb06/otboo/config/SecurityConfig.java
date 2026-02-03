@@ -63,10 +63,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
 
-                    // 관리자 전용: 속성 정의 관리
-                    .requestMatchers(HttpMethod.POST, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PATCH, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
+                    //관리자 전용: 속성 정의 관리
+                    .requestMatchers("/api/clothes/attribute-defs/**").hasRole("ADMIN")
 
                     .anyRequest().permitAll()
             )
