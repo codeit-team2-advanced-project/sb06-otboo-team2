@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +23,6 @@ public class ClothesAttributeDefController {
 
     // 속성 정의 등록
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClothesAttributeDefDto> create(
             @Valid @RequestBody ClothesAttributeDefCreateRequest request
     ) {
@@ -42,9 +42,20 @@ public class ClothesAttributeDefController {
 
     // 속성 정의 삭제
     @DeleteMapping("/{definitionId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable UUID definitionId) {
         service.delete(definitionId);
         return ResponseEntity.noContent().build();
+    }
+
+    //속성 정의 목록 조회
+    @GetMapping
+    public ResponseEntity<List<ClothesAttributeDefDto>> list(
+            @RequestParam String sortBy,
+            @RequestParam String sortDirection,
+            @RequestParam(required = false) String keywordLike
+    ) {
+        return ResponseEntity.ok(
+                service.getList(sortBy, sortDirection, keywordLike)
+        );
     }
 }

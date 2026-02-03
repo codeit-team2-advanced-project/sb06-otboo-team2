@@ -31,7 +31,7 @@ public class ClothesAttribute {
     @JoinColumn(name = "definition_id", nullable = false)
     private ClothesAttributeDef definition;
 
-    @Column(name = "value", nullable = false, length = 100)
+    @Column(name = "attribute_value", nullable = false, length = 100)
     private String value;
 
     @CreatedDate

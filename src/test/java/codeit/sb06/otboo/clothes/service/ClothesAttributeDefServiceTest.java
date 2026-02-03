@@ -10,11 +10,13 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -161,7 +163,7 @@ public class ClothesAttributeDefServiceTest {
     }
 
     @Test
-    @DisplayName("삭제: 존재하지 않는 속성 정의면 IllegalArgumentException")
+    @DisplayName("delete: 존재하지 않는 속성 정의면 IllegalArgumentException")
     void delete_whenDefNotFound_thenThrow() {
         // given
         UUID id = UUID.randomUUID();
@@ -175,7 +177,7 @@ public class ClothesAttributeDefServiceTest {
     }
 
     @Test
-    @DisplayName("삭제: 속성 정의가 존재하면 해당 속성값(ClothesAttribute)을 먼저 삭제하고 정의를 삭제한다")
+    @DisplayName("delete: 속성 정의가 존재하면 해당 속성값(ClothesAttribute)을 먼저 삭제하고 정의를 삭제한다")
     void delete_whenDefExists_thenDeleteAttributesThenDef() {
         // given
         UUID id = UUID.randomUUID();
@@ -194,5 +196,117 @@ public class ClothesAttributeDefServiceTest {
 
         verify(repository, times(1)).findById(id);
         verifyNoMoreInteractions(clothesAttributeRepository, repository);
+    }
+
+    @Test
+    @DisplayName("getList: keywordLike가 없으면 findAll로 전체 조회하고 DTO 리스트를 반환한다")
+    void getList_whenKeywordNull_thenFindAll() {
+        // given
+        ClothesAttributeDef def1 = mock(ClothesAttributeDef.class);
+        when(def1.getId()).thenReturn(UUID.randomUUID());
+        when(def1.getName()).thenReturn("색상");
+        when(def1.getSelectableValues()).thenReturn(List.of("Black", "White"));
+        when(def1.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        ClothesAttributeDef def2 = mock(ClothesAttributeDef.class);
+        when(def2.getId()).thenReturn(UUID.randomUUID());
+        when(def2.getName()).thenReturn("소재");
+        when(def2.getSelectableValues()).thenReturn(List.of("Cotton"));
+        when(def2.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        when(repository.findAll(any(Sort.class))).thenReturn(List.of(def1, def2));
+
+        // when
+        List<ClothesAttributeDefDto> result = service.getList("createdAt", "ASCENDING", null);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).name()).isEqualTo("색상");
+        assertThat(result.get(1).name()).isEqualTo("소재");
+
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        verify(repository).findAll(sortCaptor.capture());
+        verify(repository, never()).searchByNameLike(anyString(), any(Sort.class));
+
+        Sort sort = sortCaptor.getValue();
+        Sort.Order order = sort.getOrderFor("createdAt");
+        assertThat(order).isNotNull();
+        assertThat(order.getDirection()).isEqualTo(Sort.Direction.ASC);
+
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    @DisplayName("getList: keywordLike가 있으면 searchByNameLike로 조회하고 DTO 리스트를 반환한다")
+    void getList_whenKeywordExists_thenSearchByNameLike() {
+        // given
+        ClothesAttributeDef def = mock(ClothesAttributeDef.class);
+        UUID id = UUID.randomUUID();
+        when(def.getId()).thenReturn(id);
+        when(def.getName()).thenReturn("Color");
+        when(def.getSelectableValues()).thenReturn(List.of("Red"));
+        when(def.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        when(repository.searchByNameLike(anyString(), any(Sort.class))).thenReturn(List.of(def));
+
+        // when
+        List<ClothesAttributeDefDto> result = service.getList("name", "DESCENDING", "Co");
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(id);
+        assertThat(result.get(0).name()).isEqualTo("Color");
+        assertThat(result.get(0).selectableValues()).containsExactly("Red");
+
+        ArgumentCaptor<String> keywordCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
+        verify(repository).searchByNameLike(keywordCaptor.capture(), sortCaptor.capture());
+        verify(repository, never()).findAll(any(Sort.class));
+
+        assertThat(keywordCaptor.getValue()).isEqualTo("Co");
+
+        Sort sort = sortCaptor.getValue();
+        Sort.Order order = sort.getOrderFor("name");
+        assertThat(order).isNotNull();
+        assertThat(order.getDirection()).isEqualTo(Sort.Direction.DESC);
+
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    @DisplayName("getList: keywordLike가 공백이면 전체 조회(findAll)로 처리한다")
+    void getList_whenKeywordBlank_thenFindAll() {
+        // given
+        when(repository.findAll(any(Sort.class))).thenReturn(List.of());
+
+        // when
+        List<ClothesAttributeDefDto> result = service.getList("name", "ASCENDING", "   ");
+
+        // then
+        assertThat(result).isEmpty();
+
+        verify(repository).findAll(any(Sort.class));
+        verify(repository, never()).searchByNameLike(anyString(), any(Sort.class));
+
+        verifyNoMoreInteractions(repository);
+    }
+
+
+    @Test
+    @DisplayName("getList: keywordLike는 trim 처리되어 검색에 사용된다")
+    void getList_keywordTrimmed() {
+        // given
+        when(repository.searchByNameLike(anyString(), any(Sort.class))).thenReturn(List.of());
+
+        // when
+        service.getList("name", "ASCENDING", "  Co  ");
+
+        // then
+        ArgumentCaptor<String> keywordCaptor = ArgumentCaptor.forClass(String.class);
+        verify(repository).searchByNameLike(keywordCaptor.capture(), any(Sort.class));
+        assertThat(keywordCaptor.getValue()).isEqualTo("Co");
+
+        verifyNoMoreInteractions(repository);
     }
 }

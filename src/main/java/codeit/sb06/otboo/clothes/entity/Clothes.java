@@ -38,9 +38,10 @@ public class Clothes {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, columnDefinition = "clothes_type")
+    @Column(nullable = false)
     private ClothesType type;
 
+    // 외부 수정 불가능하게 getter 차단
     @Getter(AccessLevel.NONE)
     @OneToMany(mappedBy = "clothes", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClothesAttribute> attributes = new ArrayList<>();
@@ -62,5 +63,10 @@ public class Clothes {
 
     protected void addAttributeInternal(ClothesAttribute attribute) {
         this.attributes.add(attribute);
+    }
+
+    // mapper 전용 메서드
+    public List<ClothesAttribute> getAttributes() {
+        return List.copyOf(attributes);
     }
 }

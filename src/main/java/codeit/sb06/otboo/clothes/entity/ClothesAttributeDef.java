@@ -32,7 +32,7 @@ public class ClothesAttributeDef {
     private String name;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "selectable_values", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "selectable_values", nullable = false)
     private List<String> selectableValues = new ArrayList<>();
 
     @CreatedDate
