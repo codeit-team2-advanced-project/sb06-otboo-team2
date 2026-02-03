@@ -24,7 +24,9 @@ class ProfileDtoTest {
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
             null,
-            "password"
+            "password",
+            null,
+            null
         );
 
         Profile profile = new Profile(

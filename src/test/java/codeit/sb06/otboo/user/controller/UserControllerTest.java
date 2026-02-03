@@ -1,6 +1,8 @@
 package codeit.sb06.otboo.user.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -19,6 +21,7 @@ import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtLoginSuccessHandler;
 import codeit.sb06.otboo.security.jwt.JwtLogoutHandler;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
+import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.user.service.UserServiceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,6 +57,9 @@ class UserControllerTest {
 
     @MockitoBean
     private UserServiceImpl userServiceImpl;
+
+    @MockitoBean
+    private ProfileServiceImpl profileServiceImpl;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -197,6 +203,20 @@ class UserControllerTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.isLocked").value(true));
+    }
+
+    @Test
+    void changePasswordReturnsNoContent() throws Exception {
+        UUID userId = UUID.randomUUID();
+
+        mockMvc.perform(
+                post("/api/users/{userId}/password", userId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"password\":\"new-password\"}")
+            )
+            .andExpect(status().isNoContent());
+
+        verify(userServiceImpl).changePassword(eq(userId), any());
     }
 
     private void setAuthentication(Role role) {

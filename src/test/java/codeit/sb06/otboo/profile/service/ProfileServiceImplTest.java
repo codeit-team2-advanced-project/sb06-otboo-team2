@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import codeit.sb06.otboo.exception.profile.ProfileNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.profile.dto.ProfileDto;
 import codeit.sb06.otboo.profile.entity.Profile;
@@ -48,7 +49,9 @@ class ProfileServiceImplTest {
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
             null,
-            "password"
+            "password",
+            null,
+            null
         );
 
         when(userRepository.findByEmail(eq("user@example.com"))).thenReturn(Optional.of(user));
@@ -88,11 +91,80 @@ class ProfileServiceImplTest {
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
             null,
-            "password"
+            "password",
+            null,
+            null
         );
 
         when(userRepository.findByEmail(eq("user@example.com"))).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> profileService.create(user));
+    }
+
+    @Test
+    void getProfileByUserIdReturnsProfile() {
+        User user = new User(
+            UUID.randomUUID(),
+            "user@example.com",
+            "name",
+            Role.USER,
+            false,
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            null,
+            "password",
+            null,
+            null
+        );
+        Profile profile = new Profile(
+            UUID.randomUUID(),
+            "name",
+            LocalDateTime.MIN,
+            3,
+            null,
+            "UNSPECIFIED",
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            List.of(),
+            0,
+            0,
+            user
+        );
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(profileRepository.findByUserId(user)).thenReturn(Optional.of(profile));
+
+        ProfileDto result = profileService.getProfileByUserId(user.getId());
+
+        assertEquals(user.getId(), result.userId());
+        assertEquals("name", result.name());
+    }
+
+    @Test
+    void getProfileByUserIdThrowsWhenUserMissing() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> profileService.getProfileByUserId(userId));
+    }
+
+    @Test
+    void getProfileByUserIdThrowsWhenProfileMissing() {
+        User user = new User(
+            UUID.randomUUID(),
+            "user@example.com",
+            "name",
+            Role.USER,
+            false,
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 0, 0),
+            null,
+            "password",
+            null,
+            null
+        );
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(profileRepository.findByUserId(user)).thenReturn(Optional.empty());
+
+        assertThrows(ProfileNotFoundException.class, () -> profileService.getProfileByUserId(user.getId()));
     }
 }

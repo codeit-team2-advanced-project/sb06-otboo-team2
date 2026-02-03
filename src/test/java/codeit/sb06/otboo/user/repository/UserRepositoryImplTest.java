@@ -196,7 +196,9 @@ class UserRepositoryImplTest {
             createdAt,
             createdAt,
             null,
-            "password"
+            "password",
+            null,
+            null
         );
     }
 

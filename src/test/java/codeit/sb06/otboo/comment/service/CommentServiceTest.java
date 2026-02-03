@@ -60,7 +60,9 @@ public class CommentServiceTest {
         LocalDateTime.now(),
         LocalDateTime.now(),
         null,
-        "password"
+        "password",
+        null,
+        null
     );
 
     feed = Feed.builder()

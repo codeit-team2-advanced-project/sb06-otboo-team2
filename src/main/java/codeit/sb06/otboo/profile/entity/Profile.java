@@ -6,6 +6,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +46,7 @@ public class Profile {
     private int followingCount;
 
     @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User userId;
 
     public static Profile from(User user) {
@@ -52,9 +54,9 @@ public class Profile {
             .name(user.getName())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
-            .birthday(LocalDateTime.MIN)
+            .birthday(null)
             .sensitivity(3)
-            .gender("UNSPECIFIED")
+            .gender(null)
             .imageUrl(user.getProfileImageUrl())
             .locations(List.of())
             .userId(user)

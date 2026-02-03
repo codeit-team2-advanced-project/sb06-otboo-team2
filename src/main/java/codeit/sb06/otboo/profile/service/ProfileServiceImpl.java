@@ -1,11 +1,13 @@
 package codeit.sb06.otboo.profile.service;
 
+import codeit.sb06.otboo.exception.profile.ProfileNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.profile.dto.ProfileDto;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,4 +30,16 @@ public class ProfileServiceImpl {
         Profile savedProfile = profileRepository.save(profile);
         return ProfileDto.from(savedProfile);
     }
+
+    public ProfileDto getProfileByUserId(UUID userId){
+        log.debug("get profile by userId start: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Profile profile = profileRepository.findByUserId(user)
+                .orElseThrow(ProfileNotFoundException::new);
+
+        return ProfileDto.from(profile);
+    }
+
 }
