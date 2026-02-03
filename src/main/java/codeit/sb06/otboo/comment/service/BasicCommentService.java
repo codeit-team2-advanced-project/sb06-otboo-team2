@@ -81,7 +81,12 @@ public class BasicCommentService implements CommentService {
 
     if(!commentList.isEmpty()) {
       Comment lastComment  = commentList.get(commentList.size()-1);
-      nextCursor = lastComment.getCreatedAt().toString();
+
+      LocalDateTime createdAt = lastComment.getCreatedAt();
+      if(createdAt == null){
+        throw new IllegalArgumentException("널이 되지 않는거 명시해줬음");
+      }
+      nextCursor = createdAt.toString();
       nextIdAfter = lastComment.getId();
     }
 
@@ -92,7 +97,7 @@ public class BasicCommentService implements CommentService {
 
     long totalCount = commentRepository.countByFeedId(feedId);
 
-    log.debug("");
+    log.debug("댓글 목록 조회 완료");
     return new CommentDtoCursorResponse(
         data,
         nextCursor,
