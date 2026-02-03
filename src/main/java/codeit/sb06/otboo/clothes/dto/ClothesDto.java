@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.clothes.dto;
 
 import codeit.sb06.otboo.clothes.entity.Clothes;
+import codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,9 @@ public record ClothesDto(
                         .map(attr -> new ClothesAttributeWithDefDto(
                                 attr.getDefinition().getId(),
                                 attr.getDefinition().getName(),
-                                attr.getDefinition().getSelectableValues(),
+                                attr.getDefinition().getValues().stream()
+                                        .map(ClothesAttributeDefValue::getValue)
+                                        .toList(),
                                 attr.getValue()
                         ))
                         .toList()

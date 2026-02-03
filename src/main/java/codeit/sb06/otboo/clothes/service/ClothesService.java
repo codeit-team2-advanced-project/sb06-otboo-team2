@@ -4,10 +4,7 @@ package codeit.sb06.otboo.clothes.service;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDto;
 import codeit.sb06.otboo.clothes.dto.ClothesCreateRequest;
 import codeit.sb06.otboo.clothes.dto.ClothesDto;
-import codeit.sb06.otboo.clothes.entity.Clothes;
-import codeit.sb06.otboo.clothes.entity.ClothesAttribute;
-import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
-import codeit.sb06.otboo.clothes.entity.ClothesType;
+import codeit.sb06.otboo.clothes.entity.*;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
 import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
@@ -67,8 +64,11 @@ public class ClothesService {
 
             String value = a.value().trim();
 
-            List<String> selectable = def.getSelectableValues();
-            if (selectable != null && !selectable.isEmpty() && !selectable.contains(value)) {
+            List<String> selectable = def.getValues().stream()
+                    .map(ClothesAttributeDefValue::getValue)
+                    .toList();
+
+            if (!selectable.isEmpty() && !selectable.contains(value)) {
                 throw new InvalidClothesAttributeValueException(defId, value);
             }
 

@@ -3,10 +3,7 @@ package codeit.sb06.otboo.clothes.service;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDto;
 import codeit.sb06.otboo.clothes.dto.ClothesCreateRequest;
 import codeit.sb06.otboo.clothes.dto.ClothesDto;
-import codeit.sb06.otboo.clothes.entity.Clothes;
-import codeit.sb06.otboo.clothes.entity.ClothesAttribute;
-import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
-import codeit.sb06.otboo.clothes.entity.ClothesType;
+import codeit.sb06.otboo.clothes.entity.*;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
 import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
@@ -58,7 +55,14 @@ public class ClothesServiceTest {
         ClothesAttributeDef def = mock(ClothesAttributeDef.class);
         when(def.getId()).thenReturn(defId);
         when(def.getName()).thenReturn("색상");
-        when(def.getSelectableValues()).thenReturn(List.of("Black", "White"));
+
+        ClothesAttributeDefValue v1 = mock(ClothesAttributeDefValue.class);
+        when(v1.getValue()).thenReturn("Black");
+        ClothesAttributeDefValue v2 = mock(ClothesAttributeDefValue.class);
+        when(v2.getValue()).thenReturn("White");
+
+        when(def.getValues()).thenReturn(List.of(v1, v2));
+
         when(clothesAttributeDefRepository.findAllById(anyList())).thenReturn(List.of(def));
 
         UUID savedId = UUID.randomUUID();
@@ -132,7 +136,13 @@ public class ClothesServiceTest {
 
         ClothesAttributeDef def = mock(ClothesAttributeDef.class);
         when(def.getId()).thenReturn(defId);
-        when(def.getSelectableValues()).thenReturn(List.of("Black", "White"));
+        ClothesAttributeDefValue v1 = mock(ClothesAttributeDefValue.class);
+        when(v1.getValue()).thenReturn("Black");
+
+        ClothesAttributeDefValue v2 = mock(ClothesAttributeDefValue.class);
+        when(v2.getValue()).thenReturn("White");
+
+        when(def.getValues()).thenReturn(List.of(v1, v2));
 
         when(clothesAttributeDefRepository.findAllById(anyList()))
                 .thenReturn(List.of(def));
