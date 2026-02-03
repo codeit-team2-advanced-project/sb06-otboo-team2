@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(JpaAuditingConfig.class)
-@Disabled("유저 id 생성 전략이 현재 안써져있어서 테스트 통과 불가. 추후 수정 시 재활성화")
 class DirectMessageWebSocketControllerTest {
 
     @LocalServerPort
