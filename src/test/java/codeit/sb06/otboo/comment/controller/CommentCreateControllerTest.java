@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CommentController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CommentControllerTest {
+public class CommentCreateControllerTest {
 
   @Autowired
   MockMvc mockMvc;
