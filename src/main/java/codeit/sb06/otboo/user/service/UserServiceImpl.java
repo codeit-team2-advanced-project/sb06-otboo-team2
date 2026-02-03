@@ -14,6 +14,7 @@ import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -38,6 +39,7 @@ public class UserServiceImpl {
     private final ProfileServiceImpl profileService;
     private final JavaMailSender mailSender;
     private final JwtRegistry jwtRegistry;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${otboo.mail.from}")
     private String from;
@@ -126,7 +128,7 @@ public class UserServiceImpl {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
         StringBuilder tempPassword = new StringBuilder();
         for (int i = 0; i < 12; i++) {
-            int index = (int) (Math.random() * chars.length());
+            int index = (int) (SECURE_RANDOM.nextInt() * chars.length());
             tempPassword.append(chars.charAt(index));
         }
         return tempPassword.toString();
