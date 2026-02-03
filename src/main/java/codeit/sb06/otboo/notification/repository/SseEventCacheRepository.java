@@ -37,10 +37,10 @@ public class SseEventCacheRepository {
             return Collections.emptyList();
         }
 
-        // eventId > lastEventId를 만족하는 이벤트 가져옴
+        // id > lastEventId를 만족하는 이벤트 가져옴
         // id에 시간 정보가 포함되어 있어 문자열 비교로도 시간 순서 비교 가능
         return sseEvents.stream()
-                .filter(event -> event.eventId().compareTo(lastEventId) > 0)
+                .filter(event -> event.id().compareTo(lastEventId) > 0)
                 .toList();
     }
 }

@@ -4,14 +4,14 @@ import lombok.Builder;
 
 @Builder
 public record SseEvent(
-        String eventId,
-        String eventName,
+        String id,
+        String name,
         Object data
 ) {
-    public static SseEvent of(String id, String eventName, Object data) {
+    public static SseEvent of(String eventId, String eventName, Object data) {
         return SseEvent.builder()
-                .eventId(id)
-                .eventName(eventName)
+                .id(eventId)
+                .name(eventName)
                 .data(data)
                 .build();
     }

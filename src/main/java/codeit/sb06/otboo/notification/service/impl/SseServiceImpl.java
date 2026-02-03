@@ -46,7 +46,7 @@ public class SseServiceImpl implements SseService {
         if (lastEventId != null && !lastEventId.isEmpty()) {
             sseEventCacheRepository.findAllAfterEventId(userId, lastEventId)
                     .forEach(event ->
-                            sendToClient(emitter, userId, SseEvent.of(event.eventId(), event.eventName(), event.data()))
+                            sendToClient(emitter, userId, SseEvent.of(event.id(), event.name(), event.data()))
                     );
         }
 
@@ -69,8 +69,8 @@ public class SseServiceImpl implements SseService {
     private void sendToClient(SseEmitter emitter, UUID userId, SseEvent event) {
         try {
             emitter.send(SseEmitter.event()
-                    .id(event.eventId())
-                    .name(event.eventName())
+                    .id(event.id())
+                    .name(event.name())
                     .data(event.data()));
         } catch (IOException e) {
             sseEmitterRepository.deleteById(userId);
