@@ -22,7 +22,7 @@ public class SseController {
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
             @CurrentUserId UUID userId,
-            @RequestParam(required = false) UUID lastEventId
+            @RequestParam(required = false) String lastEventId
     ) {
         return sseService.subscribe(userId, lastEventId);
     }
