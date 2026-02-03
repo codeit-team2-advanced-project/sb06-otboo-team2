@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/feeds/{feedId}/comments")
+@RequestMapping("/api/feeds")
 @Tag(name = "Comment", description = "댓글 API")
 public class CommentController{
 
@@ -34,7 +34,7 @@ public class CommentController{
       @ApiResponse(responseCode = "400", description = "피드 댓글 등록 실패")
   })
 
-  @PostMapping
+  @PostMapping("/{feedId}/comments")
   public ResponseEntity<CommentDto> createComment(
       @Parameter(description = "피드 Id", required = true)
       @PathVariable UUID feedId,
@@ -51,14 +51,15 @@ public class CommentController{
       @ApiResponse(responseCode = "400", description = "피드 댓글 조회 실패")
   })
 
-  @GetMapping
+  @GetMapping("/{feedId}/comments")
   public ResponseEntity<CommentDtoCursorResponse> getCommentList(
       @PathVariable UUID feedId,
-      @RequestParam(required = false) String Cursosr,
+      @RequestParam(required = false) String cursor,
       @RequestParam(required = false) UUID idAfter,
       @RequestParam Integer limit
   ){
-    return ResponseEntity.ok(null);
+    CommentDtoCursorResponse response = commentService.getComments(feedId, cursor, idAfter, limit);
+    return ResponseEntity.ok(response);
   }
 
 }
