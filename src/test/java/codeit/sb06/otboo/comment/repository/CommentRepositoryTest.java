@@ -9,7 +9,9 @@ import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,7 @@ public class CommentRepositoryTest {
             .build()
     );
 
-    for (int i = 25; i >=0; i--) {
+    for (int i = 24; i >=0; i--) {
       commentRepository.save(
           Comment.builder()
               .feed(feed)
@@ -59,21 +61,41 @@ public class CommentRepositoryTest {
     }
   }
 
+  // 첫 페이지 조회
   @Test
   void findFirstPage() {
 
-    // given
-    // 프로토 타입 상 limit 은 20으로 설정되었기에
-    int limit = 20;
-
       //when
      List<Comment> result =
-         commentRepository.findCommentListByCursor(feed.getId(), null, limit);
+         commentRepository.findCommentListByCursor(feed.getId(), null,null, 20);
 
      // then
       assertThat(result).hasSize(20);
       assertThat(result.get(0).getContent()).isEqualTo("테스트 댓글 1");
       assertThat(result.get(19).getContent()).isEqualTo("테스트 댓글 20");
+
+    }
+
+  // 다음 페이지 조회
+  @Test
+  void findNextPage() {
+
+    //given
+    List<Comment> firstPage =
+        commentRepository.findCommentListByCursor(feed.getId(), null, null, 20);
+
+    Comment lastComment = firstPage.get(firstPage.size()-1);
+    UUID lastCommentId = firstPage.get(firstPage.size()-1).getId();
+    LocalDateTime lastCreatedAt = lastComment.getCreatedAt();
+
+    // when
+    List<Comment> nextPage =
+        commentRepository.findCommentListByCursor(feed.getId(), lastCreatedAt, lastCommentId, 20);
+
+    //then
+    assertThat(nextPage).hasSize(5);
+    assertThat(nextPage.get(0).getContent()).isEqualTo("테스트 댓글 21");
+    assertThat(nextPage.get(3).getContent()).isEqualTo("테스트 댓글 24");
 
     }
 }
