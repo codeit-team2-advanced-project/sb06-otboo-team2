@@ -45,6 +45,23 @@ class SseServiceTest {
     }
 
     @Test
+    @DisplayName("연결 끊긴 후 다시 연결 시 기존 emitter를 삭제한다.")
+    void subscribeWhenAlreadyExistsTest() {
+        // given
+        SseEmitter existingEmitter = mock(SseEmitter.class);
+        given(sseEmitterRepository.findById(userId)).willReturn(existingEmitter);
+        given(sseEmitterRepository.save(eq(userId), any(SseEmitter.class)))
+                .willAnswer(invocation -> invocation.getArgument(1));
+
+        // when
+        SseEmitter newEmitter = sseService.subscribe(userId, "");
+
+        // then
+        assertThat(newEmitter).isNotNull();
+        verify(sseEmitterRepository, times(1)).deleteById(userId);
+    }
+
+    @Test
     @DisplayName("sse 이벤트 전송을 테스트한다.")
     void sendTest() {
         // given
