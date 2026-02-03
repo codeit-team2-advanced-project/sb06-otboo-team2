@@ -128,7 +128,7 @@ public class UserServiceImpl {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
         StringBuilder tempPassword = new StringBuilder();
         for (int i = 0; i < 12; i++) {
-            int index = (int) (SECURE_RANDOM.nextInt() * chars.length());
+            int index = (int) (SECURE_RANDOM.nextInt(chars.length()));
             tempPassword.append(chars.charAt(index));
         }
         return tempPassword.toString();
