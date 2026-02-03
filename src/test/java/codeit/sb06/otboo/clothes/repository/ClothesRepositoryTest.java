@@ -43,9 +43,9 @@ public class ClothesRepositoryTest {
     @Test
     void save_clothes_shouldCascadeSave_attributes() {
         // given
-        ClothesAttributeDef def = clothesAttributeDefRepository.save(
-                new ClothesAttributeDef("색상", List.of("Black", "White"))
-        );
+        ClothesAttributeDef def = new ClothesAttributeDef("색상");
+        def.replaceValues(List.of("Black", "White"));
+        def = clothesAttributeDefRepository.saveAndFlush(def);
 
         UUID ownerId = UUID.randomUUID();
         Clothes clothes = new Clothes(ownerId, "티셔츠", null, ClothesType.TOP);

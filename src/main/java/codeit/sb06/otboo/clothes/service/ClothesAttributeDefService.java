@@ -4,6 +4,7 @@ import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefCreateRequest;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefDto;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefUpdateRequest;
 import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
+import codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,7 +24,7 @@ public class ClothesAttributeDefService {
     private final ClothesAttributeDefRepository repository;
     private final ClothesAttributeRepository clothesAttributeRepository;
 
-    //속성 정의 등록
+    // 속성 정의 등록
     public ClothesAttributeDefDto create(ClothesAttributeDefCreateRequest request) {
         String name = normalizeName(request.name());
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
@@ -33,14 +34,17 @@ public class ClothesAttributeDefService {
         }
 
         try {
-            ClothesAttributeDef saved = repository.save(new ClothesAttributeDef(name, selectableValues));
+            ClothesAttributeDef def = new ClothesAttributeDef(name);
+            def.replaceValues(selectableValues);
+
+            ClothesAttributeDef saved = repository.save(def);
             return toDto(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("이미 존재하는 의상 속성 정의입니다: " + name);
         }
     }
 
-    //속성 정의 수정
+    // 속성 정의 수정
     public ClothesAttributeDefDto update(UUID id, ClothesAttributeDefUpdateRequest request) {
         String name = normalizeName(request.name());
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
@@ -53,13 +57,18 @@ public class ClothesAttributeDefService {
         }
 
         def.changeName(name);
-        def.replaceSelectableValues(selectableValues);
+        def.replaceValues(selectableValues);
 
         return toDto(def);
     }
 
-    //속성 정의 삭제
+    // 속성 정의 삭제
     public void delete(UUID id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id는 필수입니다.");
+        }
+
         ClothesAttributeDef def = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("의상 속성 정의를 찾을 수 없습니다: " + id));
 
@@ -69,7 +78,7 @@ public class ClothesAttributeDefService {
         repository.delete(def);
     }
 
-    // ✅ 속성 정의 목록 조회
+    // 속성 정의 목록 조회
     @Transactional(readOnly = true)
     public List<ClothesAttributeDefDto> getList(String sortBy, String sortDirection, String keywordLike) {
 
@@ -77,8 +86,8 @@ public class ClothesAttributeDefService {
         String keyword = normalizeKeywordLike(keywordLike);
 
         List<ClothesAttributeDef> defs = (keyword == null)
-                ? repository.findAll(sort)
-                : repository.searchByNameLike(keyword, sort);
+                ? repository.findAllWithValues(sort)
+                : repository.searchByNameLikeWithValues(keyword, sort);
 
         return defs.stream()
                 .map(this::toDto)
@@ -86,10 +95,14 @@ public class ClothesAttributeDefService {
     }
 
     private ClothesAttributeDefDto toDto(ClothesAttributeDef def) {
+        List<String> selectableValues = def.getValues().stream()
+                .map(ClothesAttributeDefValue::getValue)
+                .toList();
+
         return new ClothesAttributeDefDto(
                 def.getId(),
                 def.getName(),
-                def.getSelectableValues(),
+                selectableValues,
                 def.getCreatedAt()
         );
     }

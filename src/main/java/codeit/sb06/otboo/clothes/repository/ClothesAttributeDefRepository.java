@@ -19,11 +19,32 @@ public interface ClothesAttributeDefRepository extends JpaRepository<ClothesAttr
 
     Optional<ClothesAttributeDef> findByName(String name);
 
-    // 목록 조회: 대소문자 구분 보장을 위해 JPQL사용
+
     @Query("""
-           select d
+           select distinct d
            from ClothesAttributeDef d
+           left join fetch d.values v
+           where d.id = :id
+           """)
+    Optional<ClothesAttributeDef> findByIdWithValues(@Param("id") UUID id);
+
+    // keywordLike 있을 때
+    @Query("""
+           select distinct d
+           from ClothesAttributeDef d
+           left join fetch d.values v
            where d.name like concat('%', :keywordLike, '%')
            """)
-    List<ClothesAttributeDef> searchByNameLike(@Param("keywordLike") String keywordLike, Sort sort);
+    List<ClothesAttributeDef> searchByNameLikeWithValues(
+            @Param("keywordLike") String keywordLike,
+            Sort sort
+    );
+
+    // keywordLike 없을때
+    @Query("""
+           select distinct d
+           from ClothesAttributeDef d
+           left join fetch d.values v
+           """)
+    List<ClothesAttributeDef> findAllWithValues(Sort sort);
 }
