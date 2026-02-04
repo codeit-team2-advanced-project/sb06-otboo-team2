@@ -80,7 +80,6 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 chatRoom,
                 cursor,
                 idAfter,
-                // 다음 페이지 존재 여부 확인을 위해 limit + 1개 조회
                 // pageable로 원하는 개수만큼 조회
                 PageRequest.of(0, limit)
         );
