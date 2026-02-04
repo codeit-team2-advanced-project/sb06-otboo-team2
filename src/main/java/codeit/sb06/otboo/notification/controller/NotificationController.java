@@ -2,9 +2,9 @@ package codeit.sb06.otboo.notification.controller;
 
 import codeit.sb06.otboo.notification.dto.response.NotificationDtoCursorResponse;
 import codeit.sb06.otboo.notification.service.NotificationService;
+import codeit.sb06.otboo.security.CurrentUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public class NotificationController {
             @RequestParam(required = false) LocalDateTime cursor,
             @RequestParam(required = false) UUID idAfter,
             @RequestParam int limit,
-            @AuthenticationPrincipal(expression = "userDto.id()") UUID myUserId
+            @CurrentUserId UUID myUserId
             ) {
         NotificationDtoCursorResponse response = notificationService.getNotifications(cursor, idAfter, limit, myUserId);
         return ResponseEntity.ok(response);

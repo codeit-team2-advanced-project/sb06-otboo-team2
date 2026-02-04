@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.weather.dto.weather;
+package codeit.sb06.otboo.weather.dto.location;
 
 import java.util.List;
 
