@@ -238,7 +238,7 @@ class UserControllerTest {
         when(profileServiceImpl.updateProfile(eq(userId), any(), isNull())).thenReturn(profileDto);
 
         MockMultipartFile profile = new MockMultipartFile(
-            "profile",
+            "request",
             "",
             MediaType.APPLICATION_JSON_VALUE,
             """
