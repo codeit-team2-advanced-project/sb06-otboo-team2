@@ -67,9 +67,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/profiles")
-    public ResponseEntity<ProfileDto> getProfile(@PathVariable String userId){
+    public ResponseEntity<ProfileDto> getProfile(@PathVariable UUID userId){
         log.info("Get profile requested for userId: {}", userId);
-        ProfileDto profileDto = profileServiceImpl.getProfileByUserId(UUID.fromString(userId));
+        ProfileDto profileDto = profileServiceImpl.getProfileByUserId(userId);
         return ResponseEntity.ok(profileDto);
     }
 
