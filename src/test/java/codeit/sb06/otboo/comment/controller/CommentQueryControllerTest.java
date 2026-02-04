@@ -11,6 +11,7 @@ import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.dto.CommentDtoCursorResponse;
 import codeit.sb06.otboo.comment.service.CommentService;
+import codeit.sb06.otboo.exception.comment.CommentListReadFailException;
 import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,6 +92,31 @@ public class CommentQueryControllerTest {
   }
 
   // 피드 댓글 조회 실패
+  // 요청은 정상이나, 로직에서 실패
   @Test
-  void getCommentList_fail_400response() throws Exception {}
+  void getCommentList_fail_400response() throws Exception {
+
+    //given
+    int limit = 2;
+
+    when(commentService.getComments(eq(feedId), any(), any(), eq(limit)))
+        .thenThrow(new CommentListReadFailException());
+
+    mockMvc.perform(get("/api/feeds/{feedId}/comments", feedId)
+            .param("limit", String.valueOf(limit)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.exceptionName")
+            .value("CommentListReadFailException"))
+        .andExpect(jsonPath("$.message")
+            .value("댓글 목록 조회 실패"))
+        .andExpect(jsonPath("$.details").exists());
+  }
+
+  // 요청 자체가 잘못된 경우
+  // 리밋은 프론트딴에서 던져주니 요청이 잘못될 일이 있을까.
+  @Test
+  void getCommentList_failRequest_400response() throws Exception {
+    mockMvc.perform(get("/api/feeds/{feedId}/comments", feedId))
+        .andExpect(status().isBadRequest());
+  }
 }
