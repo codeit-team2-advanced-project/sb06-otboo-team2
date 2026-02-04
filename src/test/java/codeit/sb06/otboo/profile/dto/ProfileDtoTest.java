@@ -3,6 +3,7 @@ package codeit.sb06.otboo.profile.dto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import codeit.sb06.otboo.profile.entity.Gender;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
@@ -32,25 +33,24 @@ class ProfileDtoTest {
         Profile profile = new Profile(
             UUID.randomUUID(),
             "name",
-            LocalDateTime.of(2000, 1, 1, 0, 0),
+            "2000-01-01",
             2,
             "image",
-            "UNSPECIFIED",
+            Gender.ETC,
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
-            List.of("seoul"),
             1,
             2,
             user
         );
 
-        ProfileDto dto = ProfileDto.from(profile);
+        ProfileDto dto = ProfileDto.from(profile, List.of("seoul"));
 
         assertNotNull(dto);
         assertEquals(user.getId(), dto.userId());
         assertEquals("name", dto.name());
-        assertEquals("UNSPECIFIED", dto.gender());
-        assertEquals(LocalDateTime.of(2000, 1, 1, 0, 0), dto.birthDate());
+        assertEquals("ETC", dto.gender());
+        assertEquals("2000-01-01", dto.birthDate());
         assertEquals(List.of("seoul"), dto.locations());
         assertEquals(2, dto.temperatureSensitivity());
         assertEquals("image", dto.profileImageUrl());

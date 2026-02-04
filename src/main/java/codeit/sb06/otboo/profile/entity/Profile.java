@@ -1,15 +1,18 @@
 package codeit.sb06.otboo.profile.entity;
 
+import codeit.sb06.otboo.profile.dto.ProfileUpdateRequest;
 import codeit.sb06.otboo.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "profiles")
 public class Profile {
 
     @Id
@@ -31,16 +35,16 @@ public class Profile {
     private UUID id;
 
     private String name;
-    private LocalDateTime birthday;
+    private String birthday;
     private int sensitivity;
     private String imageUrl;
 
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private List<String> locations;
 
     private int followerCount;
     private int followingCount;
@@ -57,11 +61,22 @@ public class Profile {
             .birthday(null)
             .sensitivity(3)
             .gender(null)
-            .imageUrl(user.getProfileImageUrl())
-            .locations(List.of())
+            .imageUrl(null)
             .userId(user)
             .followerCount(0)
             .followingCount(0)
             .build();
     }
+
+    public void updateProfile(ProfileUpdateRequest profileUpdateRequest) {
+        this.name = profileUpdateRequest.name();
+        this.birthday = profileUpdateRequest.birthDate();
+        this.sensitivity = profileUpdateRequest.temperatureSensitivity();
+        this.gender = Gender.valueOf(profileUpdateRequest.gender());
+    }
+
+    public void changeProfileImage(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
 }

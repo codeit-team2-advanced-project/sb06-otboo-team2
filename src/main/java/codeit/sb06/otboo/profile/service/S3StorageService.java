@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -23,7 +21,7 @@ public class S3StorageService {
 
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${spring.cloud.aws.s3.presigned-url-expriration}")
+    @Value("${spring.cloud.aws.s3.presigned-url-expiration}")
     private String presignedUrlExpiration;
 
     private final S3Client s3Client;

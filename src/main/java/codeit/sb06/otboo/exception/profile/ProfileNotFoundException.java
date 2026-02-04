@@ -5,10 +5,10 @@ public class ProfileNotFoundException extends ProfileException{
     private static final String DEFAULT_MESSAGE = "Profile not found";
 
     public ProfileNotFoundException() {
-        super(DEFAULT_MESSAGE, 404);
+        super(DEFAULT_MESSAGE, 400);
     }
 
     public ProfileNotFoundException(Throwable cause) {
-        super(DEFAULT_MESSAGE, cause, 404);
+        super(DEFAULT_MESSAGE, cause, 400);
     }
 }

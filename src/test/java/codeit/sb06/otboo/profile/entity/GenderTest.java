@@ -9,8 +9,9 @@ class GenderTest {
 
     @Test
     void exposesExpectedValues() {
-        assertArrayEquals(new Gender[]{Gender.MALE, Gender.FEMALE}, Gender.values());
+        assertArrayEquals(new Gender[]{Gender.ETC, Gender.MALE, Gender.FEMALE}, Gender.values());
         assertEquals(Gender.MALE, Gender.valueOf("MALE"));
         assertEquals(Gender.FEMALE, Gender.valueOf("FEMALE"));
+        assertEquals(Gender.ETC, Gender.valueOf("ETC"));
     }
 }

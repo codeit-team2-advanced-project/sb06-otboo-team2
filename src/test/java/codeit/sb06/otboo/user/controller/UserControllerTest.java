@@ -2,14 +2,17 @@ package codeit.sb06.otboo.user.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import codeit.sb06.otboo.profile.dto.ProfileDto;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.dto.response.UserDtoCursorResponse;
 import codeit.sb06.otboo.user.entity.Role;
@@ -42,6 +45,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.mock.web.MockMultipartFile;
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -217,6 +221,50 @@ class UserControllerTest {
             .andExpect(status().isNoContent());
 
         verify(userServiceImpl).changePassword(eq(userId), any());
+    }
+
+    @Test
+    void updateProfileAcceptsMultipartFormData() throws Exception {
+        UUID userId = UUID.randomUUID();
+        ProfileDto profileDto = new ProfileDto(
+            userId,
+            "new-name",
+            "ETC",
+            "2000-01-01",
+            List.of("seoul"),
+            3,
+            "s3-key"
+        );
+        when(profileServiceImpl.updateProfile(eq(userId), any(), isNull())).thenReturn(profileDto);
+
+        MockMultipartFile profile = new MockMultipartFile(
+            "profile",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            """
+            {
+              "name":"new-name",
+              "gender":"ETC",
+              "birthDate":"2000-01-01",
+              "locationDto":{"latitude":37.5,"longitude":126.9,"x":60,"y":127,"locationNames":["seoul"]},
+              "temperatureSensitivity":3
+            }
+            """.getBytes()
+        );
+
+        mockMvc.perform(
+                multipart("/api/users/{userId}/profiles", userId)
+                    .file(profile)
+                    .with(request -> {
+                        request.setMethod("PATCH");
+                        return request;
+                    })
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userId").value(userId.toString()))
+            .andExpect(jsonPath("$.name").value("new-name"))
+            .andExpect(jsonPath("$.gender").value("ETC"));
     }
 
     private void setAuthentication(Role role) {
