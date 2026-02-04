@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.message.service.impl;
 
+import codeit.sb06.otboo.exception.message.ChatRoomNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.message.dto.request.DirectMessageCreateRequest;
 import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
@@ -41,9 +43,9 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     public DirectMessageDto create(DirectMessageCreateRequest request) {
 
         User sender = userRepository.findById(request.senderId())
-                .orElseThrow(()-> new IllegalArgumentException("Sender not found"));
+                .orElseThrow(UserNotFoundException::new);
         User receiver = userRepository.findById(request.receiverId())
-                .orElseThrow(()-> new IllegalArgumentException("Receiver not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         ChatRoom chatRoom = chatRoomService.getOrCreatePrivateRoom(request.senderId(), request.receiverId());
 
@@ -71,7 +73,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         String dmKey = ChatRoom.generateDmKey(myUserId, senderId);
 
         ChatRoom chatRoom = chatRoomRepository.findByDmKey(dmKey)
-                .orElseThrow(()-> new IllegalArgumentException("ChatRoom not found for dmKey: " + dmKey));
+                .orElseThrow(ChatRoomNotFoundException::new);
 
         List<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
                 chatRoom,
