@@ -8,7 +8,8 @@ import static org.mockito.BDDMockito.given;
 import codeit.sb06.otboo.weather.client.KakaoLocationClient;
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
-import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse.Metric;
 import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
 import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
 import codeit.sb06.otboo.weather.dto.weather.WeatherDto;
@@ -57,21 +58,21 @@ class WeatherServiceTest {
         .toEpochSecond();
     long dt2 = dt1 + 3 * 3600;
 
-    OpenWeatherForecastResponse response = new OpenWeatherForecastResponse(List.of(
-        new OpenWeatherForecastResponse.Item(
+    OpenWeatherForecastApiResponse response = new OpenWeatherForecastApiResponse(List.of(
+        new OpenWeatherForecastApiResponse.Item(
             dt1,
-            new OpenWeatherForecastResponse.Main(10.0, 9.0, 12.0, 60.0),
-            List.of(new OpenWeatherForecastResponse.Weather("Clear")),
-            new OpenWeatherForecastResponse.Wind(2.0),
-            new OpenWeatherForecastResponse.Rain(1.2),
+            new Metric(10.0, 9.0, 12.0, 60.0),
+            List.of(new OpenWeatherForecastApiResponse.Weather("Clear")),
+            new OpenWeatherForecastApiResponse.Wind(2.0),
+            new OpenWeatherForecastApiResponse.Rain(1.2),
             null,
             0.1
         ),
-        new OpenWeatherForecastResponse.Item(
+        new OpenWeatherForecastApiResponse.Item(
             dt2,
-            new OpenWeatherForecastResponse.Main(8.0, 7.0, 11.0, 40.0),
-            List.of(new OpenWeatherForecastResponse.Weather("Clear")),
-            new OpenWeatherForecastResponse.Wind(4.0),
+            new Metric(8.0, 7.0, 11.0, 40.0),
+            List.of(new OpenWeatherForecastApiResponse.Weather("Clear")),
+            new OpenWeatherForecastApiResponse.Wind(4.0),
             null,
             null,
             0.3

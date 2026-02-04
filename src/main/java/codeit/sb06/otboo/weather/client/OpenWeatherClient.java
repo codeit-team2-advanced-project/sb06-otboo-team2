@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.weather.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +17,7 @@ public class OpenWeatherClient {
   private final ObjectMapper objectMapper;
   private final SimpleHttpClient httpClient;
 
-  public OpenWeatherForecastResponse fetchForecast(double latitude, double longitude)
+  public OpenWeatherForecastApiResponse fetchForecast(double latitude, double longitude)
       throws Exception {
     String url =
         "https://api.openweathermap.org/data/2.5/forecast"
@@ -27,6 +27,6 @@ public class OpenWeatherClient {
             + "&units=metric";
 
     String raw = httpClient.get(url, Map.of("Accept", "application/json"));
-    return objectMapper.readValue(raw, OpenWeatherForecastResponse.class);
+    return objectMapper.readValue(raw, OpenWeatherForecastApiResponse.class);
   }
 }

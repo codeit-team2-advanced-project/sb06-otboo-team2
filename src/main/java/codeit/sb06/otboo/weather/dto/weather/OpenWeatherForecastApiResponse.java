@@ -5,14 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record OpenWeatherForecastResponse(
+public record OpenWeatherForecastApiResponse(
     List<Item> list
 ) {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Item(
       long dt,
-      Main main,
+      @JsonProperty("main")
+      Metric metric,
       @JsonProperty("weather")
       List<Weather> weather,
       Wind wind,
@@ -22,37 +23,35 @@ public record OpenWeatherForecastResponse(
   ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record Main(
-      @JsonProperty("temp")
+  public record Metric(
       double temp,
       @JsonProperty("temp_min")
       double tempMin,
       @JsonProperty("temp_max")
       double tempMax,
-      @JsonProperty("humidity")
       double humidity
   ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Weather(
-      String main
+      @JsonProperty("main")
+      String condition
   ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Wind(
-      @JsonProperty("speed")
       double speed
   ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Rain(
       @JsonProperty("3h")
-      Double volume3h
+      Double amountFor3h
   ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Snow(
       @JsonProperty("3h")
-      Double volume3h
+      Double amountFor3h
   ) {}
 }

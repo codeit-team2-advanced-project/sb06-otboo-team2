@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.client.SimpleHttpClient;
-import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -64,13 +64,13 @@ class OpenWeatherClientTest {
     given(httpClient.get(eq(expectedUrl), anyMap())).willReturn(json);
 
     // when
-    OpenWeatherForecastResponse result = client.fetchForecast(lat, lon);
+    OpenWeatherForecastApiResponse result = client.fetchForecast(lat, lon);
 
     // then
     assertThat(result).isNotNull();
     assertThat(result.list()).hasSize(1);
-    assertThat(result.list().get(0).main().temp()).isEqualTo(10.5);
-    assertThat(result.list().get(0).weather().get(0).main()).isEqualTo("Clear");
+    assertThat(result.list().get(0).metric().temp()).isEqualTo(10.5);
+    assertThat(result.list().get(0).weather().get(0).condition()).isEqualTo("Clear");
 
     // 헤더 검증 (Accept 정확히 붙는지)
     then(httpClient).should().get(

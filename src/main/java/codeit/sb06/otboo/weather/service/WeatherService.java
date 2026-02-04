@@ -5,7 +5,7 @@ import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.*;
-import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastResponse.Item;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse.Item;
 import codeit.sb06.otboo.weather.entity.Weather;
 import codeit.sb06.otboo.weather.mapper.WeatherMapper;
 import codeit.sb06.otboo.weather.model.SnapshotCandidate;
@@ -35,7 +35,7 @@ public class WeatherService {
       throws Exception {
     double normalizedLatitude = round2(latitude);
     double normalizedLongitude = round2(longitude);
-    OpenWeatherForecastResponse response = openWeatherClient.fetchForecast(latitude, longitude);
+    OpenWeatherForecastApiResponse response = openWeatherClient.fetchForecast(latitude, longitude);
     LocationDto location = kakaoLocationClient.resolveLocationSafely(longitude, latitude);
     List<SnapshotCandidate> candidates = aggregateDaily(response, FORECAST_ZONE);
 
@@ -50,7 +50,7 @@ public class WeatherService {
     return candidates.stream()
         .map(c -> existingByDate.get(c.date()))
         .filter(s -> s != null)
-        .map(s -> weatherMapper.toWeatherDto(s, location))
+        .map(s -> WeatherDto.from(s, location))
         .toList();
   }
 
@@ -60,7 +60,7 @@ public class WeatherService {
   }
 
   public List<SnapshotCandidate> aggregateDaily(
-      OpenWeatherForecastResponse response,
+      OpenWeatherForecastApiResponse response,
       ZoneId zoneId
   ) {
     if (response == null || response.list() == null || response.list().isEmpty()) {
@@ -84,7 +84,7 @@ public class WeatherService {
 
   private SnapshotCandidate toCandidate(
       LocalDate date,
-      List<OpenWeatherForecastResponse.Item> items,
+      List<OpenWeatherForecastApiResponse.Item> items,
       ZoneId zoneId
   ) {
     if (items == null || items.isEmpty()) {
@@ -99,8 +99,8 @@ public class WeatherService {
       );
     }
 
-    double minTemp = items.stream().mapToDouble(i -> i.main().tempMin()).min().orElse(0);
-    double maxTemp = items.stream().mapToDouble(i -> i.main().tempMax()).max().orElse(0);
+    double minTemp = items.stream().mapToDouble(i -> i.metric().tempMin()).min().orElse(0);
+    double maxTemp = items.stream().mapToDouble(i -> i.metric().tempMax()).max().orElse(0);
 
     LocalDateTime target = date.atTime(12, 0);
     long targetEpoch = target.atZone(zoneId).toEpochSecond();
@@ -112,16 +112,16 @@ public class WeatherService {
         ))
         .orElse(items.get(0));
 
-    double currentTemp = closest.main().temp();
-    double currentHumidity = closest.main().humidity();
+    double currentTemp = closest.metric().temp();
+    double currentHumidity = closest.metric().humidity();
     double windSpeed = closest.wind() != null ? closest.wind().speed() : 0.0;
     double pop = closest.pop() != null ? closest.pop() : 0.0;
 
-    double rainAmount = closest.rain() != null && closest.rain().volume3h() != null
-        ? closest.rain().volume3h()
+    double rainAmount = closest.rain() != null && closest.rain().amountFor3h() != null
+        ? closest.rain().amountFor3h()
         : 0.0;
-    double snowAmount = closest.snow() != null && closest.snow().volume3h() != null
-        ? closest.snow().volume3h()
+    double snowAmount = closest.snow() != null && closest.snow().amountFor3h() != null
+        ? closest.snow().amountFor3h()
         : 0.0;
 
     PrecipitationType precipitationType =
@@ -146,10 +146,10 @@ public class WeatherService {
     );
   }
 
-  private String firstWeatherMain(List<OpenWeatherForecastResponse.Weather> weatherList) {
+  private String firstWeatherMain(List<OpenWeatherForecastApiResponse.Weather> weatherList) {
     if (weatherList == null || weatherList.isEmpty() || weatherList.get(0) == null) return null;
     var w = weatherList.get(0);
-    return w.main();
+    return w.condition();
   }
 
   private Map<LocalDate, Weather> findExistingByDate(
@@ -189,8 +189,8 @@ public class WeatherService {
     return Math.round(v * 100.0) / 100.0;
   }
 
-  private SkyStatus mapSkyStatus(String main) {
-    return switch (main) {
+  private SkyStatus mapSkyStatus(String condition) {
+    return switch (condition) {
       case "Clear" -> SkyStatus.CLEAR;
       case "Clouds" -> SkyStatus.CLOUDY;
       case "Rain", "Snow" -> SkyStatus.MOSTLY_CLOUDY;
