@@ -79,7 +79,7 @@ public class BasicCommentService implements CommentService {
     String nextCursor = null;
     UUID nextIdAfter = null;
 
-    if(!commentList.isEmpty()) {
+    if(hasNext && !commentList.isEmpty()) {
       Comment lastComment  = commentList.get(commentList.size()-1);
 
       LocalDateTime createdAt = lastComment.getCreatedAt();
