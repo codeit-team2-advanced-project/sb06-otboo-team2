@@ -4,5 +4,5 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 
 public interface FollowService {
-  FollowDto createFollow(FollowCreateRequest FollowCreateRequest);
+  FollowDto createFollow(FollowCreateRequest followCreateRequest);
 }
