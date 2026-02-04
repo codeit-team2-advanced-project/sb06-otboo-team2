@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.message.handler;
+package codeit.sb06.otboo.message.interceptor;
 
 import codeit.sb06.otboo.exception.auth.InvalidTokenException;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;

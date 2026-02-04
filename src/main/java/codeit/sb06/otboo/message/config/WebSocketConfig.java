@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.message.config;
 
-import codeit.sb06.otboo.message.handler.WebSocketChannelInterceptor;
+import codeit.sb06.otboo.message.interceptor.WebSocketChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
