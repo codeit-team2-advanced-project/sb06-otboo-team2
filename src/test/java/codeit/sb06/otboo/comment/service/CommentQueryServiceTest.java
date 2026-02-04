@@ -88,8 +88,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.findById(feedId))
-        .thenReturn(Optional.of(feed));
+    when(feedRepository.existsById(feedId))
+        .thenReturn(true);
 
     when(commentRepository.findCommentListByCursor(
         eq(feedId),
@@ -117,8 +117,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.findById(feedId))
-        .thenReturn(Optional.of(feed));
+    when(feedRepository.existsById(feedId))
+        .thenReturn(true);
 
     // 다음 페이지 기준 c2
     String cursor = c2.getCreatedAt().toString();
@@ -152,8 +152,8 @@ public class CommentQueryServiceTest {
     // given
     int limit = 2;
 
-    when(feedRepository.findById(feedId))
-        .thenReturn(Optional.of(feed));
+    when(feedRepository.existsById(feedId))
+        .thenReturn(true);
 
     // 마지막 페이지 c1 기준
     String cursor = c1.getCreatedAt().toString();
