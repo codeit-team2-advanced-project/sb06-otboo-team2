@@ -19,6 +19,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(JpaAuditingConfig.class)
-@Disabled("유저 id 생성 전략이 현재 안써져있어서 테스트 통과 불가. 추후 수정 시 재활성화")
+@ActiveProfiles("test")
 class DirectMessageWebSocketControllerTest {
 
     @LocalServerPort

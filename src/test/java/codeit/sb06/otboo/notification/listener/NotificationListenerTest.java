@@ -3,6 +3,7 @@ package codeit.sb06.otboo.notification.listener;
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
 import codeit.sb06.otboo.notification.event.*;
 import codeit.sb06.otboo.notification.service.NotificationService;
+import codeit.sb06.otboo.notification.service.SseService;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,9 @@ class NotificationListenerTest {
     private final EasyRandom easyRandom = EasyRandomUtil.getRandom();
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private SseService sseService;
 
     @InjectMocks
     private NotificationEventListener listener;

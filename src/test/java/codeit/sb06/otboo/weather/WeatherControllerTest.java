@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.test.web.servlet.MockMvc;
 
 
@@ -29,6 +30,9 @@ class WeatherControllerTest {
 
   @MockBean
   private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+  @MockBean
+  private RoleHierarchy roleHierarchy;
 
   @Test
   void 현재_날씨_요청_파라미터_검증_실패() throws Exception {
