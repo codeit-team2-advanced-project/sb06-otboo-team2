@@ -19,6 +19,7 @@ import codeit.sb06.otboo.message.service.DirectMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,17 +76,15 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         ChatRoom chatRoom = chatRoomRepository.findByDmKey(dmKey)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
-        List<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
+        Slice<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
                 chatRoom,
                 cursor,
                 idAfter,
                 // 다음 페이지 존재 여부 확인을 위해 limit + 1개 조회
                 // pageable로 원하는 개수만큼 조회
-                PageRequest.of(0, limit + 1)
+                PageRequest.of(0, limit)
         );
 
-        long totalCount = directMessageRepository.countByChatRoom(chatRoom);
-
-        return directMessageMapper.toDtoCursorResponse(directMessages, limit, totalCount);
+        return directMessageMapper.toDtoCursorResponse(directMessages);
     }
 }

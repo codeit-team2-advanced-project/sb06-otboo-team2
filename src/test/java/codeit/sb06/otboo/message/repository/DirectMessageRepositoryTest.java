@@ -15,7 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.UUID;
@@ -67,14 +67,15 @@ class DirectMessageRepositoryTest {
         Pageable pageable = PageRequest.of(0, 11);
 
         // when
-        List<DirectMessage> firstPage = directMessageRepository.findByChatRoomWithCursor(chatRoom, null, null, pageable);
+        Slice<DirectMessage> firstPage = directMessageRepository.findByChatRoomWithCursor(chatRoom, null, null, pageable);
+        List<DirectMessage> firstPageContent = firstPage.getContent();
 
         // then
         assertAll(
                 () -> assertThat(firstPage).hasSize(11),
                 // 최신 메시지부터 조회되는지 확인
-                () -> assertThat(firstPage.get(0).getContent()).isEqualTo("안녕 20"),
-                () -> assertThat(firstPage.get(10).getContent()).isEqualTo("안녕 10")
+                () -> assertThat(firstPageContent.get(0).getContent()).isEqualTo("안녕 20"),
+                () -> assertThat(firstPageContent.get(10).getContent()).isEqualTo("안녕 10")
         );
     }
 }

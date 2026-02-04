@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -95,15 +97,14 @@ class DirectMessageServiceImplTest {
         int limit = 10;
         ChatRoom mockChatRoom = mock(ChatRoom.class);
         List<DirectMessage> directMessages = easyRandom.objects(DirectMessage.class, limit + limit).toList();
-        List<DirectMessage> expectedMessages = directMessages.subList(0, limit + 1);
+        List<DirectMessage> top10 = directMessages.subList(0, limit);
+        Slice<DirectMessage> directMessageSlice = new SliceImpl<>(top10, PageRequest.of(0, 10), true);
 
         given(chatRoomRepository.findByDmKey(anyString()))
                 .willReturn(Optional.of(mockChatRoom));
         given(directMessageRepository.findByChatRoomWithCursor(
-                mockChatRoom, null, null, PageRequest.of(0, limit + 1)))
-                .willReturn(expectedMessages);
-        given(directMessageRepository.countByChatRoom(mockChatRoom))
-                .willReturn(100L);
+                mockChatRoom, null, null, PageRequest.of(0, limit)))
+                .willReturn(directMessageSlice);
 
         // when
         DirectMessageDtoCursorResponse response = directMessageService.getDirectMessages(
