@@ -135,10 +135,12 @@ public class CommentQueryServiceTest {
     var response = basicCommentService.getComments(feedId, cursor, idAfter, limit);
 
     // then
+    // 다음 페이지에서 나온거 c1
     assertEquals(1, response.data().size());
     assertEquals("테스트 댓글 1", response.data().get(0).content());
-    assertEquals(c1.getCreatedAt().toString(), response.nextCursor());
-    assertEquals(c1.getId(), response.nextIdAfter());
+    //기존은 다음 페이지 있냐로 작성했으나, 지금은 1 다음 페이지 없으니 null 나오는지 확인
+    assertNull(response.nextCursor());
+    assertNull(response.nextIdAfter());
     assertFalse(response.hasNext());
 
   }
