@@ -69,10 +69,20 @@ public class Profile {
     }
 
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest) {
-        this.name = profileUpdateRequest.name();
-        this.birthday = profileUpdateRequest.birthDate();
-        this.sensitivity = profileUpdateRequest.temperatureSensitivity();
-        this.gender = Gender.valueOf(profileUpdateRequest.gender());
+        if(profileUpdateRequest.name() != null){
+            this.name = profileUpdateRequest.name();
+        }
+        if(profileUpdateRequest.birthDate() != null){
+            this.birthday = profileUpdateRequest.birthDate();
+        }
+        if(profileUpdateRequest.temperatureSensitivity() != 0){
+            this.sensitivity = profileUpdateRequest.temperatureSensitivity();
+        }
+        if(profileUpdateRequest.gender() == null) {
+            this.gender = null;
+        } else {
+            this.gender = Gender.valueOf(profileUpdateRequest.gender());
+        }
     }
 
     public void changeProfileImage(String imageUrl) {

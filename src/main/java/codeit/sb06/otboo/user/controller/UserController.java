@@ -86,8 +86,8 @@ public class UserController {
 
     @PatchMapping(value = "/{userId}/profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProfileDto> updateProfile(@PathVariable UUID userId,
-        @RequestPart("profile") ProfileUpdateRequest profileUpdateRequest,
-        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+        @RequestPart(value = "request") ProfileUpdateRequest profileUpdateRequest,
+        @RequestPart(value = "image", required = false) MultipartFile profileImage){
 
         log.info("Update profile requested for userId: {}", userId);
         ProfileDto updatedProfile = profileServiceImpl.updateProfile(userId, profileUpdateRequest, profileImage);
