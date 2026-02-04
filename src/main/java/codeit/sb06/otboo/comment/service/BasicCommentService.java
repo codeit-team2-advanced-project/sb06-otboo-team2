@@ -56,16 +56,14 @@ public class BasicCommentService implements CommentService {
   public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
       Integer limit) {
 
-    feedRepository.findById(feedId)
-        .orElseThrow();
+    if (!feedRepository.existsById(feedId)) {
+      throw new IllegalArgumentException();
+    }
 
-    LocalDateTime lastCreatedAt;
+    LocalDateTime lastCreatedAt = null;
 
     if(cursor!= null){
       lastCreatedAt = LocalDateTime.parse(cursor);
-    }
-    else {
-     lastCreatedAt = null;
     }
     List<Comment> commentList = commentRepository.findCommentListByCursor(feedId,lastCreatedAt, idAfter, limit+1);
 
