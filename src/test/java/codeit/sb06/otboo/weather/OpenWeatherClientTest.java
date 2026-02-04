@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.client.SimpleHttpClient;
-import com.fasterxml.jackson.databind.JsonNode;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -35,13 +35,13 @@ class OpenWeatherClientTest {
   }
 
   @Test
-  void fetchCurrentWeatherJson_정상적으로_호출하고_JSON을_파싱한다() throws Exception {
+  void fetchForecast_정상적으로_호출하고_JSON을_파싱한다() throws Exception {
     // given
     double lat = 37.5665;
     double lon = 126.9780;
 
     String expectedUrl =
-        "https://api.openweathermap.org/data/2.5/weather"
+        "https://api.openweathermap.org/data/2.5/forecast"
             + "?lat=" + lat
             + "&lon=" + lon
             + "&appid=test-openweather-key"
@@ -49,20 +49,28 @@ class OpenWeatherClientTest {
 
     String json = """
         {
-          "main": { "temp": 10.5 },
-          "weather": [ { "main": "Clear" } ]
+          "list": [
+            {
+              "dt": 1700000000,
+              "main": { "temp": 10.5, "temp_min": 9.0, "temp_max": 12.0, "humidity": 60 },
+              "weather": [ { "main": "Clear", "icon": "01d" } ],
+              "wind": { "speed": 2.5 },
+              "pop": 0.2
+            }
+          ]
         }
         """;
 
     given(httpClient.get(eq(expectedUrl), anyMap())).willReturn(json);
 
     // when
-    JsonNode result = client.fetchCurrentWeatherJson(lat, lon);
+    OpenWeatherForecastApiResponse result = client.fetchForecast(lat, lon);
 
     // then
     assertThat(result).isNotNull();
-    assertThat(result.get("main").get("temp").asDouble()).isEqualTo(10.5);
-    assertThat(result.get("weather").get(0).get("main").asText()).isEqualTo("Clear");
+    assertThat(result.list()).hasSize(1);
+    assertThat(result.list().get(0).metric().temp()).isEqualTo(10.5);
+    assertThat(result.list().get(0).weather().get(0).condition()).isEqualTo("Clear");
 
     // 헤더 검증 (Accept 정확히 붙는지)
     then(httpClient).should().get(

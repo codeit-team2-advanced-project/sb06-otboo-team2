@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.*;
 import codeit.sb06.otboo.weather.client.KakaoLocationClient;
 import codeit.sb06.otboo.weather.client.SimpleHttpClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
-import codeit.sb06.otboo.weather.dto.weather.LocationDto;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Map;
