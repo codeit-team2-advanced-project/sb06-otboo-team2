@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import codeit.sb06.otboo.exception.follow.SelfFollowDeniedException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FolloweeDto;
@@ -75,4 +76,30 @@ public class FollowCreateResponseTest {
           .andExpect(jsonPath("$.followee.userId").value(followeeId.toString()))
           .andExpect(jsonPath("$.follower.userId").value(followerId.toString()));
     }
+
+  @Test
+  void follow_fail_400response_sameUser() throws Exception {
+
+    UUID userId = UUID.randomUUID();
+
+    UUID followerId = userId;
+    UUID followeeId = userId;
+
+    FollowCreateRequest request = new FollowCreateRequest(followeeId, followerId);
+
+    when(followService.createFollow(any(FollowCreateRequest.class)))
+        .thenThrow(new SelfFollowDeniedException());
+
+    mockMvc.perform(post("/api/follows")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request))
+        )
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.exceptionName")
+            .value("SelfFollowDeniedException"))
+        .andExpect(jsonPath("$.message")
+            .value("자기 자신을 팔로우 할 수 없습니다."))
+        .andExpect(jsonPath("$.details").exists());
+
+  }
 }
