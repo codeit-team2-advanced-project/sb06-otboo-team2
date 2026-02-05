@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import codeit.sb06.otboo.exception.follow.SelfFollowDeniedException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FolloweeDto;
@@ -101,5 +102,30 @@ public class FollowCreateResponseTest {
             .value("자기 자신을 팔로우 할 수 없습니다."))
         .andExpect(jsonPath("$.details").exists());
 
+  }
+
+  @Test
+  void follow_fail_404response_emptyUser() throws Exception {
+
+    //given
+    UUID followerId = UUID.randomUUID();
+    UUID followeeId = UUID.randomUUID();
+
+    FollowCreateRequest request = new FollowCreateRequest(followeeId, followerId);
+
+    when(followService.createFollow(any(FollowCreateRequest.class)))
+        .thenThrow(new UserNotFoundException());
+
+    //then
+    mockMvc.perform(post("/api/follows")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+        )
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.exceptionName")
+            .value("UserNotFoundException"))
+        .andExpect(jsonPath("$.message")
+            .value("User not found"))
+        .andExpect(jsonPath("$.details").exists());
   }
 }
