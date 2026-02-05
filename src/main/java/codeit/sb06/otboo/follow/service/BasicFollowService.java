@@ -5,12 +5,14 @@ import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
+import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
 import codeit.sb06.otboo.follow.dto.FolloweeDto;
 import codeit.sb06.otboo.follow.dto.FollowerDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,5 +42,10 @@ public class BasicFollowService implements FollowService {
     FollowerDto followerDto = new FollowerDto(follower.getId(), follower.getName(),follower.getProfileImageUrl());
 
     return FollowDto.of(follow, followeeDto, followerDto);
+  }
+
+  @Override
+  public FollowSummaryDto getFollowSummary(UUID userId) {
+    return null;
   }
 }
