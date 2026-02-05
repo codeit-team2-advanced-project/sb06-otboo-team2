@@ -60,7 +60,7 @@ class NotificationListenerTest {
         verify(notificationService, times(1)).create(
                 event.targetId(),
                 "나의 권한이 " + event.role().name() + "(으)로 변경되었습니다.",
-                null,
+                "",
                 NotificationLevel.INFO
         );
     }
@@ -78,7 +78,7 @@ class NotificationListenerTest {
         verify(notificationService, times(1)).create(
                 event.targetId(),
                 event.attributeName() + " 의상 속성이 추가되었습니다.",
-                null,
+                "",
                 NotificationLevel.INFO
         );
     }
@@ -96,7 +96,7 @@ class NotificationListenerTest {
         verify(notificationService, times(1)).create(
                 event.targetId(),
                 event.feedTitle() + " 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.",
-                null,
+                "",
                 NotificationLevel.INFO
         );
     }
@@ -132,7 +132,7 @@ class NotificationListenerTest {
         verify(notificationService, times(1)).create(
                 event.targetId(),
                 event.followeeName() + "님이 " + event.feedTitle() + " 피드를 게시했습니다.",
-                null,
+                "",
                 NotificationLevel.INFO
         );
     }
@@ -150,7 +150,7 @@ class NotificationListenerTest {
         verify(notificationService, times(1)).create(
                 event.targetId(),
                 event.followerName() + "님이 회원님을 팔로우했습니다.",
-                null,
+                "",
                 NotificationLevel.INFO
         );
     }
