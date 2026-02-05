@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.config.JpaAuditingConfig;
+import codeit.sb06.otboo.config.QueryDslConfig;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
@@ -21,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(JpaAuditingConfig.class)
+@Import({QueryDslConfig.class, JpaAuditingConfig.class})
 public class CommentRepositoryTest {
 
   @Autowired
