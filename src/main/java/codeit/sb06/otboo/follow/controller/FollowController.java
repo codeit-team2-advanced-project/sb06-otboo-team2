@@ -2,6 +2,7 @@ package codeit.sb06.otboo.follow.controller;
 
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
+import codeit.sb06.otboo.follow.service.FollowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Follow", description = "팔로우 API")
 public class FollowController {
 
+  private final FollowService followService;
+
   @Operation(summary = "팔로우 생성")
   @ApiResponses({
       @ApiResponse(responseCode = "201", description = "팔로우 생성 성공"),
@@ -28,11 +31,8 @@ public class FollowController {
   public ResponseEntity<FollowDto> follow(
       @RequestBody FollowCreateRequest followCreateRequest) {
 
+    FollowDto response = followService.createFollow(followCreateRequest);
     return ResponseEntity.status(201)
-        .body(new FollowDto(
-            null,
-            null,
-            null
-        ));
+        .body(response);
   }
 }
