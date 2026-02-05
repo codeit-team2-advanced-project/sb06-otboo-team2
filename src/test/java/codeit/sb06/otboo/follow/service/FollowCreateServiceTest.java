@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.follow;
+package codeit.sb06.otboo.follow.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,7 +14,6 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
-import codeit.sb06.otboo.follow.service.BasicFollowService;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.util.Optional;
