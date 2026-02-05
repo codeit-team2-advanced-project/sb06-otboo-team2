@@ -72,6 +72,8 @@ public class SseServiceImpl implements SseService {
                     .id(event.id())
                     .name(event.name())
                     .data(event.data()));
+            log.info("SSE Event Sent. [userId={}, eventId={}, eventName={}, data={}]",
+                    userId, event.id(), event.name(), event.data());
         } catch (IOException e) {
             sseEmitterRepository.deleteById(userId);
         }
