@@ -2,12 +2,14 @@ package codeit.sb06.otboo.follow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.entity.Follow;
@@ -45,21 +47,23 @@ public class FollowCreateServiceTest {
     followeeId = UUID.randomUUID();
 
     follower = mock(User.class);
-    when(follower.getId()).thenReturn(followerId);
-    when(follower.getName()).thenReturn("테스트 팔로워");
-    when(follower.getProfileImageUrl()).thenReturn("테스트 팔로워 사진");
-
     followee = mock(User.class);
-    when(followee.getId()).thenReturn(followeeId);
-    when(followee.getName()).thenReturn("테스트 팔로위");
-    when(followee.getProfileImageUrl()).thenReturn("테스트 팔로위 사진");
   }
 
   @Test
   void createFollow_success() {
 
     //given
+    when(follower.getId()).thenReturn(followerId);
+    when(follower.getName()).thenReturn("테스트 팔로워");
+    when(follower.getProfileImageUrl()).thenReturn("테스트 팔로워 사진");
+
+    when(followee.getId()).thenReturn(followeeId);
+    when(followee.getName()).thenReturn("테스트 팔로위");
+    when(followee.getProfileImageUrl()).thenReturn("테스트 팔로위 사진");
+
     FollowCreateRequest followCreateRequest = new FollowCreateRequest(followeeId,followerId);
+
     when(userRepository.findById(followeeId)).thenReturn(Optional.of(followee));
     when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
     when(followRepository.save(any(Follow.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -75,5 +79,29 @@ public class FollowCreateServiceTest {
     assertEquals(followerId, result.follower().userId());
     // 딱 한번 호출됬는지
     verify(followRepository,times(1)).save(any(Follow.class));
+  }
+
+  @Test
+  void createFollow_fail_followeeNotFound() {
+
+    // given
+    FollowCreateRequest request = new FollowCreateRequest(followeeId, followerId);
+
+    when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
+    when(userRepository.findById(followeeId)).thenReturn(Optional.empty());
+
+    // then
+    assertThrows(UserNotFoundException.class, () -> basicFollowService.createFollow(request));
+  }
+
+  @Test
+  void createFollow_fail_followerNotFound() {
+
+    FollowCreateRequest request = new FollowCreateRequest(followeeId, followerId);
+
+    when(userRepository.findById(followerId)).thenReturn(Optional.empty());
+
+    assertThrows(UserNotFoundException.class, () -> basicFollowService.createFollow(request));
+
   }
 }
