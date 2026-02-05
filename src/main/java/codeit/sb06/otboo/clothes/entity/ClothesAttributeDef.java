@@ -31,9 +31,10 @@ public class ClothesAttributeDef {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "selectable_values", nullable = false, columnDefinition = "jsonb")
-    private List<String> selectableValues = new ArrayList<>();
+    // 외부 수정 불가능하게 getter 차단
+    @Getter(AccessLevel.NONE)
+    @OneToMany(mappedBy = "definition", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClothesAttributeDefValue> values = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -43,22 +44,31 @@ public class ClothesAttributeDef {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public ClothesAttributeDef(String name, List<String> selectableValues) {
+    public ClothesAttributeDef(String name) {
         this.name = name;
-        if (selectableValues != null) {
-            this.selectableValues = new ArrayList<>(selectableValues);
-        }
     }
 
     //속성 수정시 사용하는 도메인 메서드
-    public void replaceSelectableValues(List<String> newValues) {
-        this.selectableValues.clear();
-        if (newValues != null) {
-            this.selectableValues.addAll(newValues);
+    public void replaceValues(List<String> newValues) {
+        this.values.clear();
+        if (newValues == null) {
+            return;
+        }
+        for (String v : newValues) {
+            // 생성자에서 연관관계 완성 + 리스트에 자동 추가
+            new ClothesAttributeDefValue(this, v);
         }
     }
 
     public void changeName(String name) {
         this.name = name;
+    }
+
+    public List<ClothesAttributeDefValue> getValues() {
+        return List.copyOf(values);
+    }
+
+    protected void addValueInternal(ClothesAttributeDefValue value) {
+        this.values.add(value);
     }
 }
