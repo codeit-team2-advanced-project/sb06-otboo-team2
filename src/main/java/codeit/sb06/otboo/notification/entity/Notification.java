@@ -13,6 +13,7 @@ import java.util.UUID;
 @Table(name = "notifications")
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -32,7 +33,7 @@ public class Notification {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String content;
 
     @Enumerated(EnumType.STRING)
