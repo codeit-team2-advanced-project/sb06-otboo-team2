@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -58,8 +57,8 @@ public class Feed {
   private Weather weather;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "feed_id")
-  private List<Clothes> clothes = new ArrayList<>();
+  @JoinColumn(name = "feed_id", nullable = false)
+  private List<FeedClothes> feedClothes = new ArrayList<>();
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -69,12 +68,18 @@ public class Feed {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  @Builder(access = AccessLevel.PACKAGE)
-  public Feed(User user, Weather weather, String content, List<Clothes> clothes) {
+  private Feed(User user, Weather weather, String content, List<FeedClothes> feedClothes) {
     this.user = user;
     this.weather = weather;
     this.content = content;
-    this.clothes = clothes;
+    this.feedClothes = feedClothes;
+  }
+
+  public static Feed create(User user, Weather weather, List<Clothes> clothes, String content) {
+    List<FeedClothes> mapped = clothes.stream()
+        .map(FeedClothes::of)
+        .toList();
+    return new Feed(user, weather, content, new ArrayList<>(mapped));
   }
 
   @PrePersist

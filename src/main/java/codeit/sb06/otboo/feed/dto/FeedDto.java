@@ -1,6 +1,9 @@
 package codeit.sb06.otboo.feed.dto;
 
+import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.feed.entity.Feed;
+import codeit.sb06.otboo.feed.entity.FeedClothes;
+import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -10,8 +13,8 @@ public record FeedDto(
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     AuthorDto author,
-//    WeatherSummaryDto weather,
-//    List<OotdDto> ootds,
+    WeatherSummaryDto weather,
+    List<OotdDto> ootds,
     String content,
     long likeCount,
     int commentCount,
@@ -30,6 +33,11 @@ public record FeedDto(
         created,
         updated,
         author,
+        WeatherSummaryDto.from(feed.getWeather()),
+        feed.getFeedClothes().stream()
+            .map(FeedClothes::getClothes)
+            .map(OotdDto::from)
+            .toList(),
         feed.getContent(),
         feed.getLikeCount(),
         feed.getCommentCount(),

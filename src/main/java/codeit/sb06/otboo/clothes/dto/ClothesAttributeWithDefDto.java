@@ -9,4 +9,16 @@ public record ClothesAttributeWithDefDto(
         List<String> selectableValues,
         String value
 ) {
+    public static ClothesAttributeWithDefDto from(
+            codeit.sb06.otboo.clothes.entity.ClothesAttribute attribute
+    ) {
+        return new ClothesAttributeWithDefDto(
+                attribute.getDefinition().getId(),
+                attribute.getDefinition().getName(),
+                attribute.getDefinition().getValues().stream()
+                        .map(codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue::getValue)
+                        .toList(),
+                attribute.getValue()
+        );
+    }
 }
