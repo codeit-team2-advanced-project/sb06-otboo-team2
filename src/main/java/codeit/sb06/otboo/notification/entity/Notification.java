@@ -33,7 +33,7 @@ public class Notification {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String content;
 
     @Enumerated(EnumType.STRING)
