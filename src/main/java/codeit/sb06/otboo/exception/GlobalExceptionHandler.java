@@ -4,6 +4,7 @@ import codeit.sb06.otboo.exception.auth.AuthException;
 import codeit.sb06.otboo.exception.clothes.ClothesException;
 import codeit.sb06.otboo.exception.feed.FeedException;
 import codeit.sb06.otboo.exception.message.MessageException;
+import codeit.sb06.otboo.exception.profile.ProfileException;
 import codeit.sb06.otboo.exception.user.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -53,6 +54,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FeedException.class)
     public ResponseEntity<ErrorResponse> handleFeedException(FeedException ex) {
         log.error("FeedException occurred: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex);
+        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(ex.getStatus()));
+    }
+
+    @ExceptionHandler(ProfileException.class)
+    public ResponseEntity<ErrorResponse> handleProfileException(ProfileException ex) {
+        log.error("ProfileException occurred: {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ex);
         return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(ex.getStatus()));
     }

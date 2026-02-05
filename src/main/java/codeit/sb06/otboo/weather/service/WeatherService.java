@@ -3,10 +3,20 @@ package codeit.sb06.otboo.weather.service;
 import codeit.sb06.otboo.weather.client.KakaoLocationClient;
 import codeit.sb06.otboo.weather.client.OpenWeatherClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
+import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.time.Instant;
-import java.util.UUID;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse.Item;
+import codeit.sb06.otboo.weather.entity.Weather;
+import codeit.sb06.otboo.weather.mapper.WeatherMapper;
+import codeit.sb06.otboo.weather.model.SnapshotCandidate;
+import codeit.sb06.otboo.weather.repository.WeatherRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,47 +24,34 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WeatherService {
 
+  private static final ZoneId FORECAST_ZONE = ZoneId.of("Asia/Seoul");
+
   private final OpenWeatherClient openWeatherClient;
   private final KakaoLocationClient kakaoLocationClient;
+  private final WeatherRepository weatherRepository;
+  private final WeatherMapper weatherMapper;
 
-  public WeatherResponseDto getCurrentWeather(double longitude, double latitude) throws Exception {
-    JsonNode root = openWeatherClient.fetchCurrentWeatherJson(latitude, longitude);
-
-    JsonNode main = root.get("main");
-    JsonNode weather = root.get("weather").get(0);
-    JsonNode wind = root.get("wind");
-    JsonNode rain = root.path("rain");
-
-    double temp = main.get("temp").asDouble();
-    double tmin = main.get("temp_min").asDouble();
-    double tmax = main.get("temp_max").asDouble();
-    double humidity = main.get("humidity").asDouble();
-    double windSpeed = wind.get("speed").asDouble();
-    double rainAmount = rain.path("1h").asDouble(0.0);
-
-    String weatherMain = weather.get("main").asText(); // Clear, Rain, Clouds
-    long dt = root.get("dt").asLong();
-
-    Instant forecastAt = Instant.ofEpochSecond(dt);
-    Instant now = Instant.now();
-
+  public List<WeatherDto> getCurrentWeather(double longitude, double latitude)
+      throws Exception {
+    double normalizedLatitude = round2(latitude);
+    double normalizedLongitude = round2(longitude);
+    OpenWeatherForecastApiResponse response = openWeatherClient.fetchForecast(latitude, longitude);
     LocationDto location = kakaoLocationClient.resolveLocationSafely(longitude, latitude);
+    List<SnapshotCandidate> candidates = aggregateDaily(response, FORECAST_ZONE);
 
-    return new WeatherResponseDto(
-        UUID.randomUUID(),
-        now,
-        forecastAt,
-        location,
-        mapSkyStatus(weatherMain),
-        new PrecipitationDto(
-            rainAmount > 0 ? PrecipitationType.RAIN : PrecipitationType.NONE,
-            rainAmount,
-            rainAmount > 0 ? 1.0 : 0.0
-        ),
-        new HumidityDto(humidity, 0.0),
-        new TemperatureDto(temp, 0.0, tmin, tmax),
-        new WindSpeedDto(windSpeed, windWord(windSpeed))
-    );
+    List<LocalDate> dates = candidates.stream()
+        .map(SnapshotCandidate::date)
+        .toList();
+
+    Map<LocalDate, Weather> existingByDate =
+        findExistingByDate(normalizedLatitude, normalizedLongitude, dates);
+    saveMissingSnapshots(candidates, existingByDate, normalizedLatitude, normalizedLongitude);
+
+    return candidates.stream()
+        .map(c -> existingByDate.get(c.date()))
+        .filter(s -> s != null)
+        .map(s -> WeatherDto.from(s, location))
+        .toList();
   }
 
   public LocationDto getLocation(double longitude, double latitude) throws Exception {
@@ -62,8 +59,138 @@ public class WeatherService {
     return kakaoLocationClient.toLocationDto(latitude, longitude, kakao.documents());
   }
 
-  private SkyStatus mapSkyStatus(String main) {
-    return switch (main) {
+  public List<SnapshotCandidate> aggregateDaily(
+      OpenWeatherForecastApiResponse response,
+      ZoneId zoneId
+  ) {
+    if (response == null || response.list() == null || response.list().isEmpty()) {
+      return List.of();
+    }
+
+    Map<LocalDate, List<Item>> byDate =
+        response.list().stream()
+            .collect(Collectors.groupingBy(item ->
+                LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochSecond(item.dt()),
+                    zoneId
+                ).toLocalDate()
+            ));
+
+    return byDate.entrySet().stream()
+        .sorted(Map.Entry.comparingByKey())
+        .map(e -> toCandidate(e.getKey(), e.getValue(), zoneId))
+        .toList();
+  }
+
+  private SnapshotCandidate toCandidate(
+      LocalDate date,
+      List<OpenWeatherForecastApiResponse.Item> items,
+      ZoneId zoneId
+  ) {
+    if (items == null || items.isEmpty()) {
+      return new SnapshotCandidate(
+          date,
+          date.atTime(12, 0),
+          SkyStatus.CLEAR,
+          new PrecipitationDto(PrecipitationType.NONE, 0.0, 0.0),
+          new TemperatureDto(0.0, 0.0, 0.0, 0.0),
+          new HumidityDto(0.0, 0.0),
+          new WindSpeedDto(0.0, WindStrength.WEAK)
+      );
+    }
+
+    double minTemp = items.stream().mapToDouble(i -> i.metric().tempMin()).min().orElse(0);
+    double maxTemp = items.stream().mapToDouble(i -> i.metric().tempMax()).max().orElse(0);
+
+    LocalDateTime target = date.atTime(12, 0);
+    long targetEpoch = target.atZone(zoneId).toEpochSecond();
+
+    Item closest = items.stream()
+        .min((a, b) -> Long.compare(
+            Math.abs(a.dt() - targetEpoch),
+            Math.abs(b.dt() - targetEpoch)
+        ))
+        .orElse(items.get(0));
+
+    double currentTemp = closest.metric().temp();
+    double currentHumidity = closest.metric().humidity();
+    double windSpeed = closest.wind() != null ? closest.wind().speed() : 0.0;
+    double pop = closest.pop() != null ? closest.pop() : 0.0;
+
+    double rainAmount = closest.rain() != null && closest.rain().amountFor3h() != null
+        ? closest.rain().amountFor3h()
+        : 0.0;
+    double snowAmount = closest.snow() != null && closest.snow().amountFor3h() != null
+        ? closest.snow().amountFor3h()
+        : 0.0;
+
+    PrecipitationType precipitationType =
+        snowAmount > 0 ? PrecipitationType.SNOW :
+            (rainAmount > 0 ? PrecipitationType.RAIN : PrecipitationType.NONE);
+
+    String representativeMain = firstWeatherMain(closest.weather());
+    if (representativeMain == null) {
+      representativeMain = "N/A";
+    }
+
+    LocalDateTime forecastAt = target;
+
+    return new SnapshotCandidate(
+        date,
+        forecastAt,
+        mapSkyStatus(representativeMain),
+        new PrecipitationDto(precipitationType, round2(rainAmount + snowAmount), round2(pop)),
+        new TemperatureDto(round1(currentTemp), 0.0, round1(minTemp), round1(maxTemp)),
+        new HumidityDto(round1(currentHumidity), 0.0),
+        new WindSpeedDto(round1(windSpeed), windWord(windSpeed))
+    );
+  }
+
+  private String firstWeatherMain(List<OpenWeatherForecastApiResponse.Weather> weatherList) {
+    if (weatherList == null || weatherList.isEmpty() || weatherList.get(0) == null) return null;
+    var w = weatherList.get(0);
+    return w.condition();
+  }
+
+  private Map<LocalDate, Weather> findExistingByDate(
+      double latitude,
+      double longitude,
+      List<LocalDate> dates
+  ) {
+    return weatherRepository
+        .findByLatitudeAndLongitudeAndDateIn(latitude, longitude, dates)
+        .stream()
+        .collect(Collectors.toMap(Weather::getDate, Function.identity()));
+  }
+
+  private void saveMissingSnapshots(
+      List<SnapshotCandidate> candidates,
+      Map<LocalDate, Weather> existingByDate,
+      double latitude,
+      double longitude
+  ) {
+    List<Weather> toSave = candidates.stream()
+        .filter(c -> !existingByDate.containsKey(c.date()))
+        .map(c -> weatherMapper.toSnapshot(c, latitude, longitude))
+        .toList();
+
+    if (!toSave.isEmpty()) {
+      for (Weather saved : weatherRepository.saveAll(toSave)) {
+        existingByDate.put(saved.getDate(), saved);
+      }
+    }
+  }
+
+  private double round1(double v) {
+    return Math.round(v * 10.0) / 10.0;
+  }
+
+  private double round2(double v) {
+    return Math.round(v * 100.0) / 100.0;
+  }
+
+  private SkyStatus mapSkyStatus(String condition) {
+    return switch (condition) {
       case "Clear" -> SkyStatus.CLEAR;
       case "Clouds" -> SkyStatus.CLOUDY;
       case "Rain", "Snow" -> SkyStatus.MOSTLY_CLOUDY;

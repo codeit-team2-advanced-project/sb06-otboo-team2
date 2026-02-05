@@ -4,7 +4,9 @@ import codeit.sb06.otboo.security.dto.JwtDto;
 import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
+import codeit.sb06.otboo.user.dto.request.ResetPasswordRequest;
 import codeit.sb06.otboo.user.service.AuthServiceImpl;
+import codeit.sb06.otboo.user.service.UserServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthServiceImpl authServiceImpl;
+    private final UserServiceImpl userServiceImpl;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/refresh")
@@ -47,6 +51,13 @@ public class AuthController {
     public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken){
         log.debug("CSRF token requested");
         log.trace("CSRF Token: {}", csrfToken.getToken());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
+        log.debug("Reset password requested");
+        userServiceImpl.send(resetPasswordRequest.email());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

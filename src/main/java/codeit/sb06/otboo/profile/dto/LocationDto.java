@@ -1,11 +1,13 @@
-package codeit.sb06.otboo.weather.dto.weather;
+package codeit.sb06.otboo.profile.dto;
 
 import java.util.List;
 
 public record LocationDto(
     double latitude,
     double longitude,
-    Double x,
-    Double y,
+    int x,
+    int y,
     List<String> locationNames
-) {}
+) {
+
+}

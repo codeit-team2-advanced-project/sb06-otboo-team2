@@ -4,12 +4,14 @@ import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefCreateRequest;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefDto;
 import codeit.sb06.otboo.clothes.dto.ClothesAttributeDefUpdateRequest;
 import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
+import codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +24,7 @@ public class ClothesAttributeDefService {
     private final ClothesAttributeDefRepository repository;
     private final ClothesAttributeRepository clothesAttributeRepository;
 
-    //속성 정의 등록
+    // 속성 정의 등록
     public ClothesAttributeDefDto create(ClothesAttributeDefCreateRequest request) {
         String name = normalizeName(request.name());
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
@@ -32,14 +34,17 @@ public class ClothesAttributeDefService {
         }
 
         try {
-            ClothesAttributeDef saved = repository.save(new ClothesAttributeDef(name, selectableValues));
+            ClothesAttributeDef def = new ClothesAttributeDef(name);
+            def.replaceValues(selectableValues);
+
+            ClothesAttributeDef saved = repository.save(def);
             return toDto(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("이미 존재하는 의상 속성 정의입니다: " + name);
         }
     }
 
-    //속성 정의 수정
+    // 속성 정의 수정
     public ClothesAttributeDefDto update(UUID id, ClothesAttributeDefUpdateRequest request) {
         String name = normalizeName(request.name());
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
@@ -52,13 +57,18 @@ public class ClothesAttributeDefService {
         }
 
         def.changeName(name);
-        def.replaceSelectableValues(selectableValues);
+        def.replaceValues(selectableValues);
 
         return toDto(def);
     }
 
-    //속성 정의 삭제
+    // 속성 정의 삭제
     public void delete(UUID id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id는 필수입니다.");
+        }
+
         ClothesAttributeDef def = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("의상 속성 정의를 찾을 수 없습니다: " + id));
 
@@ -68,11 +78,31 @@ public class ClothesAttributeDefService {
         repository.delete(def);
     }
 
+    // 속성 정의 목록 조회
+    @Transactional(readOnly = true)
+    public List<ClothesAttributeDefDto> getList(String sortBy, String sortDirection, String keywordLike) {
+
+        Sort sort = toSort(sortBy, sortDirection);
+        String keyword = normalizeKeywordLike(keywordLike);
+
+        List<ClothesAttributeDef> defs = (keyword == null)
+                ? repository.findAllWithValues(sort)
+                : repository.searchByNameLikeWithValues(keyword, sort);
+
+        return defs.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
     private ClothesAttributeDefDto toDto(ClothesAttributeDef def) {
+        List<String> selectableValues = def.getValues().stream()
+                .map(ClothesAttributeDefValue::getValue)
+                .toList();
+
         return new ClothesAttributeDefDto(
                 def.getId(),
                 def.getName(),
-                def.getSelectableValues(),
+                selectableValues,
                 def.getCreatedAt()
         );
     }
@@ -92,5 +122,42 @@ public class ClothesAttributeDefService {
         }
 
         return values;
+    }
+
+    private Sort toSort(String sortBy, String sortDirection) {
+        String property = resolveSortProperty(sortBy);
+        Sort.Direction direction = resolveSortDirection(sortDirection);
+        return Sort.by(direction, property);
+    }
+
+    private String resolveSortProperty(String sortBy) {
+        if (sortBy == null) {
+            throw new IllegalArgumentException("sortBy는 필수입니다.");
+        }
+
+        return switch (sortBy) {
+            case "createdAt", "name" -> sortBy;
+            default -> throw new IllegalArgumentException("sortBy는 createdAt 또는 name만 가능합니다.");
+        };
+    }
+
+    private Sort.Direction resolveSortDirection(String sortDirection) {
+        if (sortDirection == null) {
+            throw new IllegalArgumentException("sortDirection은 필수입니다.");
+        }
+
+        return switch (sortDirection) {
+            case "ASCENDING" -> Sort.Direction.ASC;
+            case "DESCENDING" -> Sort.Direction.DESC;
+            default -> throw new IllegalArgumentException("sortDirection은 ASCENDING 또는 DESCENDING만 가능합니다.");
+        };
+    }
+
+    private String normalizeKeywordLike(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String trimmed = raw.trim();
+        return trimmed.isBlank() ? null : trimmed;
     }
 }

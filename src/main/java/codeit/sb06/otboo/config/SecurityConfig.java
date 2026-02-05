@@ -3,6 +3,7 @@ package codeit.sb06.otboo.config;
 import codeit.sb06.otboo.security.Http403ForbiddenAccessDeniedHandler;
 import codeit.sb06.otboo.security.LoginFailureHandler;
 import codeit.sb06.otboo.security.SpaCsrfTokenRequestHandler;
+import codeit.sb06.otboo.security.TemporaryPasswordAuthenticationProvider;
 import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtLoginSuccessHandler;
@@ -42,7 +43,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtLoginSuccessHandler jwtLoginSuccessHandler,
         ObjectMapper objectMapper, JwtAuthenticationFilter jwtAuthenticationFilter,
-        JwtLogoutHandler jwtLogoutHandler, LoginFailureHandler loginFailureHandler) throws Exception {
+        JwtLogoutHandler jwtLogoutHandler, LoginFailureHandler loginFailureHandler,
+        TemporaryPasswordAuthenticationProvider temporaryPasswordAuthenticationProvider) throws Exception {
 
         http
             .csrf(csrf -> csrf
@@ -63,10 +65,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
 
-                    // 관리자 전용: 속성 정의 관리
-                    .requestMatchers(HttpMethod.POST, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PATCH, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/api/clothes/attribute-defs/**").hasRole("ADMIN")
+                    //관리자 전용: 속성 정의 관리
+                    .requestMatchers("/api/clothes/attribute-defs/**").hasRole("ADMIN")
 
                     .anyRequest().permitAll()
             )
@@ -77,6 +77,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .authenticationProvider(temporaryPasswordAuthenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
