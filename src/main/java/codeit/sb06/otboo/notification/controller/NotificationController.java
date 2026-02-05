@@ -17,7 +17,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/api/notifications")
+    @GetMapping
     public ResponseEntity<NotificationDtoCursorResponse> getNotifications(
             @RequestParam(required = false) LocalDateTime cursor,
             @RequestParam(required = false) UUID idAfter,
