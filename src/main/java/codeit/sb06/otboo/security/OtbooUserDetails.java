@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.security;
 
 import codeit.sb06.otboo.user.dto.UserDto;
+import codeit.sb06.otboo.user.entity.User;
 import java.util.Collection;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -31,5 +32,9 @@ public class OtbooUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return userDto.email();
+    }
+
+    public static OtbooUserDetails from(User user) {
+        return new OtbooUserDetails(UserDto.from(user), user.getPassword());
     }
 }

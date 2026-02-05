@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.user.controller;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -16,6 +17,7 @@ import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.service.AuthServiceImpl;
+import codeit.sb06.otboo.user.service.UserServiceImpl;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,6 +47,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthServiceImpl authServiceImpl;
+
+    @MockitoBean
+    private UserServiceImpl userServiceImpl;
 
     @MockitoBean
     private JwtRegistry jwtRegistry;
@@ -86,5 +91,17 @@ class AuthControllerTest {
             .andExpect(cookie().value("REFRESH_TOKEN", "refresh-new"))
             .andExpect(jsonPath("$.accessToken").value("access-new"))
             .andExpect(jsonPath("$.userDto.email").value("user@example.com"));
+    }
+
+    @Test
+    void resetPasswordReturnsNoContent() throws Exception {
+        mockMvc.perform(
+                post("/api/auth/reset-password")
+                    .contentType("application/json")
+                    .content("{\"email\":\"user@example.com\"}")
+            )
+            .andExpect(status().isNoContent());
+
+        verify(userServiceImpl).send(eq("user@example.com"));
     }
 }
