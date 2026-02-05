@@ -31,7 +31,7 @@ public class NotificationEventListener {
 
         String title = "나의 권한이 " + event.role().name() + "(으)로 변경되었습니다.";
 
-        createAndSend(event.targetId(), title, null);
+        createAndSend(event.targetId(), title, "");
     }
 
     @TransactionalEventListener
@@ -39,7 +39,7 @@ public class NotificationEventListener {
 
         String title = event.attributeName() + " 의상 속성이 추가되었습니다.";
 
-        createAndSend(event.targetId(), title, null);
+        createAndSend(event.targetId(), title, "");
     }
 
     @TransactionalEventListener
@@ -47,7 +47,7 @@ public class NotificationEventListener {
 
         String title = event.feedTitle() + " 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.";
 
-        createAndSend(event.targetId(), title, null);
+        createAndSend(event.targetId(), title, "");
     }
 
     @TransactionalEventListener
@@ -63,7 +63,7 @@ public class NotificationEventListener {
 
         String title = event.followeeName() + "님이 " + event.feedTitle() + " 피드를 게시했습니다.";
 
-        createAndSend(event.targetId(), title, null);
+        createAndSend(event.targetId(), title, "");
     }
 
     @TransactionalEventListener
@@ -71,7 +71,7 @@ public class NotificationEventListener {
 
         String title = event.followerName() + "님이 회원님을 팔로우했습니다.";
 
-        createAndSend(event.targetId(), title, null);
+        createAndSend(event.targetId(), title, "");
     }
 
     private void createAndSend(UUID targetId, String title, String content) {
@@ -82,6 +82,6 @@ public class NotificationEventListener {
                 content,
                 NotificationLevel.INFO);
 
-        sseService.send(targetId, "Notifications", notificationDto);
+        sseService.send(targetId, "notifications", notificationDto);
     }
 }

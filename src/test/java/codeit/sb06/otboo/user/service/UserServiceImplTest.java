@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import codeit.sb06.otboo.exception.user.MailSendException;
 import codeit.sb06.otboo.exception.user.UserAlreadyExistException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.user.dto.UserDto;
@@ -58,6 +59,8 @@ class UserServiceImplTest {
     private JavaMailSender mailSender;
     @Mock
     private JwtRegistry jwtRegistry;
+    @Mock
+    private NotificationEventPublisher notificationEventPublisher;
 
     @InjectMocks
     private UserServiceImpl userService;

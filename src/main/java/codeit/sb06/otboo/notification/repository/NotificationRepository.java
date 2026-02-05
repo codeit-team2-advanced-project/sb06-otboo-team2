@@ -16,10 +16,10 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
             WHERE noti.receiverId = :myUserId
             AND (
                 :cursor IS NULL
-                OR noti.createdAt > :cursor
-                OR (noti.createdAt = :cursor AND noti.id > :idAfter)
+                OR noti.createdAt < :cursor
+                OR (noti.createdAt = :cursor AND noti.id < :idAfter)
             )
-            ORDER BY noti.createdAt ASC, noti.id ASC
+            ORDER BY noti.createdAt DESC, noti.id DESC
             """)
     Slice<Notification> findByMyUserIdWithCursor(LocalDateTime cursor, UUID idAfter, UUID myUserId, Pageable pageable);
 

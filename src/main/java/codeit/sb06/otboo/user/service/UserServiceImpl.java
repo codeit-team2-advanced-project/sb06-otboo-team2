@@ -3,6 +3,7 @@ package codeit.sb06.otboo.user.service;
 import codeit.sb06.otboo.exception.user.MailSendException;
 import codeit.sb06.otboo.exception.user.UserAlreadyExistException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.user.dto.UserDto;
@@ -39,6 +40,7 @@ public class UserServiceImpl {
     private final ProfileServiceImpl profileService;
     private final JavaMailSender mailSender;
     private final JwtRegistry jwtRegistry;
+    private final NotificationEventPublisher notificationEventPublisher;
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${otboo.mail.from}")
@@ -75,6 +77,7 @@ public class UserServiceImpl {
 
         user.changeRole(Role.valueOf(userRole));
         User updatedUser = userRepository.save(user);
+        notificationEventPublisher.publishRoleUpdatedEvent(userId, Role.valueOf(userRole));
         return UserDto.from(updatedUser);
     }
 
