@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.feed.service;
 
+import codeit.sb06.otboo.exception.auth.ForbiddenException;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
@@ -9,6 +11,7 @@ import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
+import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.entity.Weather;
@@ -26,22 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class FeedService {
 
   private final UserRepository userRepository;
-  private final WeatherService weatherService;
-//  private final WeatherRepository weatherRepository;
-//  private final ClothesRepository clothesRepository;
+  private final WeatherRepository weatherRepository;
+  private final ClothesRepository clothesRepository;
   private final FeedRepository feedRepository;
-
-  public FeedService(
-      UserRepository userRepository,
-    WeatherService weatherService,
-//      ClothesRepository clothesRepository,
-      FeedRepository feedRepository
-  ) {
-    this.userRepository = userRepository;
-    this.weatherService = weatherService;
-//    this.clothesRepository = clothesRepository;
-    this.feedRepository = feedRepository;
-  }
 
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
@@ -59,6 +49,30 @@ public class FeedService {
     return FeedDto.from(saved);
   }
 
+  @Transactional
+  public void delete(UUID feedId) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+    feedRepository.delete(feed);
+  }
+
+  @Transactional
+  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+
+    if (!feed.getUser().getId().equals(currentUserId)) {
+      User user = userRepository.findById(currentUserId)
+          .orElseThrow(UserNotFoundException::new);
+      if (user.getRole() != Role.ADMIN) {
+        throw new ForbiddenException();
+      }
+    }
+
+    feed.updateContent(content);
+    return FeedDto.from(feed);
+  }
+
   private List<Clothes> loadClothesOrThrow(List<UUID> ids) {
     List<UUID> uniqueIds = ids.stream().distinct().toList();
     List<Clothes> clothes = clothesRepository.findAllById(uniqueIds);
@@ -74,29 +88,5 @@ public class FeedService {
     }
 
     return clothes;
-  }
-
-  @Transactional
-  public void delete(UUID feedId) {
-    Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(() -> FeedException.feedNotFound(feedId));
-    feedRepository.delete(feed);
-  }
-
-  @Transactional
-  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
-    Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(() -> FeedException.feedNotFound(feedId));
-
-    if (!feed.getUser().getId().equals(currentUserId)) {
-      User user = userRepository.findById(currentUserId)
-          .orElseThrow(() -> FeedException.userNotFound(currentUserId));
-      if (user.getRole() != Role.ADMIN) {
-        throw new ForbiddenException();
-      }
-    }
-
-    feed.updateContent(content);
-    return FeedDto.from(feed);
   }
 }
