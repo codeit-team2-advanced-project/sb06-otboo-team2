@@ -1,5 +1,6 @@
 package codeit.sb06.otboo.message.service.impl;
 
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.message.entity.ChatMember;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.repository.ChatMemberRepository;
@@ -24,7 +25,7 @@ public class ChatMemberServiceImpl implements ChatMemberService {
     public ChatMember create(ChatRoom chatRoom, UUID userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(UserNotFoundException::new);
 
         ChatMember chatMember = ChatMember.builder()
                 .chatRoom(chatRoom)

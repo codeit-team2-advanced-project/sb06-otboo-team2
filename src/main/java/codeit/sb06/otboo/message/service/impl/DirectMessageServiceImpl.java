@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.message.service.impl;
 
+import codeit.sb06.otboo.exception.message.ChatRoomNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.message.dto.request.DirectMessageCreateRequest;
 import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
@@ -17,6 +19,7 @@ import codeit.sb06.otboo.message.service.DirectMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +44,9 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     public DirectMessageDto create(DirectMessageCreateRequest request) {
 
         User sender = userRepository.findById(request.senderId())
-                .orElseThrow(()-> new IllegalArgumentException("Sender not found"));
+                .orElseThrow(UserNotFoundException::new);
         User receiver = userRepository.findById(request.receiverId())
-                .orElseThrow(()-> new IllegalArgumentException("Receiver not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         ChatRoom chatRoom = chatRoomService.getOrCreatePrivateRoom(request.senderId(), request.receiverId());
 
@@ -71,19 +74,16 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         String dmKey = ChatRoom.generateDmKey(myUserId, senderId);
 
         ChatRoom chatRoom = chatRoomRepository.findByDmKey(dmKey)
-                .orElseThrow(()-> new IllegalArgumentException("ChatRoom not found for dmKey: " + dmKey));
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        List<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
+        Slice<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
                 chatRoom,
                 cursor,
                 idAfter,
-                // 다음 페이지 존재 여부 확인을 위해 limit + 1개 조회
                 // pageable로 원하는 개수만큼 조회
-                PageRequest.of(0, limit + 1)
+                PageRequest.of(0, limit)
         );
 
-        long totalCount = directMessageRepository.countByChatRoom(chatRoom);
-
-        return directMessageMapper.toDtoCursorResponse(directMessages, limit, totalCount);
+        return directMessageMapper.toDtoCursorResponse(directMessages);
     }
 }

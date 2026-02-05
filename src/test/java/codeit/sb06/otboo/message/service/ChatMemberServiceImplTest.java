@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.message.service;
 
 
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.message.entity.ChatMember;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.repository.ChatMemberRepository;
@@ -73,8 +74,7 @@ class ChatMemberServiceImplTest {
 
         // when & then
         assertThatThrownBy(() -> chatMemberService.create(mock(ChatRoom.class), invalidUserId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining(invalidUserId.toString());
+                .isInstanceOf(UserNotFoundException.class);
         verify(chatMemberRepository, never()).save(any());
     }
 }

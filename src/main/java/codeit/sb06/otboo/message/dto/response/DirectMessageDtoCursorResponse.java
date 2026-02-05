@@ -14,7 +14,7 @@ public record DirectMessageDtoCursorResponse(
         LocalDateTime nextCursor,
         UUID nextIdAfter,
         boolean hasNext,
-        long totalCount,
+        Long totalCount,
         String sortBy,
         SortDirection sortDirection
 ) {

@@ -6,10 +6,15 @@ import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.repository.ChatMemberRepository;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
+import codeit.sb06.otboo.security.jwt.JwtRegistry;
+import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -20,6 +25,8 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -30,6 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -54,11 +63,19 @@ class DirectMessageWebSocketControllerTest {
     @Autowired
     private DirectMessageRepository directMessageRepository;
 
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private JwtRegistry jwtRegistry;
+
     @BeforeEach
     void setup() {
         // 클라이언트 설정 (JSON 변환기 포함)
         this.stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        given(jwtTokenProvider.validateAccessToken(anyString())).willReturn(true);
+        given(jwtRegistry.hasActiveJwtInformationByAccessToken(anyString())).willReturn(true);
     }
 
     @AfterEach
@@ -77,10 +94,15 @@ class DirectMessageWebSocketControllerTest {
         User sender = userRepository.save(new User());
         User receiver = userRepository.save(new User());
 
+        StompHeaders connectHeaders = new StompHeaders();
+        connectHeaders.add("Authorization", "Bearer test-access-token");
+
         // 1. 연결 세션 확보
         String url = "ws://localhost:" + port + "/ws/websocket"; // 서버의 WebSocket 엔드포인트 + with SockJS
-        StompSession session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {
-        }).get(1, TimeUnit.SECONDS);
+        StompSession session = stompClient.connectAsync(
+                        url, (WebSocketHttpHeaders) null, connectHeaders, new StompSessionHandlerAdapter() {
+                        })
+                .get(1, TimeUnit.SECONDS);
 
         // 2. 메시지를 받을 큐(Queue) 준비
         BlockingQueue<DirectMessageCreateRequest> resultQueue = new LinkedBlockingDeque<>();

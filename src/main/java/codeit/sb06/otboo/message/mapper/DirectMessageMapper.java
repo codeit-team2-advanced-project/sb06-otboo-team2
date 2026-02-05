@@ -6,6 +6,7 @@ import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.enums.SortDirection;
 import codeit.sb06.otboo.user.dto.UserSummary;
 import codeit.sb06.otboo.user.entity.User;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,13 +24,13 @@ public class DirectMessageMapper {
         UserSummary senderSummary = UserSummary.builder()
                 .userId(dm.getId())
                 .name(dm.getSender().getName())
-//                .profileImageUrl(dm.getSender().getProfileImageUrl())
+                .profileImageUrl(dm.getSender().getProfileImageUrl())
                 .build();
 
         UserSummary receiverSummary = UserSummary.builder()
                 .userId(receiver.getId())
                 .name(receiver.getName())
-//                .profileImageUrl(receiver.getProfileImageUrl())
+                .profileImageUrl(receiver.getProfileImageUrl())
                 .build();
 
         return DirectMessageDto.builder()
@@ -41,24 +42,24 @@ public class DirectMessageMapper {
                 .build();
     }
 
-    public DirectMessageDtoCursorResponse toDtoCursorResponse(List<DirectMessage> directMessages, int limit, long totalCount) {
+    public DirectMessageDtoCursorResponse toDtoCursorResponse(Slice<DirectMessage> directMessages) {
 
-        boolean hasNext = directMessages.size() > limit;
+        List<DirectMessage> content = directMessages.getContent();
+        boolean hasNext = directMessages.hasNext();
         LocalDateTime nextCursor = null;
         UUID nextIdAfter = null;
-        if (hasNext) {
-            directMessages = directMessages.subList(0, limit);
-            // -1을 하는 이유는 인덱스가 0부터 시작하기 때문
-            nextCursor = directMessages.get(limit - 1).getCreatedAt();
-            nextIdAfter = directMessages.get(limit - 1).getId();
+        if (!content.isEmpty() && hasNext) {
+            DirectMessage lastMessage = content.get(content.size() - 1);
+            nextCursor = lastMessage.getCreatedAt();
+            nextIdAfter = lastMessage.getId();
         }
 
         return DirectMessageDtoCursorResponse.builder()
-                .data(directMessages)
+                .data(directMessages.getContent())
                 .nextCursor(nextCursor)
                 .nextIdAfter(nextIdAfter)
                 .hasNext(hasNext)
-                .totalCount(totalCount)
+                .totalCount(null)
                 .sortBy(CURSOR_SORT_BY)
                 .sortDirection(CURSOR_SORT_DIRECTION)
                 .build();
