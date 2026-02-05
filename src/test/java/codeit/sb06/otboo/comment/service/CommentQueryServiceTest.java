@@ -13,10 +13,10 @@ import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
+import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
 import codeit.sb06.otboo.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,17 +49,14 @@ public class CommentQueryServiceTest {
     feedId = UUID.randomUUID();
     authorId = UUID.randomUUID();
 
-    author = new User(
-        authorId,
-        "user@example.com",
+    UserCreateRequest request = new UserCreateRequest(
         "test",
-        null,
-        false,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        null,
-        "password"
+        "user@example.com",
+        "pwd"
     );
+    author = User.from(request);
+
+    ReflectionTestUtils.setField(author, "id", authorId);
 
     feed = Feed.builder()
         .content("테스트 피드 내용")
