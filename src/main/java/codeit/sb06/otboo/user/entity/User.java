@@ -16,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -38,11 +40,17 @@ public class User {
     private Role role;
 
     private boolean isLocked;
+
+    @CreatedDate
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     private String profileImageUrl;
     private String password;
+
+    private String temporaryPasswordHash;
+    private LocalDateTime temporaryPasswordExpiresAt;
 
     public static User from(UserCreateRequest userCreateRequest) {
         return User.builder()
@@ -67,5 +75,21 @@ public class User {
 
     public void changeLockStatus(boolean isLocked) {
         this.isLocked = isLocked;
+    }
+
+    public void updateTempPassword(String tempPasswordHash, LocalDateTime expiresAt) {
+        this.temporaryPasswordHash = tempPasswordHash;
+        this.temporaryPasswordExpiresAt = expiresAt;
+    }
+
+    public boolean isTemporaryPasswordValidAt(LocalDateTime now) {
+        return temporaryPasswordHash != null
+            && temporaryPasswordExpiresAt != null
+            && temporaryPasswordExpiresAt.isAfter(now);
+    }
+
+    public void clearTemporaryPassword() {
+        this.temporaryPasswordHash = null;
+        this.temporaryPasswordExpiresAt = null;
     }
 }
