@@ -1,5 +1,8 @@
 package codeit.sb06.otboo.follow.service;
 
+import codeit.sb06.otboo.exception.RootException;
+import codeit.sb06.otboo.exception.user.UserException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FolloweeDto;
@@ -25,9 +28,9 @@ public class BasicFollowService implements FollowService {
   public FollowDto createFollow(FollowCreateRequest followCreateRequest) {
 
     User follower = userRepository.findById(followCreateRequest.followerId())
-        .orElseThrow();
+        .orElseThrow(UserNotFoundException::new);
     User followee = userRepository.findById(followCreateRequest.followeeId())
-        .orElseThrow();
+        .orElseThrow(UserNotFoundException::new);
 
     Follow follow = Follow.of(follower,followee);
 
