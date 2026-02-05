@@ -3,6 +3,8 @@ package codeit.sb06.otboo.feed.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +13,8 @@ import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.clothes.entity.ClothesType;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
 import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
+import codeit.sb06.otboo.exception.auth.ForbiddenException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
@@ -62,6 +66,7 @@ class FeedServiceTest {
     private UUID weatherId;
     private User author;
     private Weather weather;
+    private Feed feed;
 
     @BeforeEach
     void setUp() {
@@ -95,6 +100,8 @@ class FeedServiceTest {
             .windSpeed(2.0)
             .windStrength(WindStrength.WEAK)
             .build();
+
+        feed = Feed.create(author, weather, List.of(), "content");
     }
 
     @Test
@@ -247,5 +254,104 @@ class FeedServiceTest {
         when(weatherRepository.findById(weatherId)).thenReturn(Optional.empty());
 
         assertThrows(WeatherNotFoundException.class, () -> feedService.create(request));
+    }
+
+    @Test
+    void deleteFeed_success() {
+        UUID feedId = UUID.randomUUID();
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+
+        feedService.delete(feedId);
+
+        verify(feedRepository).delete(feed);
+    }
+
+    @Test
+    void deleteFeed_throwsWhenFeedMissing() {
+        UUID feedId = UUID.randomUUID();
+        when(feedRepository.findById(feedId)).thenReturn(Optional.empty());
+
+        assertThrows(FeedNotFoundException.class, () -> feedService.delete(feedId));
+        verify(feedRepository, never()).delete(any());
+    }
+
+    @Test
+    void updateFeed_ownerUpdatesContent() {
+        UUID feedId = UUID.randomUUID();
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+
+        FeedDto result = feedService.update(feedId, author.getId(), "updated");
+
+        assertEquals("updated", result.content());
+        verify(userRepository, never()).findById(any());
+    }
+
+    @Test
+    void updateFeed_adminUpdatesContent() {
+        UUID feedId = UUID.randomUUID();
+        UUID adminId = UUID.randomUUID();
+        User admin = new User(
+            adminId,
+            "admin@example.com",
+            "admin",
+            Role.ADMIN,
+            false,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null,
+            "password",
+            null,
+            null
+        );
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(adminId)).thenReturn(Optional.of(admin));
+
+        FeedDto result = feedService.update(feedId, adminId, "updated-by-admin");
+
+        assertEquals("updated-by-admin", result.content());
+        verify(userRepository, times(1)).findById(adminId);
+    }
+
+    @Test
+    void updateFeed_throwsWhenFeedMissing() {
+        UUID feedId = UUID.randomUUID();
+        when(feedRepository.findById(feedId)).thenReturn(Optional.empty());
+
+        assertThrows(FeedNotFoundException.class, () -> feedService.update(feedId, author.getId(), "updated"));
+    }
+
+    @Test
+    void updateFeed_throwsWhenNotOwnerAndUserMissing() {
+        UUID feedId = UUID.randomUUID();
+        UUID otherUserId = UUID.randomUUID();
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(otherUserId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> feedService.update(feedId, otherUserId, "updated"));
+    }
+
+    @Test
+    void updateFeed_throwsWhenNotOwnerAndNotAdmin() {
+        UUID feedId = UUID.randomUUID();
+        UUID otherUserId = UUID.randomUUID();
+        User otherUser = new User(
+            otherUserId,
+            "other@example.com",
+            "other",
+            Role.USER,
+            false,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null,
+            "password",
+            null,
+            null
+        );
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(otherUserId)).thenReturn(Optional.of(otherUser));
+
+        assertThrows(ForbiddenException.class, () -> feedService.update(feedId, otherUserId, "updated"));
     }
 }
