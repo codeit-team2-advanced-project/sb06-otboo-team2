@@ -21,6 +21,8 @@ import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.entity.FeedClothes;
+import codeit.sb06.otboo.feed.entity.FeedLike;
+import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
@@ -61,6 +63,9 @@ class FeedServiceTest {
 
     @Mock
     private FeedRepository feedRepository;
+
+    @Mock
+    private FeedLikeRepository feedLikeRepository;
 
     private UUID authorId;
     private UUID weatherId;
@@ -353,5 +358,63 @@ class FeedServiceTest {
         when(userRepository.findById(otherUserId)).thenReturn(Optional.of(otherUser));
 
         assertThrows(ForbiddenException.class, () -> feedService.update(feedId, otherUserId, "updated"));
+    }
+
+    @Test
+    void like_createsLikeAndIncrementsCount() {
+        UUID feedId = UUID.randomUUID();
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(author.getId())).thenReturn(Optional.of(author));
+        when(feedLikeRepository.existsByFeedIdAndUserId(feedId, author.getId())).thenReturn(false);
+
+        feedService.like(feedId, author.getId());
+
+        verify(feedLikeRepository, times(1)).save(any(FeedLike.class));
+        assertEquals(1L, feed.getLikeCount());
+    }
+
+    @Test
+    void like_isIdempotentWhenAlreadyLiked() {
+        UUID feedId = UUID.randomUUID();
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(author.getId())).thenReturn(Optional.of(author));
+        when(feedLikeRepository.existsByFeedIdAndUserId(feedId, author.getId())).thenReturn(true);
+
+        feedService.like(feedId, author.getId());
+
+        verify(feedLikeRepository, never()).save(any(FeedLike.class));
+        assertEquals(0L, feed.getLikeCount());
+    }
+
+    @Test
+    void unlike_removesLikeAndDecrementsCount() {
+        UUID feedId = UUID.randomUUID();
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(author.getId())).thenReturn(Optional.of(author));
+        when(feedLikeRepository.findByFeedIdAndUserId(feedId, author.getId()))
+            .thenReturn(Optional.of(FeedLike.create(author, feed)));
+
+        feedService.unlike(feedId, author.getId());
+
+        verify(feedLikeRepository, times(1)).delete(any(FeedLike.class));
+        assertEquals(0L, feed.getLikeCount());
+    }
+
+    @Test
+    void unlike_noopWhenNotLiked() {
+        UUID feedId = UUID.randomUUID();
+
+        when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
+        when(userRepository.findById(author.getId())).thenReturn(Optional.of(author));
+        when(feedLikeRepository.findByFeedIdAndUserId(feedId, author.getId()))
+            .thenReturn(Optional.empty());
+
+        feedService.unlike(feedId, author.getId());
+
+        verify(feedLikeRepository, never()).delete(any(FeedLike.class));
+        assertEquals(0L, feed.getLikeCount());
     }
 }
