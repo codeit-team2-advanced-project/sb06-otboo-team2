@@ -57,10 +57,10 @@ public class BasicFollowService implements FollowService {
     //팔로잉 수  팔로잉 -> 나를 팔로우하는
     Long followCount = followRepository.countByFolloweeId(targetId);
 
-    // 나에의해 팔로우한거
-    Optional<Follow>  followedByMe= followRepository.findByFollowerIdAndFolloweeId(targetId, myId);
+    // 나에의해 팔로우되었는지
+    Optional<Follow>  followedByMe= followRepository.findByFollowerIdAndFolloweeId(myId, targetId);
 
-    // 나를 팔로우하는거
+    // 나를 팔로우하는지
     Optional<Follow> followingMe= followRepository.findByFollowerIdAndFolloweeId(targetId, myId);
 
     return FollowSummaryDto.of(
