@@ -12,6 +12,7 @@ import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,30 @@ public class BasicFollowService implements FollowService {
   }
 
   @Override
-  public FollowSummaryDto getFollowSummary(UUID userId) {
-    return null;
+  public FollowSummaryDto getFollowSummary(UUID targetId, UUID myId) {
+
+    userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
+
+    //팔로위 팔로우 당하는거, 팔로워 팔로우 거는거
+
+    //팔로워 수. 팔로워? -> 내가 팔로우하는
+    Long followerCount = followRepository.countByFollowerId(targetId);
+    //팔로잉 수  팔로잉 -> 나를 팔로우하는
+    Long followCount = followRepository.countByFolloweeId(targetId);
+
+    // 나에의해 팔로우한거
+    Optional<Follow>  followedByMe= followRepository.findByFollowerIdAndFolloweeId(targetId, myId);
+
+    // 나를 팔로우하는거
+    Optional<Follow> followingMe= followRepository.findByFollowerIdAndFolloweeId(targetId, myId);
+
+    return FollowSummaryDto.of(
+        targetId,
+        followerCount,
+        followCount,
+        followedByMe,
+        followingMe
+
+    );
   }
 }
