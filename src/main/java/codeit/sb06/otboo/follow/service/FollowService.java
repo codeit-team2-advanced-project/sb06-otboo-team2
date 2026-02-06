@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface FollowService {
   FollowDto createFollow(FollowCreateRequest followCreateRequest);
-  FollowSummaryDto getFollowSummary(UUID userId);
+  FollowSummaryDto getFollowSummary(UUID targetId, UUID myId);
 }
