@@ -31,9 +31,28 @@ services:
       SPRING_DATASOURCE_PASSWORD: otboo
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:latest
+    container_name: otboo-redis
+    ports:
+      - "6379:6379"
+    command:
+        - redis-server
+        - --requirepass
+        - ${REDIS_PASSWORD:-temporary_password}
+        - --appendonly yes    # 데이터 보존 옵션 활성화
+    volumes:
+      - redis_data:/data
+
 
 volumes:
   pgdata:
+  redis_data:
