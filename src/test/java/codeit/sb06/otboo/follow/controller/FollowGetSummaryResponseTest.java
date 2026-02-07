@@ -120,4 +120,11 @@ public class FollowGetSummaryResponseTest {
         .andExpect(jsonPath("$.followedByMeId").value(followId.toString()))
         .andExpect(jsonPath("$.followingMe").value(false));
   }
+
+  @Test
+  void getFollowSummary_failure_400response() throws Exception {
+
+    mockMvc.perform(get("/api/follows/summary"))
+        .andExpect(status().isBadRequest());
+  }
 }
