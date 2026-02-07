@@ -31,7 +31,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
           comment.createdAt.lt(lastCreatedAt)
               .or(
                   comment.createdAt.eq(lastCreatedAt)
-                      .and(comment.id.lt(idAfter))
+                      .and(comment.id.ne(idAfter))
               )
       );
     }
