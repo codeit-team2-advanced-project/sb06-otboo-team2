@@ -9,7 +9,7 @@ public interface NotificationCacheService {
 
     void save(UUID userId, NotificationDto data);
 
-    List<NotificationDto> getAllNotifications(UUID userId);
+    List<NotificationDto> getRecentNotifications(UUID userId);
 
     List<NotificationDto> getNotificationsAfter(UUID userId, String lastEventId);
 }

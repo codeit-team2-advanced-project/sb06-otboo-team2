@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.notification.service.impl;
 
 import codeit.sb06.otboo.notification.dto.NotificationDto;
+import codeit.sb06.otboo.notification.entity.Notification;
 import codeit.sb06.otboo.notification.mapper.NotificationMapper;
 import codeit.sb06.otboo.notification.repository.NotificationRepository;
 import codeit.sb06.otboo.notification.service.NotificationCacheService;
@@ -47,38 +48,40 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
     }
 
     @Override
-    public List<NotificationDto> getAllNotifications(UUID userId) {
+    public List<NotificationDto> getRecentNotifications(UUID userId) {
 
         String key = KEY_PREFIX + userId;
 
         List<String> jsonList = redisTemplate.opsForList().range(key, 0, -1);
 
-        if (jsonList == null || jsonList.isEmpty()) {
-            PageRequest pageRequest = PageRequest.of(0, MAX_NOTIFICATIONS);
-            List<NotificationDto> dtoList = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId, pageRequest)
-                    .stream()
-                    .map(notificationMapper::toDto)
+        // 캐시에 데이터가 있으면 캐시에서 반환
+        if (jsonList != null && !jsonList.isEmpty()) {
+            return jsonList.stream()
+                    .map(this::parseJson)
                     .toList();
-            if (!dtoList.isEmpty()) {
-                try {
-                    redisTemplate.opsForList().rightPushAll(key, objectMapper.writeValueAsString(dtoList.toArray()));
-                    redisTemplate.expire(key, TIMEOUT, TimeUnit.DAYS);
-                } catch (JsonProcessingException e) {
-                    log.error("Redis 저장 실패", e);
-                    throw new RuntimeException("Failed to cache notifications to Redis", e);
-                }
-            }
-            return dtoList;
         }
 
-        return jsonList.stream()
-                .map(NotificationDto.class::cast)
+        // 캐시에 데이터가 없으면 DB에서 조회 후 캐시에 저장, 반환
+        PageRequest pageRequest = PageRequest.of(0, MAX_NOTIFICATIONS);
+        List<NotificationDto> dtoList = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId, pageRequest)
+                .stream()
+                .map(notificationMapper::toDto)
                 .toList();
+
+        if(!dtoList.isEmpty()) {
+            List<String> serializedList = dtoList.stream()
+                    .map(this::toJson)
+                    .toList();
+            redisTemplate.opsForList().rightPushAll(key, serializedList);
+            redisTemplate.expire(key, TIMEOUT, TimeUnit.DAYS);
+        }
+
+        return dtoList;
     }
 
     @Override
     public List<NotificationDto> getNotificationsAfter(UUID userId, String lastEventId) {
-        List<NotificationDto> allNotifications = getAllNotifications(userId);
+        List<NotificationDto> allNotifications = getRecentNotifications(userId);
 
         if (!StringUtils.hasText(lastEventId)) {
             return allNotifications;
@@ -90,5 +93,21 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
                     return eventId.compareTo(lastEventId) > 0;
                 })
                 .toList();
+    }
+
+    private String toJson(NotificationDto dto) {
+        try {
+            return objectMapper.writeValueAsString(dto);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private NotificationDto parseJson(String json) {
+        try {
+            return objectMapper.readValue(json, NotificationDto.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
