@@ -63,10 +63,12 @@ public class CommentRepositoryTest {
 
       Field createdAtField = Comment.class.getDeclaredField("createdAt");
       createdAtField.setAccessible(true);
-      createdAtField.set(comment, LocalDateTime.now().minusMinutes(i));
+      createdAtField.set(comment, LocalDateTime.now().withNano(0).minusMinutes(i));
 
       commentRepository.save(comment);
     }
+    long count = commentRepository.count();
+    System.out.println("Total comments: " + count);
   }
 
   // 첫 페이지 조회
@@ -83,6 +85,19 @@ public class CommentRepositoryTest {
     assertThat(result.get(19).getContent()).isEqualTo("테스트 댓글 20");
 
   }
+
+  /***
+   *
+   * 현재 소나큐브에서 발생하는 문제 -> 갯수 5개 나와야하는데 6개 나온다고 함
+   *
+   * omment.createdAt.lt(lastCreatedAt) 조건에서, 본인(20번 댓글)이 본인보다 "작다"고 판정되어 결과에 포함되어 버리는 기현상이 발생할 수 있습니다.
+   *
+   * 이게 제일 유력해 보임
+   *
+   * 로컬 상에서 테스트 돌려보았을때는 정상적으로 이전페이지 20 다음 페이지 크기 5나오고 마지막 id  생성날짜 기준으로 다음 댓글 정상적으로 출력
+   * 마지막 댓글이 20 이면 그다음 21부터 출력
+   *
+   * ***/
 
   // 다음 페이지 조회
   @Test
