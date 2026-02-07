@@ -82,13 +82,13 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
 
     @Override
     public List<NotificationDto> getNotificationsAfter(UUID userId, String lastEventId) {
-        List<NotificationDto> allNotifications = getRecentNotifications(userId);
+        List<NotificationDto> recentNotifications = getRecentNotifications(userId);
 
         if (!StringUtils.hasText(lastEventId)) {
-            return allNotifications;
+            return recentNotifications;
         }
 
-        return allNotifications.stream()
+        return recentNotifications.stream()
                 .filter(dto -> {
                     String eventId = sseEventIdGenerator.generator(dto.createdAt(), userId);
                     return eventId.compareTo(lastEventId) > 0;
