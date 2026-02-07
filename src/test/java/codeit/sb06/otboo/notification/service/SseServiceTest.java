@@ -1,13 +1,14 @@
 package codeit.sb06.otboo.notification.service;
 
 import codeit.sb06.otboo.notification.repository.SseEmitterRepository;
-import codeit.sb06.otboo.notification.repository.SseEventCacheRepository;
 import codeit.sb06.otboo.notification.service.impl.SseServiceImpl;
+import codeit.sb06.otboo.notification.util.SseEventIdGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,7 +27,9 @@ class SseServiceTest {
     @Mock
     private SseEmitterRepository sseEmitterRepository;
     @Mock
-    private SseEventCacheRepository sseEventCacheRepository;
+    private NotificationCacheService notificationCacheService;
+    @Spy
+    private SseEventIdGenerator sseEventIdGenerator;
     @InjectMocks
     private SseServiceImpl sseService;
 
