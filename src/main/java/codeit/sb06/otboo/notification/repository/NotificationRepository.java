@@ -16,9 +16,13 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
             SELECT noti FROM Notification noti
             WHERE noti.receiverId = :myUserId
             AND (
-                :cursor IS NULL
-                OR noti.createdAt < :cursor
-                OR (noti.createdAt = :cursor AND noti.id < :idAfter)
+                noti.createdAt < :cursor
+                OR (noti.createdAt = :cursor
+                    AND (
+                         :idAfter IS NULL
+                         OR noti.id < :idAfter
+                    )
+                 )
             )
             ORDER BY noti.createdAt DESC, noti.id DESC
             """)
