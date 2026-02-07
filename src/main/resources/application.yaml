@@ -43,6 +43,8 @@ spring:
       host: localhost
       port: 6379
       password: ${REDIS_PASSWORD:temporary_password}
+      repositories:
+        enabled: false
 
   websocket:
     pool:
