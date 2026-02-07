@@ -51,9 +51,9 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
 
         String key = KEY_PREFIX + userId;
 
-        List<String> rawList = redisTemplate.opsForList().range(key, 0, -1);
+        List<String> jsonList = redisTemplate.opsForList().range(key, 0, -1);
 
-        if (rawList == null || rawList.isEmpty()) {
+        if (jsonList == null || jsonList.isEmpty()) {
             PageRequest pageRequest = PageRequest.of(0, MAX_NOTIFICATIONS);
             List<NotificationDto> dtoList = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId, pageRequest)
                     .stream()
@@ -71,7 +71,7 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
             return dtoList;
         }
 
-        return rawList.stream()
+        return jsonList.stream()
                 .map(NotificationDto.class::cast)
                 .toList();
     }
