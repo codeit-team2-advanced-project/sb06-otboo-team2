@@ -15,6 +15,11 @@ import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
+import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
+import codeit.sb06.otboo.weather.dto.weather.WindStrength;
+import codeit.sb06.otboo.weather.entity.Weather;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +46,7 @@ public class CommentQueryServiceTest {
   UUID feedId, authorId;
   User author;
   Feed feed;
+  Weather weather;
 
   Comment c1,c2,c3;
 
@@ -58,10 +64,25 @@ public class CommentQueryServiceTest {
 
     ReflectionTestUtils.setField(author, "id", authorId);
 
-    feed = Feed.builder()
-        .content("테스트 피드 내용")
-        .user(author)
+    weather = Weather.builder()
+        .skyStatus(SkyStatus.CLEAR)
+        .precipitationType(PrecipitationType.NONE)
+        .precipitationAmount(0.0)
+        .precipitationProbability(0.0)
+        .tempCurrent(20.0)
+        .tempMin(18.0)
+        .tempMax(22.0)
+        .humidity(50.0)
+        .windSpeed(1.0)
+        .windStrength(WindStrength.WEAK)
+        .date(LocalDate.now())
+        .latitude(37.0)
+        .longitude(127.0)
+        .forecastAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now())
         .build();
+
+    feed = Feed.create(author, weather, List.of(), "테스트 피드 내용");
 
     LocalDateTime createdAt = LocalDateTime.now();
 

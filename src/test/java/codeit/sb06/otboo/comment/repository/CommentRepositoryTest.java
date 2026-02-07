@@ -10,7 +10,13 @@ import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
+import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
+import codeit.sb06.otboo.weather.dto.weather.WindStrength;
+import codeit.sb06.otboo.weather.entity.Weather;
+import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +41,9 @@ public class CommentRepositoryTest {
   @Autowired
   private FeedRepository feedRepository;
 
+  @Autowired
+  private WeatherRepository weatherRepository;
+
   private Feed feed;
 
   private User user;
@@ -45,11 +54,26 @@ public class CommentRepositoryTest {
         User.from(new UserCreateRequest("테스트 유저", "codeit1234@otboo.com", "pwd123"))
     );
 
+    Weather weather = weatherRepository.save(Weather.builder()
+        .skyStatus(SkyStatus.CLEAR)
+        .precipitationType(PrecipitationType.NONE)
+        .precipitationAmount(0.0)
+        .precipitationProbability(0.0)
+        .tempCurrent(20.0)
+        .tempMin(18.0)
+        .tempMax(22.0)
+        .humidity(50.0)
+        .windSpeed(1.0)
+        .windStrength(WindStrength.WEAK)
+        .date(LocalDate.now())
+        .latitude(37.0)
+        .longitude(127.0)
+        .forecastAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now())
+        .build());
+
     feed = feedRepository.save(
-        Feed.builder()
-            .content("테스트 피드")
-            .user(user)
-            .build()
+        Feed.create(user, weather, List.of(), "테스트 피드")
     );
 
     for (int i = 0; i < 25; i++) {
