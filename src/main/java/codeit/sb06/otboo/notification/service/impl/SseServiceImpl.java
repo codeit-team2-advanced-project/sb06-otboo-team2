@@ -36,7 +36,7 @@ public class SseServiceImpl implements SseService {
 
         configEmitter(emitter, userId);
 
-        String eventId = makeTimeIncludeId(userId);
+        String eventId = sseEventIdGenerator.generator(null, userId);
         sendToClient(
                 emitter,
                 userId,
@@ -63,7 +63,7 @@ public class SseServiceImpl implements SseService {
     @Override
     public void send(UUID userId, String eventName, Object data) {
 
-        String eventId = makeTimeIncludeId(userId);
+        String eventId = sseEventIdGenerator.generator(null, userId);
         SseEvent event = SseEvent.of(eventId, eventName, data);
 
         SseEmitter emitter = sseEmitterRepository.findById(userId);
@@ -83,10 +83,6 @@ public class SseServiceImpl implements SseService {
         } catch (IOException e) {
             sseEmitterRepository.deleteById(userId);
         }
-    }
-
-    private String makeTimeIncludeId(UUID userId) {
-        return System.currentTimeMillis() + "_" + userId.toString();
     }
 
     private void configEmitter(SseEmitter emitter, UUID userId) {
