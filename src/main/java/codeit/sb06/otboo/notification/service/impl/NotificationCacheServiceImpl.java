@@ -63,7 +63,8 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
 
         // 캐시에 데이터가 없으면 DB에서 조회 후 캐시에 저장, 반환
         PageRequest pageRequest = PageRequest.of(0, MAX_NOTIFICATIONS);
-        List<NotificationDto> dtoList = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId, pageRequest)
+        List<NotificationDto> dtoList = notificationRepository.findFirstPageByReceiverId(userId, pageRequest)
+                .getContent()
                 .stream()
                 .map(notificationMapper::toDto)
                 .toList();

@@ -50,11 +50,17 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDtoCursorResponse getNotifications(LocalDateTime cursor, UUID idAfter, int limit, UUID myUserId) {
 
-        Slice<Notification> notifications = notificationRepository.findByMyUserIdWithCursor(
+        Slice<Notification> notifications;
+
+        if(cursor == null && idAfter == null) {
+            notifications = notificationRepository.findFirstPageByReceiverId(myUserId, PageRequest.of(0, limit));
+        } else {
+            notifications = notificationRepository.findByReceiverIdWithCursor(
                 cursor,
                 idAfter,
                 myUserId,
                 PageRequest.of(0, limit));
+        }
 
         return notificationMapper.toDtoCursorResponse(notifications);
     }
