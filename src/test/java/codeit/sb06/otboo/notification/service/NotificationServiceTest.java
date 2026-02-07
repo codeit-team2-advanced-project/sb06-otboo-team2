@@ -71,7 +71,7 @@ class NotificationServiceTest {
         List<Notification> top10 = notifications.subList(0, 10);
         Slice<Notification> notificationSlice = new SliceImpl<>(top10, PageRequest.of(0, 10), true);
 
-        given(notificationRepository.findByMyUserIdWithCursor(
+        given(notificationRepository.findByReceiverIdWithCursor(
                 null,
                 null,
                 myUserId,

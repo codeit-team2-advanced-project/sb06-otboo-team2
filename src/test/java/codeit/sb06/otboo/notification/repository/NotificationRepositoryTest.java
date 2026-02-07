@@ -58,7 +58,7 @@ class NotificationRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Slice<Notification> firstPage = notificationRepository.findByMyUserIdWithCursor(null, null, myUserId, pageable);
+        Slice<Notification> firstPage = notificationRepository.findByReceiverIdWithCursor(null, null, myUserId, pageable);
         List<Notification> firstPageContents = firstPage.getContent();
 
         // then
