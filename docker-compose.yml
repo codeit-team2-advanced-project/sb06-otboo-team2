@@ -48,7 +48,6 @@ services:
         - redis-server
         - --requirepass
         - ${REDIS_PASSWORD:-temporary_password}
-        - --appendonly yes    # 데이터 보존 옵션 활성화
     volumes:
       - redis_data:/data
 
