@@ -4,6 +4,7 @@ import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
 import codeit.sb06.otboo.notification.event.*;
 import codeit.sb06.otboo.notification.service.NotificationService;
+import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import codeit.sb06.otboo.notification.service.SseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class NotificationEventListener {
 
     private final NotificationService notificationService;
+    private final NotificationCacheService notificationCacheService;
     private final SseService sseService;
 
     @TransactionalEventListener
@@ -81,6 +83,8 @@ public class NotificationEventListener {
                 title,
                 content,
                 NotificationLevel.INFO);
+
+        notificationCacheService.save(targetId, notificationDto);
 
         sseService.send(targetId, "notifications", notificationDto);
     }
