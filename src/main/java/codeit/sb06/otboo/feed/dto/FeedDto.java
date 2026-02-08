@@ -21,13 +21,13 @@ public record FeedDto(
     boolean likedByMe
 ) {
   public static FeedDto from(Feed feed) {
+    return from(feed, false);
+  }
+
+  public static FeedDto from(Feed feed, boolean likedByMe) {
     LocalDateTime created = feed.getCreatedAt();
     LocalDateTime updated = feed.getUpdatedAt();
-    AuthorDto author = new AuthorDto(
-        feed.getUser().getId(),
-        feed.getUser().getName(),
-        feed.getUser().getProfileImageUrl()
-    );
+    AuthorDto author = AuthorDto.of(feed.getUser());
     return new FeedDto(
         feed.getId(),
         created,
@@ -41,7 +41,7 @@ public record FeedDto(
         feed.getContent(),
         feed.getLikeCount(),
         feed.getCommentCount(),
-        false
+        likedByMe
     );
   }
 }
