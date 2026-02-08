@@ -6,6 +6,10 @@ import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorRequest;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
+import codeit.sb06.otboo.feed.dto.FeedSortBy;
+import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
@@ -50,6 +54,44 @@ public class FeedService {
     Feed feed = Feed.create(author, weather, clothes, request.content());
     Feed saved = feedRepository.save(feed);
     return FeedDto.from(saved);
+  }
+
+  @Transactional(readOnly = true)
+  public FeedDtoCursorResponse getFeeds(UUID currentUserId, FeedDtoCursorRequest request) {
+    int limit = request.limit();
+    FeedSortBy sortBy = request.sortBy();
+    FeedSortDirection sortDirection = request.sortDirection();
+
+    List<Feed> feeds = feedRepository.findFeedListByCursor(request, limit + 1);
+    boolean hasNext = feeds.size() > limit;
+    if (hasNext) {
+      feeds = feeds.subList(0, limit);
+    }
+
+    List<UUID> feedIds = feeds.stream().map(Feed::getId).toList();
+    Set<UUID> likedFeedIds = feedIds.isEmpty()
+        ? Set.of()
+        : Set.copyOf(feedLikeRepository.findFeedIdsByUserIdAndFeedIdIn(currentUserId, feedIds));
+
+    String nextCursor = null;
+    UUID nextIdAfter = null;
+    if (hasNext && !feeds.isEmpty()) {
+      Feed last = feeds.get(feeds.size() - 1);
+      nextCursor = cursorValue(last, sortBy);
+      nextIdAfter = last.getId();
+    }
+
+    long totalCount = feedRepository.countFeedList(request);
+    return FeedDtoCursorResponse.of(
+        feeds,
+        likedFeedIds,
+        nextCursor,
+        nextIdAfter,
+        hasNext,
+        totalCount,
+        sortBy,
+        sortDirection
+    );
   }
 
   @Transactional
@@ -126,5 +168,12 @@ public class FeedService {
   private User getUserOrThrow(UUID userId) {
     return userRepository.findById(userId)
         .orElseThrow(UserNotFoundException::new);
+  }
+
+  private String cursorValue(Feed feed, FeedSortBy sortBy) {
+    if (sortBy == FeedSortBy.likeCount) {
+      return String.valueOf(feed.getLikeCount());
+    }
+    return feed.getCreatedAt().toString();
   }
 }
