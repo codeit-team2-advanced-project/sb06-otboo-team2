@@ -3,12 +3,14 @@ package codeit.sb06.otboo.follow.controller;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
+import codeit.sb06.otboo.follow.dto.FolloweeDto;
 import codeit.sb06.otboo.follow.service.FollowService;
 import codeit.sb06.otboo.security.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,5 +58,20 @@ public class FollowController {
     return ResponseEntity.ok(response);
   }
 
-
+  // 내가 팔로우하는 사람 목록 조회
+  @Operation(summary = "팔로잉 목록 조회")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "팔로잉 목록 조회 성공"),
+      @ApiResponse(responseCode = "400", description = "팔로잉 목록 조회 실패")
+  })
+  @GetMapping("/follows/followings")
+  public ResponseEntity<List<FolloweeDto>> getFollowings(
+      @RequestParam UUID followerId,
+      @RequestParam(required = false) String cursor,
+      @RequestParam(required = false) UUID idAfter,
+      @RequestParam Integer limit,
+      @RequestParam(required = false) String nameLike
+  ){
+    return ResponseEntity.ok(null);
+  }
 }
