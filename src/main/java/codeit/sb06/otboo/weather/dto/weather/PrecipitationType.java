@@ -1,3 +1,3 @@
 package codeit.sb06.otboo.weather.dto.weather;
 
-public enum PrecipitationType { NONE, RAIN, SNOW }
+public enum PrecipitationType { NONE, RAIN, SNOW, RAIN_SNOW, SHOWER }
