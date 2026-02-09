@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface FollowQueryRepositroy {
+public interface FollowQueryRepository {
   List<Follow> findByCursor(
       FollowDirection followDirection,
       UUID userId,

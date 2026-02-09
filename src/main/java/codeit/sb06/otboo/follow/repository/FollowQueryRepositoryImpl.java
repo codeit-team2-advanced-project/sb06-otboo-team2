@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class FollowQueryRepositoryImpl implements FollowQueryRepositroy{
+public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
   private final JPAQueryFactory queryFactory;
 
