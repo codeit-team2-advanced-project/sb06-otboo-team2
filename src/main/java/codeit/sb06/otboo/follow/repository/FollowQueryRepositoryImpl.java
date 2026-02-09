@@ -30,7 +30,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepositroy{
         )
         .limit(limit);
 
-    if (followDirection == FollowDirection.FOllOWER) {
+    if (followDirection == FollowDirection.FOLLOWER) {
       query.where(follow.followee.id.eq(userId));
     }
     else {
@@ -47,11 +47,35 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepositroy{
       );
     }
     if (nameLike != null && !nameLike.isBlank()) {
+      if (followDirection == FollowDirection.FOLLOWER) {
+        query.where(follow.follower.name.containsIgnoreCase(nameLike));
+      } else {
+        query.where(follow.followee.name.containsIgnoreCase(nameLike));
+      }
+    }
+
+    return query.fetch();
+  }
+
+  @Override
+  public Long countByCondition(FollowDirection followDirection, UUID userId, String nameLike) {
+    var query = queryFactory
+        .select(follow.count())
+        .from(follow);
+
+    if (followDirection == FollowDirection.FOLLOWER) {
+      query.where(follow.followee.id.eq(userId));
+    } else {
+      query.where(follow.follower.id.eq(userId));
+    }
+
+    if (nameLike != null && !nameLike.isBlank()) {
       query.where(
           follow.followee.name.containsIgnoreCase(nameLike)
               .or(follow.follower.name.containsIgnoreCase(nameLike))
       );
     }
-    return query.fetch();
+
+    return query.fetchOne();
   }
 }
