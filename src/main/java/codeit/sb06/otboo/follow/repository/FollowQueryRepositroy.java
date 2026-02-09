@@ -15,4 +15,10 @@ public interface FollowQueryRepositroy {
       int limit,
       String nameLike
   );
+
+  Long countByCondition(
+      FollowDirection followDirection,
+      UUID userId,
+      String nameLike
+  );
 }
