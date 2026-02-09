@@ -1,5 +1,7 @@
 package codeit.sb06.otboo.feed.service;
 
+import codeit.sb06.otboo.exception.auth.ForbiddenException;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
@@ -9,6 +11,7 @@ import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
+import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.entity.Weather;
@@ -44,6 +47,30 @@ public class FeedService {
     Feed feed = Feed.create(author, weather, clothes, request.content());
     Feed saved = feedRepository.save(feed);
     return FeedDto.from(saved);
+  }
+
+  @Transactional
+  public void delete(UUID feedId) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+    feedRepository.delete(feed);
+  }
+
+  @Transactional
+  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+
+    if (!feed.getUser().getId().equals(currentUserId)) {
+      User user = userRepository.findById(currentUserId)
+          .orElseThrow(UserNotFoundException::new);
+      if (user.getRole() != Role.ADMIN) {
+        throw new ForbiddenException();
+      }
+    }
+
+    feed.updateContent(content);
+    return FeedDto.from(feed);
   }
 
   private List<Clothes> loadClothesOrThrow(List<UUID> ids) {
