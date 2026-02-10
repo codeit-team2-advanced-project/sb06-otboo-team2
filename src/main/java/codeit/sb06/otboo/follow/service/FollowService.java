@@ -4,6 +4,7 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FollowListResponse;
 import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
+import codeit.sb06.otboo.follow.entity.FollowDirection;
 import java.util.UUID;
 
 public interface FollowService {
@@ -12,9 +13,12 @@ public interface FollowService {
 
   FollowSummaryDto getFollowSummary(UUID targetId, UUID myId);
 
-  FollowListResponse getFollowings(
-      UUID followerId, String cursor, UUID idAfter, int limit, String nameLike
-  );
-
+  FollowListResponse getFollowList(
+      FollowDirection direction,
+      UUID userId,
+      String cursor,
+      UUID idAfter,
+      int limit,
+      String nameLike);
 
 }
