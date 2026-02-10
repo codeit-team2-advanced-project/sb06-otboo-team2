@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface NotificationCacheService {
 
-    void save(UUID userId, NotificationDto data);
+    void save(NotificationDto dto);
 
     List<NotificationDto> getRecentNotifications(UUID userId);
 

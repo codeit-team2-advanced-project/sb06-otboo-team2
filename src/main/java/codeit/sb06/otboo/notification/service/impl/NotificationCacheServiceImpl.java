@@ -1,7 +1,6 @@
 package codeit.sb06.otboo.notification.service.impl;
 
 import codeit.sb06.otboo.notification.dto.NotificationDto;
-import codeit.sb06.otboo.notification.entity.Notification;
 import codeit.sb06.otboo.notification.mapper.NotificationMapper;
 import codeit.sb06.otboo.notification.repository.NotificationRepository;
 import codeit.sb06.otboo.notification.service.NotificationCacheService;
@@ -34,9 +33,9 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void save(UUID userId, NotificationDto dto) {
+    public void save(NotificationDto dto) {
 
-        String key = KEY_PREFIX + userId;
+        String key = KEY_PREFIX + dto.receiverId();
         try {
             redisTemplate.opsForList().leftPush(key, objectMapper.writeValueAsString(dto));
             redisTemplate.opsForList().trim(key, 0, MAX_NOTIFICATIONS - 1L);
