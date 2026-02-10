@@ -148,4 +148,9 @@ public class BasicFollowService implements FollowService {
     );
   }
 
+  @Override
+  public void deleteFollow(UUID followId) {
+
+  }
+
 }
