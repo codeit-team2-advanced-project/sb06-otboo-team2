@@ -99,6 +99,7 @@ public class FollowRepositoryTest {
 
   @Test
   void findFollowers_firstPage() {
+
     // when
     List<Follow> result =
         followRepository.findByCursor(
@@ -127,7 +128,7 @@ public class FollowRepositoryTest {
 
   @Test
   void findFollowers_nextPage() {
-    // given: 첫 페이지 조회
+    // given
     List<Follow> firstPage =
         followRepository.findByCursor(
             FollowDirection.FOLLOWER,
@@ -138,9 +139,11 @@ public class FollowRepositoryTest {
             null
         );
 
+    assertThat(firstPage).hasSize(20);
+
     Follow lastFollow = firstPage.get(firstPage.size() - 1);
 
-    // when: 다음 페이지
+    // when
     List<Follow> secondPage =
         followRepository.findByCursor(
             FollowDirection.FOLLOWER,
@@ -157,7 +160,6 @@ public class FollowRepositoryTest {
     assertThat(secondPage)
         .allMatch(f -> f.getFollowee().getId().equals(targetUser.getId()));
 
-    // 정렬/커서 검증
     assertThat(secondPage.get(0).getCreatedAt())
         .isBefore(lastFollow.getCreatedAt());
   }
