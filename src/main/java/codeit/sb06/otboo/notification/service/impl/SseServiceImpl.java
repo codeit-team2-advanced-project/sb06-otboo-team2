@@ -7,10 +7,12 @@ import codeit.sb06.otboo.notification.service.SseService;
 import codeit.sb06.otboo.notification.util.SseEventIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -96,5 +98,21 @@ public class SseServiceImpl implements SseService {
             emitter.complete();
             log.error("SSE Emitter Error. [userId={}]", userId, e);
         });
+    }
+
+    @Scheduled(fixedDelay = 15000)
+    public void sendHeartbeat() {
+
+        Map<UUID, SseEmitter> allEmitters = sseEmitterRepository.findAll();
+
+        for (Map.Entry<UUID, SseEmitter> entry : allEmitters.entrySet()) {
+            SseEmitter emitter = entry.getValue();
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
+            } catch (Exception e) {
+                emitter.complete();
+                sseEmitterRepository.deleteById(entry.getKey());
+            }
+        }
     }
 }
