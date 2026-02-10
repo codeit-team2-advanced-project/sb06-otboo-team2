@@ -84,7 +84,7 @@ public class NotificationEventListener {
                 content,
                 NotificationLevel.INFO);
 
-        notificationCacheService.save(targetId, notificationDto);
+        notificationCacheService.save(notificationDto);
 
         sseService.send(targetId, "notifications", notificationDto);
     }
