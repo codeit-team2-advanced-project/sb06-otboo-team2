@@ -1,11 +1,12 @@
 package codeit.sb06.otboo.clothes.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public record ClothesDtoCursorResponse(
         List<ClothesDto> data,
         String nextCursor,
-        String nextIdAfter,
+        UUID nextIdAfter,
         boolean hasNext,
         long totalCount,
         String sortBy,

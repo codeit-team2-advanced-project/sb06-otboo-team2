@@ -69,4 +69,26 @@ public class Clothes {
     public List<ClothesAttribute> getAttributes() {
         return List.copyOf(attributes);
     }
+
+    public void changeName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name은 필수입니다.");
+        }
+        this.name = name;
+    }
+
+    public void changeType(ClothesType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type은 필수입니다.");
+        }
+        this.type = type;
+    }
+
+    public void changeImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void replaceAttributes(List<ClothesAttribute> newAttributes) {
+        this.attributes.clear();
+    }
 }
