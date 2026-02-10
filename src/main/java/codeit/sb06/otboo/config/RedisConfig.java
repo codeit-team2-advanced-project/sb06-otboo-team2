@@ -1,17 +1,75 @@
 package codeit.sb06.otboo.config;
 
+import codeit.sb06.otboo.notification.listener.NotificationStreamListener;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.stream.Consumer;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
+import java.time.Duration;
+import java.util.UUID;
+
+@Slf4j
 @Configuration
 public class RedisConfig {
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(
-            RedisConnectionFactory connectionFactory
-    ) {
-        return new StringRedisTemplate(connectionFactory);
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(new StringRedisSerializer());
+
+        return template;
+    }
+
+    @Bean
+    public String serverId() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    @Bean
+    public String streamKey() {
+        return "notification:stream";
+    }
+
+    @Bean
+    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> notificationContainer(
+            RedisConnectionFactory connectionFactory,
+            NotificationStreamListener streamListener,
+            String serverId) {
+
+        var options =
+                StreamMessageListenerContainer.StreamMessageListenerContainerOptions
+                        .builder()
+                        .pollTimeout(Duration.ofMillis(100))
+                        .errorHandler(e -> log.error("[Redis Stream Error]", e))
+                        .build();
+
+        var container =
+                StreamMessageListenerContainer.create(connectionFactory, options);
+
+        container.receive(
+                Consumer.from("group-noti-" + serverId, "instance-" + serverId),
+                StreamOffset.create(streamKey(), ReadOffset.lastConsumed()),
+                streamListener
+        );
+
+        container.start();
+
+        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: notification:stream", serverId);
+
+        return container;
     }
 }
