@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -20,13 +19,13 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public NotificationDto create(UUID receiverId, String title, String content, NotificationLevel level) {
 
@@ -65,7 +64,6 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationMapper.toDtoCursorResponse(notifications);
     }
 
-    @Transactional
     @Override
     public void deleteById(UUID notificationId) {
         log.debug("알림 삭제: {}", notificationId);
