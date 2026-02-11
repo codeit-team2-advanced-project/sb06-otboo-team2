@@ -30,6 +30,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,6 +59,9 @@ public class FollowGetSummaryResponseTest {
 
   @MockitoBean
   UserRepository userRepository;
+
+  @MockitoBean
+  UserDetailsService userDetailsService;
 
   @BeforeEach
   void setUp(){
