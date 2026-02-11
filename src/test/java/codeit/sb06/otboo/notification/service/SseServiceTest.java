@@ -1,8 +1,11 @@
 package codeit.sb06.otboo.notification.service;
 
+import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.repository.SseEmitterRepository;
 import codeit.sb06.otboo.notification.service.impl.SseServiceImpl;
 import codeit.sb06.otboo.notification.util.SseEventIdGenerator;
+import codeit.sb06.otboo.util.EasyRandomUtil;
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +15,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +27,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SseServiceTest {
 
+    private final EasyRandom easyRandom = EasyRandomUtil.getRandom();
     private final UUID userId = UUID.randomUUID();
     @Mock
     private SseEmitterRepository sseEmitterRepository;
@@ -45,6 +50,27 @@ class SseServiceTest {
 
         // then
         assertThat(emitter).isNotNull();
+    }
+
+    @Test
+    @DisplayName("last event id가 존재할 때 캐시 서비스에서 이후 알림을 조회한다.")
+    void subscribeWithLastEventIdTest() {
+        // given
+        String lastEventId = easyRandom.nextObject(String.class);
+        NotificationDto mockDto = easyRandom.nextObject(NotificationDto.class);
+        List<NotificationDto> dtoList = List.of(mockDto);
+
+        given(sseEmitterRepository.save(eq(userId), any(SseEmitter.class)))
+                .willAnswer(invocation -> invocation.getArgument(1));
+        given(notificationCacheService.getNotificationsAfter(userId, lastEventId))
+                .willReturn(dtoList);
+
+        // when
+        sseService.subscribe(userId, lastEventId);
+
+        // then
+        verify(notificationCacheService, times(1))
+                .getNotificationsAfter(userId, lastEventId);
     }
 
     @Test
