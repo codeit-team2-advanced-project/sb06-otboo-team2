@@ -1,5 +1,6 @@
 package codeit.sb06.otboo.notification.service.impl;
 
+import codeit.sb06.otboo.exception.notification.NotificationMappingException;
 import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.mapper.NotificationMapper;
 import codeit.sb06.otboo.notification.repository.NotificationRepository;
@@ -41,8 +42,8 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
             redisTemplate.opsForList().trim(key, 0, MAX_NOTIFICATIONS - 1L);
             redisTemplate.expire(key, TIMEOUT, TimeUnit.DAYS);
         } catch (JsonProcessingException e) {
-            log.error("Redis 저장 실패", e);
-            throw new RuntimeException("Failed to save notification to Redis", e);
+            log.error("Redis 직렬화 오류", e);
+            throw new NotificationMappingException();
         }
     }
 
@@ -99,7 +100,7 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
         try {
             return objectMapper.writeValueAsString(dto);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new NotificationMappingException();
         }
     }
 
@@ -107,7 +108,7 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
         try {
             return objectMapper.readValue(json, NotificationDto.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new NotificationMappingException();
         }
     }
 }
