@@ -86,6 +86,16 @@ public class Feed {
     this.content = content;
   }
 
+  public void incrementLikeCount() {
+    this.likeCount = this.likeCount + 1;
+  }
+
+  public void decrementLikeCount() {
+    if (this.likeCount > 0) {
+      this.likeCount = this.likeCount - 1;
+    }
+  }
+
   @PrePersist
   public void prePersist() {
     this.createdAt = LocalDateTime.now();

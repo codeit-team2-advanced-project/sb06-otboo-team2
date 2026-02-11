@@ -16,6 +16,8 @@ import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.entity.Weather;
 import codeit.sb06.otboo.weather.repository.WeatherRepository;
+import codeit.sb06.otboo.feed.entity.FeedLike;
+import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +34,7 @@ public class FeedService {
   private final WeatherRepository weatherRepository;
   private final ClothesRepository clothesRepository;
   private final FeedRepository feedRepository;
+  private final FeedLikeRepository feedLikeRepository;
 
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
@@ -73,6 +76,31 @@ public class FeedService {
     return FeedDto.from(feed);
   }
 
+  @Transactional
+  public void like(UUID feedId, UUID currentUserId) {
+    Feed feed = getFeedOrThrow(feedId);
+    User user = getUserOrThrow(currentUserId);
+
+    if (feedLikeRepository.existsByFeedIdAndUserId(feedId, currentUserId)) {
+      return;
+    }
+
+    feedLikeRepository.save(FeedLike.create(user, feed));
+    feed.incrementLikeCount();
+  }
+
+  @Transactional
+  public void unlike(UUID feedId, UUID currentUserId) {
+    Feed feed = getFeedOrThrow(feedId);
+    getUserOrThrow(currentUserId);
+
+    feedLikeRepository.findByFeedIdAndUserId(feedId, currentUserId)
+        .ifPresent(feedLike -> {
+          feedLikeRepository.delete(feedLike);
+          feed.decrementLikeCount();
+        });
+  }
+
   private List<Clothes> loadClothesOrThrow(List<UUID> ids) {
     List<UUID> uniqueIds = ids.stream().distinct().toList();
     List<Clothes> clothes = clothesRepository.findAllById(uniqueIds);
@@ -88,5 +116,15 @@ public class FeedService {
     }
 
     return clothes;
+  }
+
+  private Feed getFeedOrThrow(UUID feedId) {
+    return feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+  }
+
+  private User getUserOrThrow(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(UserNotFoundException::new);
   }
 }

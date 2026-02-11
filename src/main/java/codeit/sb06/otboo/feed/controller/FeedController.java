@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,5 +41,23 @@ public class FeedController {
       @CurrentUserId UUID currentUserId
   ) {
     return ResponseEntity.ok(service.update(feedId, currentUserId, content));
+  }
+
+  @PostMapping("/{feedId}/like")
+  public ResponseEntity<Void> likeFeed(
+      @PathVariable UUID feedId,
+      @CurrentUserId UUID currentUserId
+  ) {
+    service.like(feedId, currentUserId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{feedId}/like")
+  public ResponseEntity<Void> unlikeFeed(
+      @PathVariable UUID feedId,
+      @CurrentUserId UUID currentUserId
+  ) {
+    service.unlike(feedId, currentUserId);
+    return ResponseEntity.noContent().build();
   }
 }
