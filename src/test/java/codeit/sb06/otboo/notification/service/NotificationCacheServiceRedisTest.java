@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
         SseEventIdGenerator.class
 })
 @ActiveProfiles("test")
-class NotificationCacheServiceTest {
+class NotificationCacheServiceRedisTest {
 
     private final EasyRandom easyRandom = EasyRandomUtil.getRandom();
 
