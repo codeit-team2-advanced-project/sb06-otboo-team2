@@ -47,4 +47,12 @@ public interface ClothesAttributeDefRepository extends JpaRepository<ClothesAttr
            left join fetch d.values v
            """)
     List<ClothesAttributeDef> findAllWithValues(Sort sort);
+
+    @Query("""
+        select distinct d
+        from ClothesAttributeDef d
+        left join fetch d.values v
+        where d.id in :ids
+        """)
+    List<ClothesAttributeDef> findAllByIdInWithValues(@Param("ids") List<UUID> ids);
 }
