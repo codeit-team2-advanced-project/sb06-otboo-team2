@@ -37,6 +37,9 @@ public class User {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    private Provider provider;
+
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     private boolean isLocked;
@@ -58,9 +61,24 @@ public class User {
             .role(Role.USER)
             .isLocked(false)
             .name(userCreateRequest.name())
+            .provider(Provider.LOCAL)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .profileImageUrl(null)
+            .password(null)
+            .build();
+    }
+
+    public static User fromOAuth(String email, String name, String profileImageUrl, Provider provider) {
+        return User.builder()
+            .email(email)
+            .role(Role.USER)
+            .isLocked(false)
+            .name(name)
+            .provider(provider)
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .profileImageUrl(profileImageUrl)
             .password(null)
             .build();
     }
@@ -75,6 +93,13 @@ public class User {
 
     public void changeLockStatus(boolean isLocked) {
         this.isLocked = isLocked;
+    }
+
+    public void updateOAuthProfile(String name, String profileImageUrl, Provider provider) {
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
+        this.provider = provider;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateTempPassword(String tempPasswordHash, LocalDateTime expiresAt) {

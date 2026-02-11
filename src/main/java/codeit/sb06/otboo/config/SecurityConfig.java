@@ -1,7 +1,9 @@
 package codeit.sb06.otboo.config;
 
 import codeit.sb06.otboo.security.Http403ForbiddenAccessDeniedHandler;
+import codeit.sb06.otboo.user.service.KakaoOAuth2UserService;
 import codeit.sb06.otboo.security.LoginFailureHandler;
+import codeit.sb06.otboo.security.OAuth2FailureHandler;
 import codeit.sb06.otboo.security.SpaCsrfTokenRequestHandler;
 import codeit.sb06.otboo.security.TemporaryPasswordAuthenticationProvider;
 import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
@@ -16,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -44,7 +45,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtLoginSuccessHandler jwtLoginSuccessHandler,
         ObjectMapper objectMapper, JwtAuthenticationFilter jwtAuthenticationFilter,
         JwtLogoutHandler jwtLogoutHandler, LoginFailureHandler loginFailureHandler,
-        TemporaryPasswordAuthenticationProvider temporaryPasswordAuthenticationProvider) throws Exception {
+        TemporaryPasswordAuthenticationProvider temporaryPasswordAuthenticationProvider,
+        KakaoOAuth2UserService kakaoOAuth2UserService,
+        JwtLoginSuccessHandler jwtLoginSuccessHandlerForOauth2,
+        OAuth2FailureHandler oauth2FailureHandler) throws Exception {
 
         http
             .csrf(csrf -> csrf
@@ -56,6 +60,11 @@ public class SecurityConfig {
                 .successHandler(jwtLoginSuccessHandler)
                 .failureHandler(loginFailureHandler)
             )
+            .oauth2Login(oauth2 -> oauth2
+                .redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))
+                .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
+                .successHandler(jwtLoginSuccessHandlerForOauth2)
+                .failureHandler(oauth2FailureHandler))
             .logout(logout -> logout
                 .logoutUrl("/api/auth/sign-out")
                 .addLogoutHandler(jwtLogoutHandler)
@@ -64,10 +73,8 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
-
-                    //관리자 전용: 속성 정의 관리
                     .requestMatchers("/api/clothes/attribute-defs/**").hasRole("ADMIN")
-
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                     .anyRequest().permitAll()
             )
             .exceptionHandling(ex -> ex

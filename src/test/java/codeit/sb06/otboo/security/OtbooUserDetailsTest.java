@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class OtbooUserDetailsTest {
@@ -18,6 +20,7 @@ class OtbooUserDetailsTest {
             UUID.randomUUID(),
             "user@example.com",
             "tester",
+            Provider.LOCAL,
             Role.ADMIN,
             false,
             LocalDateTime.of(2026, 1, 1, 0, 0),
@@ -44,7 +47,7 @@ class OtbooUserDetailsTest {
             Role.USER.name(),
             false
         );
-        OtbooUserDetails details = new OtbooUserDetails(dto, "pw");
+        OtbooUserDetails details = new OtbooUserDetails(dto, "pw", Map.of());
 
         assertEquals("member@example.com", details.getUsername());
         assertEquals("pw", details.getPassword());

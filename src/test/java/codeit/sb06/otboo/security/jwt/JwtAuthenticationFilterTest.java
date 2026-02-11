@@ -15,6 +15,7 @@ import codeit.sb06.otboo.user.entity.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -56,7 +57,7 @@ class JwtAuthenticationFilterTest {
             Role.USER.name(),
             false
         );
-        UserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        UserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
 
         when(tokenProvider.validateAccessToken("token-value")).thenReturn(true);
         when(jwtRegistry.hasActiveJwtInformationByAccessToken("token-value")).thenReturn(true);

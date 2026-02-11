@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import codeit.sb06.otboo.exception.user.LockedUserException;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -60,6 +61,7 @@ class OtbooUserDetailsServiceTest {
             UUID.randomUUID(),
             "user@example.com",
             "tester",
+            Provider.LOCAL,
             Role.USER,
             locked,
             LocalDateTime.of(2026, 1, 1, 0, 0),

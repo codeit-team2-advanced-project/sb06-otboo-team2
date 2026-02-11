@@ -1,11 +1,13 @@
-package codeit.sb06.otboo.security.jwt;
+package codeit.sb06.otboo.security;
 
+import codeit.sb06.otboo.exception.ErrorResponse;
 import codeit.sb06.otboo.security.dto.JwtDto;
 import codeit.sb06.otboo.security.dto.JwtInformation;
-import codeit.sb06.otboo.exception.ErrorResponse;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.jwt.JwtRegistry;
+import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,22 +23,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
+    private final ObjectMapper objectMapper;
 
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+        FilterChain chain, Authentication authentication) throws IOException, ServletException {
+        onAuthenticationSuccess(request, response, authentication);
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
-
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        if(authentication.getPrincipal() instanceof OtbooUserDetails userDetails) {
-            try{
+        if (authentication.getPrincipal() instanceof OtbooUserDetails userDetails) {
+            try {
                 String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
                 String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
@@ -49,6 +55,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 );
 
                 response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
+
                 jwtRegistry.registerJwtInformation(
                     new JwtInformation(
                         userDetails.getUserDto(),
@@ -57,14 +65,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                     )
                 );
 
-                if (isOauth2Callback(request)) {
-                    String contextPath = request.getContextPath();
-                    response.sendRedirect((contextPath == null ? "" : contextPath) + "/");
-                    return;
-                }
-
-                response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
-                log.info("JWT 로그인 성공: userId={}", userDetails.getUserDto().id());
+                log.info("OAuth2 로그인 성공: userId={}", userDetails.getUserDto().id());
             } catch (JOSEException e) {
                 log.error("Failed to generate JWT token for user: {}", userDetails.getUsername(), e);
                 ErrorResponse errorResponse = new ErrorResponse(
@@ -72,11 +73,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 );
                 response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
             }
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
-    }
-
-    private boolean isOauth2Callback(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return uri != null && uri.startsWith("/login/oauth2/code/");
     }
 }

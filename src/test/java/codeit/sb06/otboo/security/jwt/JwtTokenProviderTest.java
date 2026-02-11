@@ -11,6 +11,7 @@ import codeit.sb06.otboo.security.OtbooUserDetails;
 import codeit.sb06.otboo.user.entity.Role;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class JwtTokenProviderTest {
@@ -31,7 +32,7 @@ class JwtTokenProviderTest {
             Role.USER.name(),
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
 
         String accessToken = provider.generateAccessToken(userDetails);
 
@@ -58,7 +59,7 @@ class JwtTokenProviderTest {
             Role.USER.name(),
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
 
         String refreshToken = provider.generateRefreshToken(userDetails);
 
@@ -90,7 +91,7 @@ class JwtTokenProviderTest {
             Role.USER.name(),
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
 
         String accessToken = providerA.generateAccessToken(userDetails);
 

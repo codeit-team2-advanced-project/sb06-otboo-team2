@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security.jwt;
+package codeit.sb06.otboo.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -8,8 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.security.dto.JwtInformation;
+import codeit.sb06.otboo.security.jwt.JwtRegistry;
+import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;
-import codeit.sb06.otboo.security.OtbooUserDetails;
 import codeit.sb06.otboo.user.entity.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +18,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -28,14 +29,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-class JwtLoginSuccessHandlerTest {
+class OAuth2SuccessHandlerTest {
 
     @Test
     void writesJwtResponseAndRegistersInformation() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         JwtTokenProvider tokenProvider = Mockito.mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
-        JwtLoginSuccessHandler handler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
+        OAuth2SuccessHandler handler = new OAuth2SuccessHandler(tokenProvider, jwtRegistry, objectMapper);
 
         UserDto userDto = new UserDto(
             UUID.randomUUID(),
@@ -78,7 +79,7 @@ class JwtLoginSuccessHandlerTest {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         JwtTokenProvider tokenProvider = Mockito.mock(JwtTokenProvider.class);
         JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
-        JwtLoginSuccessHandler handler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
+        OAuth2SuccessHandler handler = new OAuth2SuccessHandler(tokenProvider, jwtRegistry, objectMapper);
 
         UserDto userDto = new UserDto(
             UUID.randomUUID(),

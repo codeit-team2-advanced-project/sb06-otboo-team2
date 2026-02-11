@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import codeit.sb06.otboo.user.dto.request.UserSliceRequest;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -191,6 +192,7 @@ class UserRepositoryImplTest {
             null,
             email,
             "name",
+            Provider.LOCAL,
             role,
             locked,
             createdAt,
