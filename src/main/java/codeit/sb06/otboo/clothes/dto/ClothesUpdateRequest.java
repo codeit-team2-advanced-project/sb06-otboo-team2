@@ -15,7 +15,6 @@ public record ClothesUpdateRequest(
         @NotBlank(message = "type은 필수입니다.")
         String type,
 
-        @NotNull(message = "attributes는 필수입니다.")
         List<@Valid ClothesAttributeDto> attributes
 ) {
 }
