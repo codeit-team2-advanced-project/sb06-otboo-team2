@@ -122,6 +122,7 @@ public class FollowController {
   public ResponseEntity<FollowDto> deleteFollow(
       @PathVariable UUID followId
   ){
+    followService.deleteFollow(followId);
     return ResponseEntity.noContent().build();
   }
 
