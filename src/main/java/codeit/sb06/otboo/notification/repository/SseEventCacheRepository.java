@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Repository
+@Deprecated(since = "인메모리 캐시에서 Redis로 변경")
 public class SseEventCacheRepository {
 
     public static final int CACHE_SIZE = 50;

@@ -1,13 +1,14 @@
 package codeit.sb06.otboo.notification.dto;
 
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record NotificationDto(
         UUID id,
         LocalDateTime createdAt,

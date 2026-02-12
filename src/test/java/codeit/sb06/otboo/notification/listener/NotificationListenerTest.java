@@ -2,6 +2,8 @@ package codeit.sb06.otboo.notification.listener;
 
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
 import codeit.sb06.otboo.notification.event.*;
+import codeit.sb06.otboo.notification.publisher.RedisNotificationPublisher;
+import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import codeit.sb06.otboo.notification.service.NotificationService;
 import codeit.sb06.otboo.notification.service.SseService;
 import codeit.sb06.otboo.util.EasyRandomUtil;
@@ -25,6 +27,12 @@ class NotificationListenerTest {
 
     @Mock
     private SseService sseService;
+
+    @Mock
+    private NotificationCacheService notificationCacheService;
+
+    @Mock
+    private RedisNotificationPublisher redisNotificationPublisher;
 
     @InjectMocks
     private NotificationEventListener listener;

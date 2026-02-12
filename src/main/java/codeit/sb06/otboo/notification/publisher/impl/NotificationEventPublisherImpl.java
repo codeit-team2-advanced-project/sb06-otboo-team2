@@ -1,6 +1,7 @@
-package codeit.sb06.otboo.notification.publisher;
+package codeit.sb06.otboo.notification.publisher.impl;
 
 import codeit.sb06.otboo.notification.event.*;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

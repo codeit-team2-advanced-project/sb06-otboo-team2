@@ -2,14 +2,17 @@ package codeit.sb06.otboo.notification.service.impl;
 
 import codeit.sb06.otboo.notification.dto.SseEvent;
 import codeit.sb06.otboo.notification.repository.SseEmitterRepository;
-import codeit.sb06.otboo.notification.repository.SseEventCacheRepository;
+import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import codeit.sb06.otboo.notification.service.SseService;
+import codeit.sb06.otboo.notification.util.SseEventIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -19,7 +22,8 @@ public class SseServiceImpl implements SseService {
 
     public static final long TIMEOUT = 60 * 1000L * 60; // 1 hour
     private final SseEmitterRepository sseEmitterRepository;
-    private final SseEventCacheRepository sseEventCacheRepository;
+    private final NotificationCacheService notificationCacheService;
+    private final SseEventIdGenerator sseEventIdGenerator;
 
     @Override
     public SseEmitter subscribe(UUID userId, String lastEventId) {
@@ -34,7 +38,7 @@ public class SseServiceImpl implements SseService {
 
         configEmitter(emitter, userId);
 
-        String eventId = makeTimeIncludeId(userId);
+        String eventId = sseEventIdGenerator.generator(null, userId);
         sendToClient(
                 emitter,
                 userId,
@@ -44,9 +48,14 @@ public class SseServiceImpl implements SseService {
         sseEmitterRepository.save(userId, emitter);
 
         if (lastEventId != null && !lastEventId.isEmpty()) {
-            sseEventCacheRepository.findAllAfterEventId(userId, lastEventId)
-                    .forEach(event ->
-                            sendToClient(emitter, userId, SseEvent.of(event.id(), event.name(), event.data()))
+            notificationCacheService.getNotificationsAfter(userId, lastEventId)
+                    .forEach(notificationDto ->
+                            sendToClient(emitter, userId,
+                                    SseEvent.of(
+                                            sseEventIdGenerator.generator(notificationDto.createdAt(), userId),
+                                            "notifications",
+                                            notificationDto
+                                    ))
                     );
         }
 
@@ -56,9 +65,8 @@ public class SseServiceImpl implements SseService {
     @Override
     public void send(UUID userId, String eventName, Object data) {
 
-        String eventId = makeTimeIncludeId(userId);
+        String eventId = sseEventIdGenerator.generator(null, userId);
         SseEvent event = SseEvent.of(eventId, eventName, data);
-        sseEventCacheRepository.save(userId, event);
 
         SseEmitter emitter = sseEmitterRepository.findById(userId);
         if (emitter != null) {
@@ -72,15 +80,11 @@ public class SseServiceImpl implements SseService {
                     .id(event.id())
                     .name(event.name())
                     .data(event.data()));
-            log.info("SSE Event Sent. [userId={}, eventId={}, eventName={}, data={}]",
+            log.debug("SSE Event Sent. [userId={}, eventId={}, eventName={}, data={}]",
                     userId, event.id(), event.name(), event.data());
         } catch (IOException e) {
             sseEmitterRepository.deleteById(userId);
         }
-    }
-
-    private String makeTimeIncludeId(UUID userId) {
-        return System.currentTimeMillis() + "_" + userId.toString();
     }
 
     private void configEmitter(SseEmitter emitter, UUID userId) {
@@ -94,5 +98,21 @@ public class SseServiceImpl implements SseService {
             emitter.complete();
             log.error("SSE Emitter Error. [userId={}]", userId, e);
         });
+    }
+
+    @Scheduled(fixedDelay = 15000)
+    public void sendHeartbeat() {
+
+        Map<UUID, SseEmitter> allEmitters = sseEmitterRepository.findAll();
+
+        for (Map.Entry<UUID, SseEmitter> entry : allEmitters.entrySet()) {
+            SseEmitter emitter = entry.getValue();
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
+            } catch (Exception e) {
+                emitter.complete();
+                sseEmitterRepository.deleteById(entry.getKey());
+            }
+        }
     }
 }
