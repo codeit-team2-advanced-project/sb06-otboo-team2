@@ -32,7 +32,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         Provider provider = resolveProvider(registrationId);
+        return resolveUserDetails(attributes, provider);
+    }
 
+    @Transactional
+    protected OtbooUserDetails resolveUserDetails(
+        Map<String, Object> attributes,
+        Provider provider
+    ) {
         String email = extractEmail(attributes, provider);
         String name = extractName(attributes, provider);
         String profileImageUrl = extractProfileImage(attributes, provider);
