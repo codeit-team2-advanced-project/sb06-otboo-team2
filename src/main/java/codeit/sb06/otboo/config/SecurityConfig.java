@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.config;
 
 import codeit.sb06.otboo.security.Http403ForbiddenAccessDeniedHandler;
-import codeit.sb06.otboo.user.service.KakaoOAuth2UserService;
+import codeit.sb06.otboo.user.service.CustomOAuth2UserService;
 import codeit.sb06.otboo.security.LoginFailureHandler;
 import codeit.sb06.otboo.security.OAuth2FailureHandler;
 import codeit.sb06.otboo.security.SpaCsrfTokenRequestHandler;
@@ -46,7 +46,7 @@ public class SecurityConfig {
         ObjectMapper objectMapper, JwtAuthenticationFilter jwtAuthenticationFilter,
         JwtLogoutHandler jwtLogoutHandler, LoginFailureHandler loginFailureHandler,
         TemporaryPasswordAuthenticationProvider temporaryPasswordAuthenticationProvider,
-        KakaoOAuth2UserService kakaoOAuth2UserService,
+        CustomOAuth2UserService customOAuth2UserService,
         JwtLoginSuccessHandler jwtLoginSuccessHandlerForOauth2,
         OAuth2FailureHandler oauth2FailureHandler) throws Exception {
 
@@ -62,7 +62,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))
-                .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .successHandler(jwtLoginSuccessHandlerForOauth2)
                 .failureHandler(oauth2FailureHandler))
             .logout(logout -> logout
