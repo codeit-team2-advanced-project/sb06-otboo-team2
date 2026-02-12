@@ -68,7 +68,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return super.loadUser(userRequest);
     }
 
-    private Provider resolveProvider(String registrationId) {
+    protected Provider resolveProvider(String registrationId) {
         if ("kakao".equalsIgnoreCase(registrationId)) {
             return Provider.KAKAO;
         }
@@ -80,7 +80,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
     }
 
-    private String extractEmail(Map<String, Object> attributes, Provider provider) {
+    protected String extractEmail(Map<String, Object> attributes, Provider provider) {
         if (provider == Provider.GOOGLE) {
             Object email = attributes.get("email");
             return email != null ? email.toString() : null;
@@ -93,7 +93,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return email != null ? email.toString() : null;
     }
 
-    private String extractName(Map<String, Object> attributes, Provider provider) {
+    protected String extractName(Map<String, Object> attributes, Provider provider) {
         if (provider == Provider.GOOGLE) {
             Object name = attributes.get("name");
             return (name == null || name.toString().isBlank()) ? "google_user" : name.toString();
@@ -111,7 +111,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return "kakao_user";
     }
 
-    private String extractProfileImage(Map<String, Object> attributes, Provider provider) {
+    protected String extractProfileImage(Map<String, Object> attributes, Provider provider) {
         if (provider == Provider.GOOGLE) {
             Object picture = attributes.get("picture");
             return picture != null ? picture.toString() : null;
@@ -130,7 +130,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> getMap(Map<String, Object> source, String key) {
+    protected Map<String, Object> getMap(Map<String, Object> source, String key) {
         Object value = source.get(key);
         if (value instanceof Map<?, ?> map) {
             return (Map<String, Object>) map;
