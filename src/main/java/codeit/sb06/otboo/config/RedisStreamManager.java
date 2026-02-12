@@ -47,15 +47,4 @@ public class RedisStreamManager {
             log.error("[Redis Stream] 알 수 없는 오류 발생: {}", e.getMessage());
         }
     }
-
-    @PreDestroy
-    public void cleanup() {
-        try {
-            String groupName = "group-noti-" + serverId;
-            redisTemplate.opsForStream().destroyGroup(streamKey, groupName);
-            log.info(">>>> [Redis Cleanup] 소비자 그룹 삭제 완료: {}", groupName);
-        } catch (Exception e) {
-            log.error(">>>> [Redis Cleanup] 실패: {}", e.getMessage());
-        }
-    }
 }
