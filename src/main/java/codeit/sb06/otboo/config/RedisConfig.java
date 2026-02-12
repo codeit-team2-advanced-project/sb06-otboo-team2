@@ -12,6 +12,8 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -26,7 +28,12 @@ public class RedisConfig {
 
     @Bean
     public String serverId() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            log.warn("호스트 이름을 가져오는 데 실패하여 랜덤 UUID를 사용", e);
+            return UUID.randomUUID().toString().substring(0, 8);
+        }
     }
 
     @Bean
