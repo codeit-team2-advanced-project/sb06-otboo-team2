@@ -44,9 +44,8 @@ public class KakaoLocationClient {
         .findFirst()
         .orElse(docs.get(0));
 
-    List<String> locationNames = docs.stream()
-        .map(KakaoRegionDocument::addressName)
-        .toList();
+    List<String> locationNames = List.of(picked.region1DepthName(),
+        picked.region2DepthName(), picked.region3DepthName());
 
     return new LocationDto(
         latitude,

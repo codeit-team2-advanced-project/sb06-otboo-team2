@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,8 @@ public class WeatherService {
 
     List<LocalDate> dates = candidates.stream()
         .map(SnapshotCandidate::date)
+        .flatMap(date -> Stream.of(date, date.minusDays(1)))
+        .distinct()
         .toList();
 
     Map<LocalDate, Weather> existingByDate =
@@ -50,7 +53,7 @@ public class WeatherService {
     return candidates.stream()
         .map(c -> existingByDate.get(c.date()))
         .filter(s -> s != null)
-        .map(s -> WeatherDto.from(s, location))
+        .map(s -> toDtoWithDiff(s, existingByDate, location))
         .toList();
   }
 
@@ -187,6 +190,27 @@ public class WeatherService {
 
   private double round2(double v) {
     return Math.round(v * 100.0) / 100.0;
+  }
+
+  private WeatherDto toDtoWithDiff(
+      Weather current,
+      Map<LocalDate, Weather> existingByDate,
+      LocationDto location
+  ) {
+    Weather previous = existingByDate.get(current.getDate().minusDays(1));
+    double humidityDiff = 0.0;
+    double tempDiff = 0.0;
+    if (previous != null) {
+      humidityDiff = current.getHumidity() - previous.getHumidity();
+      tempDiff = current.getTempCurrent() - previous.getTempCurrent();
+    }
+
+    return WeatherDto.from(
+        current,
+        location,
+        round1(humidityDiff),
+        round1(tempDiff)
+    );
   }
 
   private SkyStatus mapSkyStatus(String condition) {
