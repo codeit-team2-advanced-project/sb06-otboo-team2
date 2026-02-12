@@ -12,7 +12,6 @@ import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
-import codeit.sb06.otboo.notification.publisher.NotificationEventPublisherImpl;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.message.service.ChatRoomService;
 import codeit.sb06.otboo.message.service.DirectMessageService;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j

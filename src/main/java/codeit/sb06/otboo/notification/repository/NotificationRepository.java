@@ -14,14 +14,18 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Query("""
             SELECT noti FROM Notification noti
             WHERE noti.receiverId = :myUserId
+            ORDER BY noti.createdAt DESC, noti.id DESC
+            """)
+    Slice<Notification> findFirstPageByReceiverId(UUID myUserId, Pageable pageable);
+
+    @Query("""
+            SELECT noti FROM Notification noti
+            WHERE noti.receiverId = :myUserId
             AND (
-                :cursor IS NULL
-                OR noti.createdAt < :cursor
+                noti.createdAt < :cursor
                 OR (noti.createdAt = :cursor AND noti.id < :idAfter)
             )
             ORDER BY noti.createdAt DESC, noti.id DESC
             """)
-    Slice<Notification> findByMyUserIdWithCursor(LocalDateTime cursor, UUID idAfter, UUID myUserId, Pageable pageable);
-
-    long countByReceiverId(UUID myUserId);
+    Slice<Notification> findByReceiverIdWithCursor(LocalDateTime cursor, UUID idAfter, UUID myUserId, Pageable pageable);
 }
