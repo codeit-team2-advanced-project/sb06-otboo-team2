@@ -124,6 +124,111 @@ class FeedRepositoryTest {
   }
 
   @Test
+  void findFeedListByCursor_appliesCursorWhenAscending() {
+    User author = userRepository.save(newUser("author-asc@example.com"));
+    Weather weather = weatherRepository.save(newWeather(LocalDate.of(2026, 2, 10)));
+
+    Feed f1 = feedRepository.save(Feed.create(author, weather, List.of(), "f1"));
+    Feed f2 = feedRepository.save(Feed.create(author, weather, List.of(), "f2"));
+    Feed f3 = feedRepository.save(Feed.create(author, weather, List.of(), "f3"));
+    em.flush();
+
+    LocalDateTime t1 = LocalDateTime.of(2026, 2, 10, 8, 0);
+    LocalDateTime t2 = LocalDateTime.of(2026, 2, 10, 9, 0);
+    LocalDateTime t3 = LocalDateTime.of(2026, 2, 10, 10, 0);
+    setFeedTimestamps(f1.getId(), t1);
+    setFeedTimestamps(f2.getId(), t2);
+    setFeedTimestamps(f3.getId(), t3);
+    em.flush();
+    em.clear();
+
+    FeedDtoCursorRequest request = new FeedDtoCursorRequest(
+        t2.toString(),
+        f2.getId(),
+        10,
+        FeedSortBy.createdAt,
+        FeedSortDirection.ASCENDING,
+        null,
+        null,
+        null,
+        null
+    );
+
+    List<Feed> result = feedRepository.findFeedListByCursor(request, 10);
+
+    assertThat(result).extracting(Feed::getId)
+        .containsExactly(f3.getId());
+  }
+
+  @Test
+  void findFeedListByCursor_likeCountCursorDescFiltersByCount() {
+    User author = userRepository.save(newUser("author3@example.com"));
+    Weather weather = weatherRepository.save(newWeather(LocalDate.of(2026, 2, 10)));
+
+    Feed f1 = feedRepository.save(Feed.create(author, weather, List.of(), "f1"));
+    Feed f2 = feedRepository.save(Feed.create(author, weather, List.of(), "f2"));
+    Feed f3 = feedRepository.save(Feed.create(author, weather, List.of(), "f3"));
+    em.flush();
+
+    setLikeCount(f1.getId(), 10);
+    setLikeCount(f2.getId(), 7);
+    setLikeCount(f3.getId(), 3);
+    em.flush();
+    em.clear();
+
+    FeedDtoCursorRequest request = new FeedDtoCursorRequest(
+        "7",
+        f2.getId(),
+        10,
+        FeedSortBy.likeCount,
+        FeedSortDirection.DESCENDING,
+        null,
+        null,
+        null,
+        null
+    );
+
+    List<Feed> result = feedRepository.findFeedListByCursor(request, 10);
+
+    assertThat(result).extracting(Feed::getLikeCount)
+        .containsExactly(3L);
+  }
+
+  @Test
+  void findFeedListByCursor_likeCountCursorAscFiltersByCount() {
+    User author = userRepository.save(newUser("author4@example.com"));
+    Weather weather = weatherRepository.save(newWeather(LocalDate.of(2026, 2, 10)));
+
+    Feed f1 = feedRepository.save(Feed.create(author, weather, List.of(), "f1"));
+    Feed f2 = feedRepository.save(Feed.create(author, weather, List.of(), "f2"));
+    Feed f3 = feedRepository.save(Feed.create(author, weather, List.of(), "f3"));
+    em.flush();
+
+    setLikeCount(f1.getId(), 3);
+    setLikeCount(f2.getId(), 7);
+    setLikeCount(f3.getId(), 10);
+    em.flush();
+    em.clear();
+
+    FeedDtoCursorRequest request = new FeedDtoCursorRequest(
+        "7",
+        f2.getId(),
+        10,
+        FeedSortBy.likeCount,
+        FeedSortDirection.ASCENDING,
+        null,
+        null,
+        null,
+        null
+    );
+
+    List<Feed> result = feedRepository.findFeedListByCursor(request, 10);
+
+    assertThat(result).extracting(Feed::getLikeCount)
+        .containsExactly(10L);
+  }
+
+  @Test
   void countFeedList_appliesFilters() {
     User author1 = userRepository.save(newUser("a1@example.com"));
     User author2 = userRepository.save(newUser("a2@example.com"));
@@ -156,6 +261,13 @@ class FeedRepositoryTest {
         .setParameter(1, java.sql.Timestamp.valueOf(createdAt))
         .setParameter(2, java.sql.Timestamp.valueOf(createdAt))
         .setParameter(3, feedId)
+        .executeUpdate();
+  }
+
+  private void setLikeCount(UUID feedId, long likeCount) {
+    em.createNativeQuery("update feeds set like_count = ? where id = ?")
+        .setParameter(1, likeCount)
+        .setParameter(2, feedId)
         .executeUpdate();
   }
 
