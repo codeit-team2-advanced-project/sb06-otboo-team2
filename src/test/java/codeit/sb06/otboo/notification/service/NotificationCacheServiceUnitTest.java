@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.notification.service;
 
-import codeit.sb06.otboo.config.JacksonConfig;
 import codeit.sb06.otboo.exception.notification.NotificationMappingException;
 import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.entity.Notification;
@@ -53,9 +52,6 @@ class NotificationCacheServiceUnitTest {
 
     @Mock
     private ListOperations<String, String> listOps;
-
-    @Mock
-    private JacksonConfig jacksonConfig;
 
     @Mock
     private ObjectMapper objectMapper;

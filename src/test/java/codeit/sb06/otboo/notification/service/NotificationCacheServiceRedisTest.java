@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.notification.service;
 
-import codeit.sb06.otboo.config.JacksonConfig;
 import codeit.sb06.otboo.notification.config.EmbeddedRedisConfig;
 import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DataRedisTest
-@Import({JacksonConfig.class,
+@Import({JacksonAutoConfiguration.class,
         EmbeddedRedisConfig.class,
         NotificationCacheServiceImpl.class,
         SseEventIdGenerator.class
