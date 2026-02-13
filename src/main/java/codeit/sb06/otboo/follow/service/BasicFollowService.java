@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.follow.service;
 
 import codeit.sb06.otboo.exception.RootException;
+import codeit.sb06.otboo.exception.follow.FollowCancelFailException;
 import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
@@ -148,4 +149,19 @@ public class BasicFollowService implements FollowService {
     );
   }
 
+  @Override
+  public void deleteFollow(UUID followId) {
+
+    try {
+
+    boolean exists = followRepository.existsById(followId);
+
+    if (!exists) {
+      throw new FollowCancelFailException(new UserNotFoundException());
+    }
+    followRepository.deleteById(followId);
+  } catch (Exception e) {
+    throw new FollowCancelFailException(e);
+    }
+  }
 }
