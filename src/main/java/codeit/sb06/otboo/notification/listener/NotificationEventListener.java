@@ -3,8 +3,9 @@ package codeit.sb06.otboo.notification.listener;
 import codeit.sb06.otboo.notification.dto.NotificationDto;
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
 import codeit.sb06.otboo.notification.event.*;
+import codeit.sb06.otboo.notification.publisher.RedisNotificationPublisher;
+import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import codeit.sb06.otboo.notification.service.NotificationService;
-import codeit.sb06.otboo.notification.service.SseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -16,7 +17,8 @@ import java.util.UUID;
 public class NotificationEventListener {
 
     private final NotificationService notificationService;
-    private final SseService sseService;
+    private final NotificationCacheService notificationCacheService;
+    private final RedisNotificationPublisher redisNotificationPublisher;
 
     @TransactionalEventListener
     public void handleDirectMessageCreatedEvent(DirectMessageCreatedEvent event) {
@@ -82,6 +84,8 @@ public class NotificationEventListener {
                 content,
                 NotificationLevel.INFO);
 
-        sseService.send(targetId, "notifications", notificationDto);
+        notificationCacheService.save(notificationDto);
+
+        redisNotificationPublisher.publish(notificationDto);
     }
 }

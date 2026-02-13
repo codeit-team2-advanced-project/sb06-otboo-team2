@@ -8,6 +8,8 @@ import codeit.sb06.otboo.exception.profile.ProfileException;
 import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.weather.WeatherException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,4 +75,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(ex.getStatus()));
     }
 
+    @ExceptionHandler(RedisSystemException.class)
+    public ResponseEntity<ErrorResponse> handleRedisConnectionError(RedisSystemException ex) {
+        log.error("Redis connection error: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex);
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
 }

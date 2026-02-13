@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.notification.publisher;
 
 import codeit.sb06.otboo.notification.event.*;
+import codeit.sb06.otboo.notification.publisher.impl.NotificationEventPublisherImpl;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.DisplayName;

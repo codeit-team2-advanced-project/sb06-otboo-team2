@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -20,13 +19,13 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public NotificationDto create(UUID receiverId, String title, String content, NotificationLevel level) {
 
@@ -50,16 +49,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDtoCursorResponse getNotifications(LocalDateTime cursor, UUID idAfter, int limit, UUID myUserId) {
 
-        Slice<Notification> notifications = notificationRepository.findByMyUserIdWithCursor(
+        Slice<Notification> notifications;
+
+        if(cursor == null && idAfter == null) {
+            notifications = notificationRepository.findFirstPageByReceiverId(myUserId, PageRequest.of(0, limit));
+        } else {
+            notifications = notificationRepository.findByReceiverIdWithCursor(
                 cursor,
                 idAfter,
                 myUserId,
                 PageRequest.of(0, limit));
+        }
 
         return notificationMapper.toDtoCursorResponse(notifications);
     }
 
-    @Transactional
     @Override
     public void deleteById(UUID notificationId) {
         log.debug("알림 삭제: {}", notificationId);

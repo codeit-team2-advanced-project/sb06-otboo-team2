@@ -10,3 +10,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  data:
+    redis:
+      password:
