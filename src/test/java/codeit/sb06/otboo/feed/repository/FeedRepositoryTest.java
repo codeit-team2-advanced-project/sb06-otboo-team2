@@ -7,6 +7,7 @@ import codeit.sb06.otboo.feed.dto.FeedDtoCursorRequest;
 import codeit.sb06.otboo.feed.dto.FeedSortBy;
 import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.feed.entity.Feed;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
@@ -276,6 +277,7 @@ class FeedRepositoryTest {
         null,
         email,
         "name",
+        Provider.LOCAL,
         Role.USER,
         false,
         LocalDateTime.now(),
