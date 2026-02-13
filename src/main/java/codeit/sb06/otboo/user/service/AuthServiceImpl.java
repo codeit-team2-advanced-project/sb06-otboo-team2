@@ -3,7 +3,7 @@ package codeit.sb06.otboo.user.service;
 import codeit.sb06.otboo.exception.RootException;
 import codeit.sb06.otboo.exception.auth.InvalidTokenException;
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.security.dto.JwtInformation;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;

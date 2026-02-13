@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.resolver;
 
 import codeit.sb06.otboo.exception.auth.ForbiddenException;
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;

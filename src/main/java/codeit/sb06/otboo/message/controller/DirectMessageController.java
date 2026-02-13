@@ -2,7 +2,7 @@ package codeit.sb06.otboo.message.controller;
 
 import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.service.DirectMessageService;
-import codeit.sb06.otboo.security.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

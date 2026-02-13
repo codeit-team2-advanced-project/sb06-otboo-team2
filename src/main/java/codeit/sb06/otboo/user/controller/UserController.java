@@ -3,7 +3,7 @@ package codeit.sb06.otboo.user.controller;
 import codeit.sb06.otboo.profile.dto.ProfileDto;
 import codeit.sb06.otboo.profile.dto.ProfileUpdateRequest;
 import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
-import codeit.sb06.otboo.security.RequireRole;
+import codeit.sb06.otboo.security.resolver.RequireRole;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.dto.request.ChangePasswordRequest;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;

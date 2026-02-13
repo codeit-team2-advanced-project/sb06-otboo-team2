@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.user.service;
 
-import codeit.sb06.otboo.security.OtbooOidcUserDetails;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooOidcUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.entity.Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;

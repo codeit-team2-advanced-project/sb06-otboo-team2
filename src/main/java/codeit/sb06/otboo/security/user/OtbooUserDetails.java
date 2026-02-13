@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.user;
 
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.User;

@@ -9,9 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import codeit.sb06.otboo.config.WebMvcConfig;
-import codeit.sb06.otboo.security.CurrentUserIdArgumentResolver;
+import codeit.sb06.otboo.security.resolver.CurrentUserIdArgumentResolver;
 import codeit.sb06.otboo.security.dto.JwtInformation;
-import codeit.sb06.otboo.security.RoleAuthorizationInterceptor;
+import codeit.sb06.otboo.security.resolver.RoleAuthorizationInterceptor;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import codeit.sb06.otboo.user.dto.UserDto;

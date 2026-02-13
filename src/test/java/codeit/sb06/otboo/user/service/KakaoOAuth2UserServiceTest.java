@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;

@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.notification.controller;
 
 import codeit.sb06.otboo.notification.service.SseService;
-import codeit.sb06.otboo.security.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

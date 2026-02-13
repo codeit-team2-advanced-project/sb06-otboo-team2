@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import codeit.sb06.otboo.exception.auth.ForbiddenException;
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;
+import codeit.sb06.otboo.security.resolver.RequireRole;
+import codeit.sb06.otboo.security.resolver.RoleAuthorizationInterceptor;
 import codeit.sb06.otboo.user.entity.Role;
 import java.lang.reflect.Method;
 import java.util.List;

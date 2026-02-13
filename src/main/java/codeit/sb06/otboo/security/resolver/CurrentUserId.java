@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.resolver;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

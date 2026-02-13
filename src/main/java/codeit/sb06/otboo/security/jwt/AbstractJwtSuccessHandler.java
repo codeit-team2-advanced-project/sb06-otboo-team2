@@ -1,10 +1,9 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.jwt;
 
 import codeit.sb06.otboo.exception.ErrorResponse;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.security.dto.JwtDto;
 import codeit.sb06.otboo.security.dto.JwtInformation;
-import codeit.sb06.otboo.security.jwt.JwtRegistry;
-import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;

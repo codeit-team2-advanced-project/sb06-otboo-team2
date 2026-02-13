@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.config;
 
-import codeit.sb06.otboo.security.CurrentUserIdArgumentResolver;
-import codeit.sb06.otboo.security.RoleAuthorizationInterceptor;
+import codeit.sb06.otboo.security.resolver.CurrentUserIdArgumentResolver;
+import codeit.sb06.otboo.security.resolver.RoleAuthorizationInterceptor;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
