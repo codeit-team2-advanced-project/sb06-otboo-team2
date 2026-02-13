@@ -3,7 +3,7 @@ package codeit.sb06.otboo.feed.controller;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
 import codeit.sb06.otboo.feed.service.FeedService;
-import codeit.sb06.otboo.security.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

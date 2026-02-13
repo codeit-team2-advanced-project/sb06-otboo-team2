@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.security.jwt;
 
 import codeit.sb06.otboo.user.dto.UserDto;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;

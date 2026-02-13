@@ -8,8 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.security.dto.JwtInformation;
+import codeit.sb06.otboo.security.handler.OAuth2SuccessHandler;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.Role;
 import com.fasterxml.jackson.databind.JsonNode;

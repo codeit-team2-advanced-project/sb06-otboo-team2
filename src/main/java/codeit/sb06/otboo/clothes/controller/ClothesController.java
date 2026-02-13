@@ -5,7 +5,7 @@ import codeit.sb06.otboo.clothes.dto.ClothesDto;
 import codeit.sb06.otboo.clothes.dto.ClothesDtoCursorResponse;
 import codeit.sb06.otboo.clothes.dto.ClothesUpdateRequest;
 import codeit.sb06.otboo.clothes.service.ClothesService;
-import codeit.sb06.otboo.security.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

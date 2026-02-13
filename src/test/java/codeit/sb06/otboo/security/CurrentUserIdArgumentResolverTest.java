@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserIdArgumentResolver;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.Role;
 import java.lang.reflect.Method;

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import codeit.sb06.otboo.user.dto.UserDto;
-import codeit.sb06.otboo.security.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.entity.Role;
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.exception.user.LockedUserException;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
+import codeit.sb06.otboo.security.user.OtbooUserDetailsService;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;

@@ -2,7 +2,7 @@ package codeit.sb06.otboo.notification.controller;
 
 import codeit.sb06.otboo.notification.dto.response.NotificationDtoCursorResponse;
 import codeit.sb06.otboo.notification.service.NotificationService;
-import codeit.sb06.otboo.security.CurrentUserId;
+import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

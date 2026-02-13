@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.handler;
 
 import codeit.sb06.otboo.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

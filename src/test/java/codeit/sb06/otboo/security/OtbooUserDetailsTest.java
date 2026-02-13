@@ -3,6 +3,7 @@ package codeit.sb06.otboo.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.entity.Role;

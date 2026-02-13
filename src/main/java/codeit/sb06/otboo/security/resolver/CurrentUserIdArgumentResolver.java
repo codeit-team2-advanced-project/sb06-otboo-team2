@@ -1,6 +1,7 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.resolver;
 
 import codeit.sb06.otboo.exception.auth.InvalidUserDetailException;
+import codeit.sb06.otboo.security.user.OtbooUserDetails;
 import java.util.UUID;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.security.jwt;
 
-import codeit.sb06.otboo.security.AbstractJwtSuccessHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

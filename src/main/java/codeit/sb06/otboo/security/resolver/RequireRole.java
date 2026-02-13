@@ -1,4 +1,4 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.resolver;
 
 import codeit.sb06.otboo.user.entity.Role;
 import java.lang.annotation.Documented;

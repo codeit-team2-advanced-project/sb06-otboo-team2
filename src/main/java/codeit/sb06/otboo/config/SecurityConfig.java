@@ -1,13 +1,13 @@
 package codeit.sb06.otboo.config;
 
-import codeit.sb06.otboo.security.Http403ForbiddenAccessDeniedHandler;
+import codeit.sb06.otboo.security.handler.Http403ForbiddenAccessDeniedHandler;
+import codeit.sb06.otboo.security.jwt.RedisJwtRegistry;
 import codeit.sb06.otboo.user.service.CustomOAuth2UserService;
 import codeit.sb06.otboo.user.service.CustomOidcUserService;
-import codeit.sb06.otboo.security.LoginFailureHandler;
-import codeit.sb06.otboo.security.OAuth2FailureHandler;
-import codeit.sb06.otboo.security.SpaCsrfTokenRequestHandler;
-import codeit.sb06.otboo.security.TemporaryPasswordAuthenticationProvider;
-import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
+import codeit.sb06.otboo.security.handler.LoginFailureHandler;
+import codeit.sb06.otboo.security.handler.OAuth2FailureHandler;
+import codeit.sb06.otboo.security.handler.SpaCsrfTokenRequestHandler;
+import codeit.sb06.otboo.security.user.TemporaryPasswordAuthenticationProvider;
 import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtLoginSuccessHandler;
 import codeit.sb06.otboo.security.jwt.JwtLogoutHandler;
@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -98,9 +99,10 @@ public class SecurityConfig {
     @Bean
     public JwtRegistry jwtRegistry(
         JwtTokenProvider jwtTokenProvider,
-        ApplicationEventPublisher eventPublisher
+        ApplicationEventPublisher eventPublisher,
+        StringRedisTemplate redisTemplate
     ) {
-        return new InMemoryJwtRegistry(1, jwtTokenProvider);
+        return new RedisJwtRegistry(redisTemplate, jwtTokenProvider, 1);
     }
 
     @Bean

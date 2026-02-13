@@ -1,5 +1,6 @@
-package codeit.sb06.otboo.security;
+package codeit.sb06.otboo.security.handler;
 
+import codeit.sb06.otboo.security.jwt.AbstractJwtSuccessHandler;
 import codeit.sb06.otboo.security.jwt.JwtRegistry;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
