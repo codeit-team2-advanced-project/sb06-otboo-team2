@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -55,6 +56,7 @@ class AdminInitializerTest {
             UUID.randomUUID(),
             "admin@admin.com",
             "legacy-admin",
+            Provider.LOCAL,
             Role.USER,
             true,
             LocalDateTime.of(2026, 1, 1, 0, 0),

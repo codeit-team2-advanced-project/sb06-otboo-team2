@@ -15,6 +15,7 @@ import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
 import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
@@ -62,6 +63,7 @@ public class CommentCreateServiceTest {
         authorId,
         "user@example.com",
         "test",
+        Provider.LOCAL,
         null,
         false,
         LocalDateTime.now(),

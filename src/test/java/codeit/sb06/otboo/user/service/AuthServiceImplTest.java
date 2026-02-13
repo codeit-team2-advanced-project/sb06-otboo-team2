@@ -21,6 +21,7 @@ import codeit.sb06.otboo.user.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -53,7 +54,7 @@ class AuthServiceImplTest {
             "USER",
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
         when(userDetailsService.loadUserByUsername("user@example.com")).thenReturn(userDetails);
 
         when(tokenProvider.generateAccessToken(eq(userDetails))).thenReturn("access-new");
@@ -138,7 +139,7 @@ class AuthServiceImplTest {
             "USER",
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
         when(userDetailsService.loadUserByUsername("user@example.com")).thenReturn(userDetails);
         when(tokenProvider.generateAccessToken(eq(userDetails)))
             .thenThrow(new JOSEException("fail"));

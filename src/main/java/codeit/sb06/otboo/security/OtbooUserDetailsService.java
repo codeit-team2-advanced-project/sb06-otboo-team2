@@ -1,7 +1,6 @@
 package codeit.sb06.otboo.security;
 
 import codeit.sb06.otboo.exception.user.LockedUserException;
-import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

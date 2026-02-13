@@ -9,6 +9,7 @@ import codeit.sb06.otboo.user.entity.Role;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
@@ -37,7 +38,7 @@ class CurrentUserIdArgumentResolverTest {
             Role.USER.name(),
             false
         );
-        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password");
+        OtbooUserDetails userDetails = new OtbooUserDetails(userDto, "password", Map.of());
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(userDetails, "password", userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);

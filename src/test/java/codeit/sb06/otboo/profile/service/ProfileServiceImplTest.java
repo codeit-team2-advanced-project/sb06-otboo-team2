@@ -21,6 +21,7 @@ import codeit.sb06.otboo.profile.repository.LocationRepository;
 import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -204,6 +205,7 @@ class ProfileServiceImplTest {
             UUID.randomUUID(),
             "user@example.com",
             "name",
+            Provider.LOCAL,
             Role.USER,
             false,
             LocalDateTime.of(2026, 1, 1, 0, 0),

@@ -26,6 +26,7 @@ import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
 import codeit.sb06.otboo.weather.dto.weather.SkyStatus;
@@ -82,6 +83,7 @@ class FeedServiceTest {
             authorId,
             "user@example.com",
             "user",
+            Provider.LOCAL,
             Role.USER,
             false,
             LocalDateTime.now(),
@@ -299,6 +301,7 @@ class FeedServiceTest {
             adminId,
             "admin@example.com",
             "admin",
+            Provider.LOCAL,
             Role.ADMIN,
             false,
             LocalDateTime.now(),
@@ -344,6 +347,7 @@ class FeedServiceTest {
             otherUserId,
             "other@example.com",
             "other",
+            Provider.LOCAL,
             Role.USER,
             false,
             LocalDateTime.now(),

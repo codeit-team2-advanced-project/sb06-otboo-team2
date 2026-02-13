@@ -26,6 +26,7 @@ import codeit.sb06.otboo.user.dto.response.UserDtoCursorResponse;
 import codeit.sb06.otboo.user.dto.request.ChangePasswordRequest;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -94,6 +95,7 @@ class UserServiceImplTest {
             UUID.randomUUID(),
             "admin@example.com",
             "admin",
+            Provider.LOCAL,
             Role.ADMIN,
             false,
             LocalDateTime.of(2026, 1, 2, 0, 0),
@@ -238,6 +240,7 @@ class UserServiceImplTest {
             id,
             "user@example.com",
             "tester",
+            Provider.LOCAL,
             Role.USER,
             locked,
             LocalDateTime.of(2026, 1, 1, 0, 0),

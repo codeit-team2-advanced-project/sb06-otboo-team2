@@ -7,6 +7,7 @@ import codeit.sb06.otboo.profile.entity.Gender;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.entity.Provider;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,7 @@ class ProfileDtoTest {
             UUID.randomUUID(),
             "user@example.com",
             "name",
+            Provider.LOCAL,
             Role.USER,
             false,
             LocalDateTime.of(2026, 1, 1, 0, 0),
