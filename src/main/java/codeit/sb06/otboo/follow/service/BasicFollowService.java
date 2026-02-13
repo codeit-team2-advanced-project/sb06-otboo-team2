@@ -145,7 +145,7 @@ public class BasicFollowService implements FollowService {
         hasNext,
         totalCount,
         "createdAt",
-        "DESC"
+        "DESCENDING"
     );
   }
 
