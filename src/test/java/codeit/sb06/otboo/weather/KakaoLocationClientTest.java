@@ -119,9 +119,9 @@ class KakaoLocationClientTest {
     assertThat(dto.x()).isEqualTo(126.9);
     assertThat(dto.y()).isEqualTo(37.5);
 
-    // locationNames는 docs 전체 address_name 목록
+    // locationNames는 첫 번째 doc의 depth name 목록
     assertThat(dto.locationNames())
-        .containsExactly("서울특별시 강서구", "인천광역시 서구 청라3동");
+        .containsExactly("서울특별시", "강서구", "방화2동");
   }
 
   @Test
