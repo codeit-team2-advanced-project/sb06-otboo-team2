@@ -19,6 +19,10 @@ import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorRequest;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
+import codeit.sb06.otboo.feed.dto.FeedSortBy;
+import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.entity.FeedClothes;
 import codeit.sb06.otboo.feed.entity.FeedLike;
@@ -46,6 +50,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class FeedServiceTest {
@@ -420,5 +425,80 @@ class FeedServiceTest {
 
         verify(feedLikeRepository, never()).delete(any(FeedLike.class));
         assertEquals(0L, feed.getLikeCount());
+    }
+
+    @Test
+    void getFeeds_includesLikedByMeAndCursorWhenHasNext() {
+        UUID currentUserId = UUID.randomUUID();
+        FeedDtoCursorRequest request = new FeedDtoCursorRequest(
+            null,
+            null,
+            2,
+            FeedSortBy.createdAt,
+            FeedSortDirection.DESCENDING,
+            null,
+            null,
+            null,
+            null
+        );
+
+        Feed feed1 = feedWithIdAndCreatedAt(UUID.randomUUID(), LocalDateTime.now().minusMinutes(3));
+        Feed feed2 = feedWithIdAndCreatedAt(UUID.randomUUID(), LocalDateTime.now().minusMinutes(2));
+        Feed feed3 = feedWithIdAndCreatedAt(UUID.randomUUID(), LocalDateTime.now().minusMinutes(1));
+
+        when(feedRepository.findFeedListByCursor(request, 3)).thenReturn(List.of(feed1, feed2, feed3));
+        when(feedLikeRepository.findFeedIdsByUserIdAndFeedIdIn(currentUserId, List.of(feed1.getId(), feed2.getId())))
+            .thenReturn(List.of(feed1.getId()));
+        when(feedRepository.countFeedList(request)).thenReturn(5L);
+
+        FeedDtoCursorResponse response = feedService.getFeeds(currentUserId, request);
+
+        assertEquals(2, response.data().size());
+        assertEquals(true, response.data().get(0).likedByMe());
+        assertEquals(false, response.data().get(1).likedByMe());
+        assertEquals(true, response.hasNext());
+        assertEquals(feed2.getId(), response.nextIdAfter());
+        assertEquals(feed2.getCreatedAt().toString(), response.nextCursor());
+        assertEquals(5L, response.totalCount());
+    }
+
+    @Test
+    void getFeeds_setsHasNextFalseWhenResultsFitInLimit() {
+        UUID currentUserId = UUID.randomUUID();
+        FeedDtoCursorRequest request = new FeedDtoCursorRequest(
+            null,
+            null,
+            3,
+            FeedSortBy.createdAt,
+            FeedSortDirection.DESCENDING,
+            null,
+            null,
+            null,
+            null
+        );
+
+        Feed feed1 = feedWithIdAndCreatedAt(UUID.randomUUID(), LocalDateTime.now().minusMinutes(2));
+        Feed feed2 = feedWithIdAndCreatedAt(UUID.randomUUID(), LocalDateTime.now().minusMinutes(1));
+
+        when(feedRepository.findFeedListByCursor(request, 4)).thenReturn(List.of(feed1, feed2));
+        when(feedLikeRepository.findFeedIdsByUserIdAndFeedIdIn(currentUserId, List.of(feed1.getId(), feed2.getId())))
+            .thenReturn(List.of());
+        when(feedRepository.countFeedList(request)).thenReturn(2L);
+
+        FeedDtoCursorResponse response = feedService.getFeeds(currentUserId, request);
+
+        assertEquals(2, response.data().size());
+        assertEquals(false, response.hasNext());
+        assertEquals(null, response.nextIdAfter());
+        assertEquals(null, response.nextCursor());
+        assertEquals(2L, response.totalCount());
+    }
+
+    private Feed feedWithIdAndCreatedAt(UUID feedId, LocalDateTime createdAt) {
+        Feed created = Feed.create(author, weather, List.of(), "content");
+        ReflectionTestUtils.setField(created, "id", feedId);
+        ReflectionTestUtils.setField(created, "createdAt", createdAt);
+        ReflectionTestUtils.setField(created, "updatedAt", createdAt);
+        return created;
     }
 }
