@@ -21,4 +21,5 @@ public interface FollowService {
       int limit,
       String nameLike);
 
+  void deleteFollow(UUID followId);
 }
