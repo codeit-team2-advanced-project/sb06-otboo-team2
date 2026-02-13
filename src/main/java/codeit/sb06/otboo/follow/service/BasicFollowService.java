@@ -5,13 +5,17 @@ import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
+import codeit.sb06.otboo.follow.dto.FollowListResponse;
 import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
 import codeit.sb06.otboo.follow.dto.FolloweeDto;
 import codeit.sb06.otboo.follow.dto.FollowerDto;
 import codeit.sb06.otboo.follow.entity.Follow;
+import codeit.sb06.otboo.follow.entity.FollowDirection;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -72,4 +76,76 @@ public class BasicFollowService implements FollowService {
 
     );
   }
+
+  @Override
+  public FollowListResponse getFollowList(FollowDirection direction, UUID userId, String cursor,
+      UUID idAfter, int limit, String nameLike) {
+
+    LocalDateTime lastCreatedAt = null;
+
+    if(cursor != null) {
+      lastCreatedAt = LocalDateTime.parse(cursor);
+    }
+
+    List<Follow> followList =
+        followRepository.findByCursor(
+            direction,
+            userId,
+            lastCreatedAt,
+            idAfter,
+            limit+1,
+            nameLike
+        );
+
+    boolean hasNext = followList.size() > limit;
+
+    if(hasNext) {
+      followList = followList.subList(0, limit);
+    }
+
+    String nextCursor = null;
+    UUID nextIdAfter = null;
+
+    if(hasNext&&!followList.isEmpty()) {
+      Follow lastFollow = followList.get(followList.size()-1);
+      LocalDateTime createdAt = lastFollow.getCreatedAt();
+
+      nextCursor = createdAt.toString();
+      nextIdAfter = lastFollow.getId();
+    }
+
+    List<FollowDto> data = followList.stream()
+        .map(follow -> FollowDto.of(
+            follow,
+            new FolloweeDto(
+                follow.getFollowee().getId(),
+                follow.getFollowee().getName(),
+                follow.getFollowee().getProfileImageUrl()
+            ),
+            new FollowerDto(
+                follow.getFollower().getId(),
+                follow.getFollower().getName(),
+                follow.getFollower().getProfileImageUrl()
+            )
+        ))
+        .toList();
+
+    Long totalCount =
+        followRepository.countByCondition(
+            direction,
+            userId,
+            nameLike
+        );
+
+    return new FollowListResponse(
+        data,
+        nextCursor,
+        nextIdAfter,
+        hasNext,
+        totalCount,
+        "createdAt",
+        "DESCENDING"
+    );
+  }
+
 }
