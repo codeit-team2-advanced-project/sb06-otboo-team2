@@ -4,6 +4,7 @@ import codeit.sb06.otboo.clothes.entity.Clothes;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,10 @@ public interface ClothesRepository extends JpaRepository<Clothes, UUID>, Clothes
     Optional<Clothes> findWithAttributesById(UUID id);
 
     Optional<Clothes> findByIdAndOwnerId(UUID id, UUID ownerId);
+
+    @EntityGraph(attributePaths = {
+            "attributes",
+            "attributes.definition"
+    })
+    List<Clothes> findAllByOwnerId(UUID ownerId);
 }

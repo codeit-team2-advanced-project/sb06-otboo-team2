@@ -4,10 +4,8 @@ import codeit.sb06.otboo.clothes.dto.*;
 import codeit.sb06.otboo.clothes.entity.*;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
-import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
-import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
-import codeit.sb06.otboo.exception.clothes.InvalidClothesAttributeValueException;
-import codeit.sb06.otboo.exception.clothes.InvalidClothesTypeException;
+import codeit.sb06.otboo.exception.clothes.*;
+import codeit.sb06.otboo.storage.S3Storage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +33,9 @@ public class ClothesServiceTest {
 
     @Mock
     private ClothesAttributeDefRepository clothesAttributeDefRepository;
+
+    @Mock
+    private S3Storage s3Storage;
 
     @InjectMocks
     private ClothesService clothesService;
@@ -84,7 +85,8 @@ public class ClothesServiceTest {
         when(clothesRepository.save(any(Clothes.class))).thenReturn(saved);
 
         // when
-        ClothesDto result = clothesService.create(req, null);
+        UUID currentUserId = ownerId;
+        ClothesDto result = clothesService.create(currentUserId, req, null);
 
         // then
         assertThat(result.id()).isEqualTo(savedId);
@@ -117,7 +119,8 @@ public class ClothesServiceTest {
                 .thenReturn(List.of());
 
         // when & then
-        assertThatThrownBy(() -> clothesService.create(req, null))
+        UUID currentUserId = ownerId;
+        assertThatThrownBy(() -> clothesService.create(currentUserId, req, null))
                 .isInstanceOf(ClothesAttributeDefNotFoundException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -151,7 +154,8 @@ public class ClothesServiceTest {
                 .thenReturn(List.of(def));
 
         // when & then
-        assertThatThrownBy(() -> clothesService.create(req, null))
+        UUID currentUserId = ownerId;
+        assertThatThrownBy(() -> clothesService.create(currentUserId ,req, null))
                 .isInstanceOf(InvalidClothesAttributeValueException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -173,7 +177,8 @@ public class ClothesServiceTest {
                 .thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> clothesService.update(clothesId, req, null))
+        UUID currentUserId = UUID.randomUUID();
+        assertThatThrownBy(() -> clothesService.update(clothesId,currentUserId ,req, null))
                 .isInstanceOf(ClothesNotFoundException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -184,10 +189,13 @@ public class ClothesServiceTest {
     void update_fail_whenInvalidType() {
         // given
         UUID clothesId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
 
         Clothes clothes = mock(Clothes.class);
         when(clothesRepository.findWithAttributesById(clothesId))
                 .thenReturn(Optional.of(clothes));
+
+        when(clothes.getOwnerId()).thenReturn(ownerId);
 
         ClothesUpdateRequest req = new ClothesUpdateRequest(
                 "수정 티셔츠",
@@ -196,7 +204,8 @@ public class ClothesServiceTest {
         );
 
         // when & then
-        assertThatThrownBy(() -> clothesService.update(clothesId, req, null))
+        UUID currentUserId = ownerId;
+        assertThatThrownBy(() -> clothesService.update(clothesId,currentUserId ,req, null))
                 .isInstanceOf(InvalidClothesTypeException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -234,7 +243,8 @@ public class ClothesServiceTest {
                 .thenAnswer(inv -> inv.getArgument(0));
 
         // when
-        ClothesDto result = clothesService.update(clothesId, req, null);
+        UUID currentUserId = ownerId;
+        ClothesDto result = clothesService.update(clothesId,currentUserId, req, null);
 
         // then
         assertThat(result.name()).isEqualTo("수정 티셔츠");
@@ -274,7 +284,8 @@ public class ClothesServiceTest {
 
 
         // when
-        ClothesDto result = clothesService.update(clothesId, req, null);
+        UUID currentUserId = ownerId;
+        ClothesDto result = clothesService.update(clothesId,currentUserId, req, null);
 
         // then
         assertThat(result.name()).isEqualTo("수정 티셔츠");
@@ -323,7 +334,8 @@ public class ClothesServiceTest {
                 .thenAnswer(inv -> inv.getArgument(0));
 
         // when
-        ClothesDto result = clothesService.update(clothesId, req, null);
+        UUID currentUserId = ownerId;
+        ClothesDto result = clothesService.update(clothesId,currentUserId, req, null);
 
         // then
         assertThat(result.name()).isEqualTo("수정 티셔츠");
@@ -359,7 +371,8 @@ public class ClothesServiceTest {
                 .thenReturn(List.of());
 
         // when & then
-        assertThatThrownBy(() -> clothesService.update(clothesId, req, null))
+        UUID currentUserId = ownerId;
+        assertThatThrownBy(() -> clothesService.update(clothesId,currentUserId, req, null))
                 .isInstanceOf(ClothesAttributeDefNotFoundException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -397,7 +410,8 @@ public class ClothesServiceTest {
                 .thenReturn(List.of(def));
 
         // when & then
-        assertThatThrownBy(() -> clothesService.update(clothesId, req, null))
+        UUID currentUserId = ownerId;
+        assertThatThrownBy(() -> clothesService.update(clothesId,currentUserId, req, null))
                 .isInstanceOf(InvalidClothesAttributeValueException.class);
 
         verify(clothesRepository, never()).save(any());
@@ -442,14 +456,14 @@ public class ClothesServiceTest {
     }
 
     @Test
-    @DisplayName("getList: limit이 0 이하이면 IllegalArgumentException")
+    @DisplayName("getList: limit이 0 이하이면 ClothesBadRequestException")
     void getList_fail_whenLimitZeroOrNegative() {
         // given
         UUID ownerId = UUID.randomUUID();
 
         // when & then
         assertThatThrownBy(() -> clothesService.getList(null, null, 0, null, ownerId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ClothesBadRequestException.class)
                 .hasMessageContaining("limit은 1 이상");
 
         verifyNoInteractions(clothesRepository);

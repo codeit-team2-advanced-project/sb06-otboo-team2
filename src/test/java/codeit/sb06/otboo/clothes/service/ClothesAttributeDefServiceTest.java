@@ -7,6 +7,9 @@ import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
 import codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeRepository;
+import codeit.sb06.otboo.exception.clothes.ClothesAlreadyExistsException;
+import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
+import codeit.sb06.otboo.exception.clothes.ClothesBadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,8 +79,8 @@ public class ClothesAttributeDefServiceTest {
 
         // when & then
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이미 존재");
+                .isInstanceOf(ClothesAlreadyExistsException.class)
+                .hasMessageContaining("attributeDef.name");
 
         verify(repository, never()).save(any());
     }
@@ -94,8 +97,8 @@ public class ClothesAttributeDefServiceTest {
 
         // when & then
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이미 존재");
+                .isInstanceOf(ClothesAlreadyExistsException.class)
+                .hasMessageContaining("attributeDef.name");
     }
 
     @Test
@@ -132,8 +135,8 @@ public class ClothesAttributeDefServiceTest {
 
         // when & then
         assertThatThrownBy(() -> service.update(id, req))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("찾을 수 없습니다");
+                .isInstanceOf(ClothesAttributeDefNotFoundException.class)
+                .hasMessageContaining(id.toString());
     }
 
     @Test
@@ -150,8 +153,8 @@ public class ClothesAttributeDefServiceTest {
 
         // when & then
         assertThatThrownBy(() -> service.update(id, req))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이미 존재");
+                .isInstanceOf(ClothesAlreadyExistsException.class)
+                .hasMessageContaining("attributeDef.name");
     }
 
 
@@ -159,7 +162,7 @@ public class ClothesAttributeDefServiceTest {
     @DisplayName("delete: id가 null이면 IllegalArgumentException")
     void delete_whenIdNull_thenThrow() {
         assertThatThrownBy(() -> service.delete(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ClothesBadRequestException.class)
                 .hasMessageContaining("id는 필수");
 
         verifyNoInteractions(repository, clothesAttributeRepository);
@@ -172,8 +175,8 @@ public class ClothesAttributeDefServiceTest {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.delete(id))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("의상 속성 정의를 찾을 수 없습니다");
+                .isInstanceOf(ClothesAttributeDefNotFoundException.class)
+                .hasMessageContaining(id.toString());
 
         verify(clothesAttributeRepository, never()).deleteByDefinitionId(any());
         verify(repository, never()).delete(any(ClothesAttributeDef.class));

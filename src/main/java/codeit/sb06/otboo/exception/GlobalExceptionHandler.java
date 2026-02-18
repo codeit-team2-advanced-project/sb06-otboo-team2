@@ -5,6 +5,7 @@ import codeit.sb06.otboo.exception.clothes.ClothesException;
 import codeit.sb06.otboo.exception.feed.FeedException;
 import codeit.sb06.otboo.exception.message.MessageException;
 import codeit.sb06.otboo.exception.profile.ProfileException;
+import codeit.sb06.otboo.exception.storage.StorageException;
 import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.weather.WeatherException;
 import lombok.extern.slf4j.Slf4j;
@@ -80,5 +81,12 @@ public class GlobalExceptionHandler {
         log.error("Redis connection error: {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ErrorResponse> handleStorageException(StorageException ex) {
+        log.error("StorageException occurred: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex);
+        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(ex.getStatus()));
     }
 }

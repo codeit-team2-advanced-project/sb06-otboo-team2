@@ -7,6 +7,9 @@ import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
 import codeit.sb06.otboo.clothes.entity.ClothesAttributeDefValue;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeRepository;
+import codeit.sb06.otboo.exception.clothes.ClothesAlreadyExistsException;
+import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
+import codeit.sb06.otboo.exception.clothes.ClothesBadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +33,7 @@ public class ClothesAttributeDefService {
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
 
         if (repository.existsByName(name)) {
-            throw new IllegalArgumentException("이미 존재하는 의상 속성 정의입니다: " + name);
+            throw new ClothesAlreadyExistsException("attributeDef.name", name);
         }
 
         try {
@@ -40,20 +43,25 @@ public class ClothesAttributeDefService {
             ClothesAttributeDef saved = repository.save(def);
             return toDto(saved);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("이미 존재하는 의상 속성 정의입니다: " + name);
+            throw new ClothesAlreadyExistsException("attributeDef.name", name);
         }
     }
 
     // 속성 정의 수정
     public ClothesAttributeDefDto update(UUID id, ClothesAttributeDefUpdateRequest request) {
+
+        if (id == null) {
+            throw new ClothesBadRequestException("id는 필수입니다.");
+        }
+
         String name = normalizeName(request.name());
         List<String> selectableValues = normalizeSelectableValues(request.selectableValues());
 
         ClothesAttributeDef def = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("의상 속성 정의를 찾을 수 없습니다: " + id));
+                .orElseThrow(() -> new ClothesAttributeDefNotFoundException(id));
 
         if (repository.existsByNameAndIdNot(name, id)) {
-            throw new IllegalArgumentException("이미 존재하는 의상 속성 정의입니다: " + name);
+            throw new ClothesAlreadyExistsException("attributeDef.name", name);
         }
 
         def.changeName(name);
@@ -66,11 +74,11 @@ public class ClothesAttributeDefService {
     public void delete(UUID id) {
 
         if (id == null) {
-            throw new IllegalArgumentException("id는 필수입니다.");
+            throw new ClothesBadRequestException("id는 필수입니다.");
         }
 
         ClothesAttributeDef def = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("의상 속성 정의를 찾을 수 없습니다: " + id));
+                .orElseThrow(() -> new ClothesAttributeDefNotFoundException(id));
 
         // 옷의 속성 먼저 제거 후 속성 정의 제거
         clothesAttributeRepository.deleteByDefinitionId(id);
@@ -118,7 +126,7 @@ public class ClothesAttributeDefService {
                 .toList();
 
         if (values.isEmpty()) {
-            throw new IllegalArgumentException("selectableValues는 공백만으로 구성될 수 없습니다.");
+            throw new ClothesBadRequestException("selectableValues는 공백만으로 구성될 수 없습니다.");
         }
 
         return values;
@@ -132,24 +140,24 @@ public class ClothesAttributeDefService {
 
     private String resolveSortProperty(String sortBy) {
         if (sortBy == null) {
-            throw new IllegalArgumentException("sortBy는 필수입니다.");
+            throw new ClothesBadRequestException("sortBy는 필수입니다.");
         }
 
         return switch (sortBy) {
             case "createdAt", "name" -> sortBy;
-            default -> throw new IllegalArgumentException("sortBy는 createdAt 또는 name만 가능합니다.");
+            default -> throw new ClothesBadRequestException("sortBy는 createdAt 또는 name만 가능합니다.");
         };
     }
 
     private Sort.Direction resolveSortDirection(String sortDirection) {
         if (sortDirection == null) {
-            throw new IllegalArgumentException("sortDirection은 필수입니다.");
+            throw new ClothesBadRequestException("sortDirection은 필수입니다.");
         }
 
         return switch (sortDirection) {
             case "ASCENDING" -> Sort.Direction.ASC;
             case "DESCENDING" -> Sort.Direction.DESC;
-            default -> throw new IllegalArgumentException("sortDirection은 ASCENDING 또는 DESCENDING만 가능합니다.");
+            default -> throw new ClothesBadRequestException("sortDirection은 ASCENDING 또는 DESCENDING만 가능합니다.");
         };
     }
 

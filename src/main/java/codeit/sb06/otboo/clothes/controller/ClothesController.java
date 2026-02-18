@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.UUID;
 
@@ -25,20 +27,22 @@ public class ClothesController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ClothesDto> create(
+            @CurrentUserId UUID currentUserId,
             @RequestPart("request") @Valid ClothesCreateRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        ClothesDto created = clothesService.create(request, image);
+        ClothesDto created = clothesService.create(currentUserId, request, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PatchMapping(value = "/{clothesId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ClothesDto> update(
             @PathVariable UUID clothesId,
+            @CurrentUserId UUID currentUserId,
             @RequestPart("request") @Valid ClothesUpdateRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        ClothesDto updated = clothesService.update(clothesId, request, image);
+        ClothesDto updated = clothesService.update(clothesId, currentUserId, request, image);
         return ResponseEntity.ok(updated);
     }
 
@@ -53,12 +57,17 @@ public class ClothesController {
 
     @GetMapping
     public ResponseEntity<ClothesDtoCursorResponse> getList(
+            @CurrentUserId UUID currentUserId,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) UUID idAfter,
             @RequestParam int limit,
             @RequestParam(required = false) String typeEqual,
             @RequestParam UUID ownerId
     ) {
+        if (!currentUserId.equals(ownerId)) {
+            throw new AccessDeniedException("ownerId mismatch");
+        }
+
         ClothesDtoCursorResponse res = clothesService.getList(cursor, idAfter, limit, typeEqual, ownerId);
         return ResponseEntity.ok(res);
     }
