@@ -6,6 +6,8 @@ import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
 import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.entity.Comment;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.User;
@@ -34,9 +36,11 @@ public class BasicCommentService implements CommentService {
   public CommentDto createComment(UUID feedId, CommentCreateRequest commentCreateRequest) {
 
     Feed feed = feedRepository.findById(feedId)
-        .orElseThrow();
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+
     User author = userRepository.findById(commentCreateRequest.authorId())
-        .orElseThrow();
+        .orElseThrow(UserNotFoundException::new);
+
     Comment comment = Comment.builder()
         .content(commentCreateRequest.content())
         .feed(feed)
@@ -44,10 +48,12 @@ public class BasicCommentService implements CommentService {
         .build()
         ;
 
-    log.debug("댓글 생성 '{}'", feedId);
+    Comment savedComment = commentRepository.save(comment);
+
+    log.debug("댓글 생성 완료 commentId={}, feedId={}, authorId = {}", savedComment.getId(), feedId, author.getId());
 
     return CommentDto.of(
-        commentRepository.save(comment),
+        savedComment,
         AuthorDto.of(author)
     );
   }
@@ -57,7 +63,7 @@ public class BasicCommentService implements CommentService {
       Integer limit) {
 
     if (!feedRepository.existsById(feedId)) {
-      throw new IllegalArgumentException();
+      throw new FeedNotFoundException(feedId);
     }
 
     LocalDateTime lastCreatedAt = null;
@@ -65,8 +71,8 @@ public class BasicCommentService implements CommentService {
     if(cursor!= null){
       lastCreatedAt = LocalDateTime.parse(cursor);
     }
-    List<Comment> commentList = commentRepository.findCommentListByCursor(feedId,lastCreatedAt, idAfter, limit+1);
 
+    List<Comment> commentList = commentRepository.findCommentListByCursor(feedId,lastCreatedAt, idAfter, limit+1);
 
     boolean hasNext = commentList.size() > limit;
 
@@ -95,7 +101,8 @@ public class BasicCommentService implements CommentService {
 
     long totalCount = commentRepository.countByFeedId(feedId);
 
-    log.debug("댓글 목록 조회 완료");
+    log.debug("댓글 목록 조회 완료: feedId = {}, listSize = {}, hasNext = {}", feedId, data.size(), hasNext);
+
     return new CommentDtoCursorResponse(
         data,
         nextCursor,
