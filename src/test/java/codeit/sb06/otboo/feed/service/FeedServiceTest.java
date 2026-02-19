@@ -30,6 +30,7 @@ import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.feed.search.service.FeedSearchService;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;
@@ -77,6 +78,9 @@ class FeedServiceTest {
 
     @Mock
     private NotificationEventPublisher notificationEventPublisher;
+
+    @Mock
+    private FeedSearchService feedSearchService;
 
     private UUID authorId;
     private UUID weatherId;
@@ -440,7 +444,7 @@ class FeedServiceTest {
             null,
             null,
             2,
-            FeedSortBy.createdAt,
+            "createdAt",
             FeedSortDirection.DESCENDING,
             null,
             null,
@@ -475,7 +479,7 @@ class FeedServiceTest {
             null,
             null,
             3,
-            FeedSortBy.createdAt,
+            "createdAt",
             FeedSortDirection.DESCENDING,
             null,
             null,

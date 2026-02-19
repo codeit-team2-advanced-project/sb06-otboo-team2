@@ -71,20 +71,20 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
 
   private OrderSpecifier<?> orderSpecifier(FeedDtoCursorRequest request) {
     Order order = isDesc(request) ? Order.DESC : Order.ASC;
-    FeedSortBy sortBy = request.sortBy();
-    if (sortBy == FeedSortBy.likeCount) {
+    FeedSortBy sortBy = request.resolveSortBy();
+    if (sortBy == FeedSortBy.LIKECOUNT) {
       return new OrderSpecifier<>(order, feed.likeCount);
     }
     return new OrderSpecifier<>(order, feed.createdAt);
   }
 
   private void addCursorPredicate(BooleanBuilder where, FeedDtoCursorRequest request) {
-    FeedSortBy sortBy = request.sortBy();
+    FeedSortBy sortBy = request.resolveSortBy();
     boolean desc = isDesc(request);
     UUID idAfter = request.idAfter();
     String cursor = request.cursor();
 
-    if (sortBy == FeedSortBy.likeCount) {
+    if (sortBy == FeedSortBy.LIKECOUNT) {
       try {
         long likeCursor = Long.parseLong(cursor);
         where.and(

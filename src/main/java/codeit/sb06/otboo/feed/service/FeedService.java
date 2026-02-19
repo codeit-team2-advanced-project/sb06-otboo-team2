@@ -74,7 +74,7 @@ public class FeedService {
   @Transactional(readOnly = true)
   public FeedDtoCursorResponse getFeeds(UUID currentUserId, FeedDtoCursorRequest request) {
     int limit = request.limit();
-    FeedSortBy sortBy = request.sortBy();
+    FeedSortBy sortBy = request.resolveSortBy();
     FeedSortDirection sortDirection = request.sortDirection();
 
     List<Feed> feeds = feedRepository.findFeedListByCursor(request, limit + 1);
@@ -192,7 +192,7 @@ public class FeedService {
   }
 
   private String cursorValue(Feed feed, FeedSortBy sortBy) {
-    if (sortBy == FeedSortBy.likeCount) {
+    if (sortBy == FeedSortBy.LIKECOUNT) {
       return String.valueOf(feed.getLikeCount());
     }
     return feed.getCreatedAt().toString();
