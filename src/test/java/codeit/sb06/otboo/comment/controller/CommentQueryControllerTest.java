@@ -48,9 +48,6 @@ public class CommentQueryControllerTest {
   @MockitoBean
   CommentService commentService;
 
-  @Autowired
-  ObjectMapper objectMapper;
-
   private final UUID feedId = UUID.randomUUID();
   private final UUID authorId = UUID.randomUUID();
 
