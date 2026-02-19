@@ -12,6 +12,8 @@ import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
 import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.user.entity.User;
@@ -148,7 +150,7 @@ public class CommentCreateServiceTest {
 
     //then
     assertThrows(
-        RuntimeException.class,
+        FeedNotFoundException.class,
         () -> basicCommentService.createComment(feedId, request)
     );
   }
@@ -170,7 +172,7 @@ public class CommentCreateServiceTest {
 
     // then
     assertThrows(
-        RuntimeException.class,
+        UserNotFoundException.class,
         () -> basicCommentService.createComment(feedId, request)
     );
   }
