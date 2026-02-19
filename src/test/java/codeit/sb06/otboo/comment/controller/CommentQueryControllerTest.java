@@ -110,12 +110,4 @@ public class CommentQueryControllerTest {
             .value("댓글 목록 조회 실패"))
         .andExpect(jsonPath("$.details").exists());
   }
-
-  // 요청 자체가 잘못된 경우
-  // 리밋은 프론트딴에서 던져주니 요청이 잘못될 일이 있을까.
-  @Test
-  void getCommentList_failRequest_400response() throws Exception {
-    mockMvc.perform(get("/api/feeds/{feedId}/comments", feedId))
-        .andExpect(status().isBadRequest());
-  }
 }

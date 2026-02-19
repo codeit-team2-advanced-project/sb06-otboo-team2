@@ -65,7 +65,7 @@ public class CommentController{
       @PathVariable UUID feedId,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) UUID idAfter,
-      @RequestParam Integer limit
+      @RequestParam(defaultValue = "20") Integer limit
   ){
 
     log.debug("댓글 조회 요청 feedId={}, cursor={}, idAfter={}, limit={}",
