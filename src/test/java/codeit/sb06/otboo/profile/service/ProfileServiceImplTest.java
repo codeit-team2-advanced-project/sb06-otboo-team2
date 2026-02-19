@@ -135,6 +135,7 @@ class ProfileServiceImplTest {
         when(profileRepository.findByUserId(user)).thenReturn(Optional.of(profile));
         when(locationRepository.findByProfile(profile)).thenReturn(Optional.empty(), Optional.empty());
         when(s3StorageService.putObject(any(String.class), any(byte[].class))).thenReturn("s3-key");
+        when(s3StorageService.getPresignedUrl("s3-key")).thenReturn("https://example.com/s3-key");
         when(profileRepository.save(profile)).thenReturn(profile);
 
         ProfileDto result = profileService.updateProfile(user.getId(), request, profileImage);
@@ -144,7 +145,7 @@ class ProfileServiceImplTest {
         assertEquals("new-name", result.name());
         assertEquals("ETC", result.gender());
         assertEquals("1999-01-01", result.birthDate());
-        assertEquals("s3-key", result.profileImageUrl());
+        assertEquals("https://example.com/s3-key", result.profileImageUrl());
         assertEquals(List.of(), result.locations());
     }
 
