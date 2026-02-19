@@ -20,8 +20,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Entity
+@EnableJpaAuditing
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,7 +38,7 @@ public class Comment {
   private String content;
 
   @CreatedDate
-  @Column(name = "created_at",nullable = false)
+  @Column(name = "created_at",nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
