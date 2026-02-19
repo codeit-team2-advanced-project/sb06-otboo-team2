@@ -1,8 +1,6 @@
 package codeit.sb06.otboo.follow.service;
 
-import codeit.sb06.otboo.exception.RootException;
 import codeit.sb06.otboo.exception.follow.FollowCancelFailException;
-import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
@@ -20,9 +18,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -46,6 +46,8 @@ public class BasicFollowService implements FollowService {
 
     FolloweeDto followeeDto = new FolloweeDto(followee.getId(),followee.getName(), followee.getProfileImageUrl());
     FollowerDto followerDto = new FollowerDto(follower.getId(), follower.getName(),follower.getProfileImageUrl());
+
+    log.debug("팔로우 생성 완료 followId={}", follow.getId());
 
     return FollowDto.of(follow, followeeDto, followerDto);
   }
@@ -138,6 +140,8 @@ public class BasicFollowService implements FollowService {
             nameLike
         );
 
+    log.debug("팔로우 목록 조회 완료 size={}, hasNext={}", data.size(), hasNext);
+
     return new FollowListResponse(
         data,
         nextCursor,
@@ -163,5 +167,6 @@ public class BasicFollowService implements FollowService {
   } catch (Exception e) {
     throw new FollowCancelFailException(e);
     }
+    log.debug("팔로우 삭제 완료 followId={}", followId);
   }
 }
