@@ -64,9 +64,9 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:localhost}
       port: 6379
-      password: ${REDIS_PASSWORD:temporary_password}
+      password: ${REDIS_PASSWORD:}
       repositories:
         enabled: false
 
@@ -101,6 +101,7 @@ otboo:
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+      cookie-secure: ${JWT_REFRESH_COOKIE_SECURE:true}
 
   mail:
     from: ${MAIL_FROM:no-reply@otboo.com}

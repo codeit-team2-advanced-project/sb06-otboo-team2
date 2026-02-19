@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.config;
 
 import codeit.sb06.otboo.security.handler.Http403ForbiddenAccessDeniedHandler;
+import codeit.sb06.otboo.security.jwt.InMemoryJwtRegistry;
 import codeit.sb06.otboo.security.jwt.RedisJwtRegistry;
 import codeit.sb06.otboo.user.service.CustomOAuth2UserService;
 import codeit.sb06.otboo.user.service.CustomOidcUserService;
@@ -102,7 +103,7 @@ public class SecurityConfig {
         ApplicationEventPublisher eventPublisher,
         StringRedisTemplate redisTemplate
     ) {
-        return new RedisJwtRegistry(redisTemplate, jwtTokenProvider, 1);
+        return new InMemoryJwtRegistry(1, jwtTokenProvider);
     }
 
     @Bean

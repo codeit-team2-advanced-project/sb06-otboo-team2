@@ -12,7 +12,7 @@ env:
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
   ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
   ECS_TASK_FAMILY: ${{ secrets.ECS_TASK_FAMILY }}
-  ECS_CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME }}
+  ECS_CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME }}직
 
 jobs:
   deploy:

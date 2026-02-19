@@ -30,6 +30,7 @@ public class JwtTokenProvider {
 
     private final int accessTokenExpirationMs;
     private final int refreshTokenExpirationMs;
+    private final boolean refreshTokenCookieSecure;
 
     private final JWSSigner accessTokenSigner;
     private final JWSSigner refreshTokenSigner;
@@ -40,10 +41,18 @@ public class JwtTokenProvider {
         @Value("${otboo.jwt.access-token.secret}") String accessTokenSecret,
         @Value("${otboo.jwt.access-token.expiration-ms}") int accessTokenExpirationMs,
         @Value("${otboo.jwt.refresh-token.secret}") String refreshTokenSecret,
-        @Value("${otboo.jwt.refresh-token.expiration-ms}") int refreshTokenExpirationMs)
+        @Value("${otboo.jwt.refresh-token.expiration-ms}") int refreshTokenExpirationMs,
+        @Value("${otboo.jwt.refresh-token.cookie-secure:true}") boolean refreshTokenCookieSecure)
         throws JOSEException {
         this.accessTokenExpirationMs = accessTokenExpirationMs;
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+        this.refreshTokenCookieSecure = refreshTokenCookieSecure;
+        log.info(
+            "JWT cookie/runtime config loaded: refreshCookieSecure={}, accessExpMs={}, refreshExpMs={}",
+            refreshTokenCookieSecure,
+            accessTokenExpirationMs,
+            refreshTokenExpirationMs
+        );
 
         byte[] accessSecretBytes = accessTokenSecret.getBytes(StandardCharsets.UTF_8);
         this.accessTokenSigner = new MACSigner(accessSecretBytes);
@@ -166,7 +175,7 @@ public class JwtTokenProvider {
     public Cookie generateRefreshTokenCookie(String refreshToken) {
         Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
+        refreshCookie.setSecure(refreshTokenCookieSecure);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(refreshTokenExpirationMs / 1000);
         return refreshCookie;
@@ -175,7 +184,7 @@ public class JwtTokenProvider {
     public Cookie generateRefreshTokenExpirationCookie() {
         Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
+        refreshCookie.setSecure(refreshTokenCookieSecure);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(0);
         return refreshCookie;
