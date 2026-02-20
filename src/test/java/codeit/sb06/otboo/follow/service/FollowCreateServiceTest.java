@@ -14,6 +14,7 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.util.Optional;
@@ -36,6 +37,9 @@ public class FollowCreateServiceTest {
 
   @Mock
   private UserRepository userRepository;
+
+  @Mock
+  private NotificationEventPublisher notificationEventPublisher;
 
   UUID followerId, followeeId;
   User followee, follower;
