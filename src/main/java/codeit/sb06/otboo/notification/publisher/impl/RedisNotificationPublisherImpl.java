@@ -15,7 +15,6 @@ import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +34,7 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
 
         try {
             String jsonPayload = objectMapper.writeValueAsString(dto);
-            Map<String, String> map = Collections.singletonMap("payload", jsonPayload);
+            Map<String, String> map = Map.of("payload", jsonPayload);
 
             MapRecord<String, String, String> record = StreamRecords.newRecord()
                     .in(streamKey)
@@ -66,7 +65,7 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
                     } catch (JsonProcessingException e) {
                         throw new NotificationMappingException();
                     }
-                    Map<String, String> map = Collections.singletonMap("payload", jsonPayload);
+                    Map<String, String> map = Map.of("payload", jsonPayload);
 
                     MapRecord<String, String, String> record = StreamRecords.newRecord()
                             .in(streamKey)
