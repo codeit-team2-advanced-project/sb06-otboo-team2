@@ -14,7 +14,6 @@ import codeit.sb06.otboo.comment.service.CommentService;
 import codeit.sb06.otboo.exception.comment.CommentListReadFailException;
 import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
