@@ -16,6 +16,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -118,15 +120,7 @@ public class UserActivityNotificationBatchConfig {
         return new StepBuilder("sendStatNotificationStep", jobRepository)
                 .<Notification, Notification>chunk(100, transactionManager)
                 .reader(pendingNotificationReader())
-                .writer(items -> {
-                    for (Notification notification : items) {
-
-                        NotificationDto dto = notificationMapper.toDto(notification);
-                        notificationCacheService.save(dto);
-                        redisNotificationPublisher.publish(dto);
-                        notification.setLevel(NotificationLevel.INFO);
-                    }
-                })
+                .writer(updateNotificationLevelWriter())
                 .faultTolerant()
                 .retry(Exception.class)
                 .retryLimit(3)
@@ -142,5 +136,21 @@ public class UserActivityNotificationBatchConfig {
                 .queryString("SELECT n FROM Notification n WHERE n.level = :level ORDER BY n.id ASC")
                 .parameterValues(Map.of("level", NotificationLevel.READY))
                 .build();
+    }
+
+    @Bean
+    public ItemWriter<Notification> updateNotificationLevelWriter() {
+        return chunk -> {
+
+            List<NotificationDto> dtoList = chunk.getItems().stream()
+                    .map(notificationMapper::toDto)
+                    .toList();
+            notificationCacheService.saveAll(dtoList);
+            redisNotificationPublisher.publishAll(dtoList);
+
+            for (Notification notification : chunk) {
+                notification.setLevel(NotificationLevel.INFO);
+            }
+        };
     }
 }

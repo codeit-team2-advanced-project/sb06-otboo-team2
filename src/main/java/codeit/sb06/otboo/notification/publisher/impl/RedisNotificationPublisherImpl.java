@@ -6,13 +6,17 @@ import codeit.sb06.otboo.notification.publisher.RedisNotificationPublisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -44,5 +48,39 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
         } catch (JsonProcessingException e) {
             throw new NotificationMappingException();
         }
+    }
+
+    @Override
+    public void publishAll(List<NotificationDto> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) return;
+
+        redisTemplate.executePipelined(new SessionCallback<Object>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Object execute(@NonNull RedisOperations operations) {
+                for (NotificationDto dto : dtoList) {
+
+                    String jsonPayload = null;
+                    try {
+                        jsonPayload = objectMapper.writeValueAsString(dto);
+                    } catch (JsonProcessingException e) {
+                        throw new NotificationMappingException();
+                    }
+                    Map<String, String> map = Collections.singletonMap("payload", jsonPayload);
+
+                    MapRecord<String, String, String> record = StreamRecords.newRecord()
+                            .in(streamKey)
+                            .ofMap(map)
+                            .withId(RecordId.autoGenerate());
+
+                    operations.opsForStream().add(record);
+                }
+
+                operations.opsForStream().trim(streamKey, COUNT, true);
+                operations.expire(streamKey, TIMEOUT, TimeUnit.DAYS);
+
+                return null;
+            }
+        });
     }
 }
