@@ -1,6 +1,8 @@
 package codeit.sb06.otboo.follow.repository;
 
 import codeit.sb06.otboo.follow.entity.Follow;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +14,8 @@ public interface FollowRepository extends JpaRepository<Follow, UUID> {
 
   //팔로잉 수 -> 내가 팔로우하는 사람 즉 내가 팔로우하는 사람의 아이디 개수
   Long countByFolloweeId(UUID followeeId);
+
+  List<Follow> findByFolloweeId(UUID followeeId);
 
   Optional<Follow> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
