@@ -105,7 +105,7 @@ public class FeedService {
 
     notificationEventPublisher.publishFeedLikedEvent(
             feed.getUser().getId(),
-            feed.getContent().substring(0, 10) + "...",
+            feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
             user.getName()
     );
   }
