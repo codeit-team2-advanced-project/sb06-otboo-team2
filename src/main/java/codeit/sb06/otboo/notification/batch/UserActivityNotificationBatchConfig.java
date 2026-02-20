@@ -6,6 +6,7 @@ import codeit.sb06.otboo.notification.entity.Notification;
 import codeit.sb06.otboo.notification.enums.NotificationLevel;
 import codeit.sb06.otboo.notification.mapper.NotificationMapper;
 import codeit.sb06.otboo.notification.publisher.RedisNotificationPublisher;
+import codeit.sb06.otboo.notification.repository.NotificationRepository;
 import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class UserActivityNotificationBatchConfig {
     private final NotificationMapper notificationMapper;
     private final NotificationCacheService notificationCacheService;
     private final RedisNotificationPublisher redisNotificationPublisher;
+    private final NotificationRepository notificationRepository;
 
     @Bean
     public Job userActivityStatNotificationJob() {
@@ -151,6 +153,8 @@ public class UserActivityNotificationBatchConfig {
             for (Notification notification : chunk) {
                 notification.setLevel(NotificationLevel.INFO);
             }
+
+            notificationRepository.saveAll(chunk.getItems());
         };
     }
 }
