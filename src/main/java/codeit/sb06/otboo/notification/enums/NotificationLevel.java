@@ -4,5 +4,5 @@ public enum NotificationLevel {
     INFO,
     WARNING,
     ERROR,
-    READY
+    PENDING
 }

@@ -104,7 +104,7 @@ public class UserActivityNotificationBatchConfig {
                 .title("주간 활동 리포트")
                 .content(String.format("이번 주에 작성한 피드: %d개, 받은 좋아요: %d개, 받은 댓글: %d개",
                         dto.feedCount(), dto.feedLikeCount(), dto.feedCommentCount()))
-                .level(NotificationLevel.READY)
+                .level(NotificationLevel.PENDING)
                 .build();
     }
 
@@ -134,7 +134,7 @@ public class UserActivityNotificationBatchConfig {
                 .name("pendingNotificationReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT n FROM Notification n WHERE n.level = :level ORDER BY n.id ASC")
-                .parameterValues(Map.of("level", NotificationLevel.READY))
+                .parameterValues(Map.of("level", NotificationLevel.PENDING))
                 .build();
     }
 
