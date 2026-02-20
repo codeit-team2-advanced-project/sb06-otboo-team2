@@ -81,7 +81,7 @@ class UserActivityNotificationBatchTest {
     }
 
     @Test
-    @DisplayName("사용자 활동 통계를 수집하여 알림을 생성하고 Redis로 발행한다")
+    @DisplayName("사용자 활동 알림 배치가 성공적으로 실행된다.")
     void userActivityJobTest() throws Exception {
         // given
         User user = easyRandom.nextObject(User.class);
