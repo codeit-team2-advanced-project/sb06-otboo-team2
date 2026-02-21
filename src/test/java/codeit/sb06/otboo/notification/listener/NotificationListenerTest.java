@@ -121,7 +121,7 @@ class NotificationListenerTest {
         // then
         verify(notificationService, times(1)).create(
                 event.targetId(),
-                event.commenterName() + "님이 " + event.feedTitle() + " 피드에 댓글을 달았습니다.",
+                event.commenterName() + "님이 \"" + event.feedTitle() + "...\" 피드에 댓글을 달았습니다.",
                 event.content(),
                 NotificationLevel.INFO
         );
@@ -139,7 +139,7 @@ class NotificationListenerTest {
         // then
         verify(notificationService, times(1)).create(
                 event.targetId(),
-                event.followeeName() + "님이 " + event.feedTitle() + " 피드를 게시했습니다.",
+                event.followeeName() + "님이 \"" + event.feedTitle() + "...\" 피드를 게시했습니다.",
                 "",
                 NotificationLevel.INFO
         );

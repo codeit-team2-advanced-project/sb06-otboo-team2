@@ -55,7 +55,7 @@ public class NotificationEventListener {
     @TransactionalEventListener
     public void handleFeedCommentedEvent(FeedCommentedEvent event) {
 
-        String title = event.commenterName() + "님이 " + event.feedTitle() + " 피드에 댓글을 달았습니다.";
+        String title = event.commenterName() + "님이 \"" + event.feedTitle() + "...\" 피드에 댓글을 달았습니다.";
 
         createAndSend(event.targetId(), title, event.content());
     }
@@ -63,7 +63,7 @@ public class NotificationEventListener {
     @TransactionalEventListener
     public void handleFolloweeFeedPostedEvent(FolloweeFeedPostedEvent event) {
 
-        String title = event.followeeName() + "님이 " + event.feedTitle() + " 피드를 게시했습니다.";
+        String title = event.followeeName() + "님이 \"" + event.feedTitle() + "...\" 피드를 게시했습니다.";
 
         createAndSend(event.targetId(), title, "");
     }

@@ -70,6 +70,12 @@ spring:
       repositories:
         enabled: false
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
   websocket:
     pool:
       inbound:

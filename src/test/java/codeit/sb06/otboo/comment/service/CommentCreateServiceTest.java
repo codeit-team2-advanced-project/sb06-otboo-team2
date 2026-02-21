@@ -14,6 +14,7 @@ import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;
 import codeit.sb06.otboo.user.repository.UserRepository;
@@ -47,6 +48,9 @@ public class CommentCreateServiceTest {
 
   @Mock
   private FeedRepository feedRepository;
+
+  @Mock
+  private NotificationEventPublisher notificationEventPublisher;
 
 
   UUID feedId, authorId;
