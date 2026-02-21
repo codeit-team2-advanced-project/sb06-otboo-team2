@@ -20,12 +20,12 @@ public class RedisStreamManager {
 
     private final StringRedisTemplate redisTemplate;
     private final String serverId;
-    private final String streamKey;
+    private final String notificationStreamKey;
     private final String dmStreamKey;
 
     @PostConstruct
     public void init() {
-        createStreamAndGroup(streamKey, "group-noti-" + serverId);
+        createStreamAndGroup(notificationStreamKey, "group-noti-" + serverId);
         createStreamAndGroup(dmStreamKey, "group-dm-" + serverId);
     }
 
@@ -56,7 +56,7 @@ public class RedisStreamManager {
     @EventListener(ContextClosedEvent.class)
     public void destroyOnShutdown() {
         try {
-            redisTemplate.opsForStream().destroyGroup(streamKey, "group-noti-" + serverId);
+            redisTemplate.opsForStream().destroyGroup(notificationStreamKey, "group-noti-" + serverId);
             redisTemplate.opsForStream().destroyGroup(dmStreamKey, "group-dm-" + serverId);
             log.debug("[Redis Stream] 서버 종료로 인한 소비자 그룹 삭제 완료");
         } catch (Exception e) {

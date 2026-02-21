@@ -40,7 +40,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public String streamKey() {
+    public String notificationStreamKey() {
         return "notification:stream";
     }
 
@@ -77,7 +77,7 @@ public class RedisConfig {
 
         container.receive(
                 Consumer.from("group-noti-" + serverId, "instance-" + serverId),
-                StreamOffset.create(streamKey(), ReadOffset.lastConsumed()),
+                StreamOffset.create(notificationStreamKey(), ReadOffset.lastConsumed()),
                 notificationStreamListener
         );
 
@@ -89,7 +89,7 @@ public class RedisConfig {
 
         container.start();
 
-        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: {}, {}", serverId, streamKey(), dmStreamKey());
+        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: {}, {}", serverId, notificationStreamKey(), dmStreamKey());
 
         return container;
     }

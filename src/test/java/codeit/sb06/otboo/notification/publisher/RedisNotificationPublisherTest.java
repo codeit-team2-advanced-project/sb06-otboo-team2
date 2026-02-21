@@ -35,14 +35,14 @@ class RedisNotificationPublisherTest {
     private ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
-    private String streamKey;
+    private String notificationStreamKey;
 
     private RedisNotificationPublisherImpl redisNotificationPublisher;
 
     @BeforeEach
     void setUp() {
-        streamKey = "notification:stream";
-        redisNotificationPublisher = new RedisNotificationPublisherImpl(redisTemplate, objectMapper, streamKey);
+        notificationStreamKey = "notification:stream";
+        redisNotificationPublisher = new RedisNotificationPublisherImpl(redisTemplate, objectMapper, notificationStreamKey);
         doReturn(streamOps).when(redisTemplate).opsForStream();
     }
 
