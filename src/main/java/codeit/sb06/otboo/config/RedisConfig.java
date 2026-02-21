@@ -1,9 +1,12 @@
 package codeit.sb06.otboo.config;
 
+import codeit.sb06.otboo.message.listener.DirectMessageStreamListener;
 import codeit.sb06.otboo.notification.listener.NotificationStreamListener;
+import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -42,9 +45,15 @@ public class RedisConfig {
     }
 
     @Bean
+    public String dmStreamKey() {
+        return "direct-message:stream";
+    }
+
+    @Bean
     public StreamMessageListenerContainer<String, MapRecord<String, String, String>> notificationContainer(
             RedisConnectionFactory connectionFactory,
-            NotificationStreamListener streamListener,
+            NotificationStreamListener notificationStreamListener,
+            DirectMessageStreamListener dmStreamListener,
             String serverId) {
 
         var options =
@@ -60,12 +69,18 @@ public class RedisConfig {
         container.receive(
                 Consumer.from("group-noti-" + serverId, "instance-" + serverId),
                 StreamOffset.create(streamKey(), ReadOffset.lastConsumed()),
-                streamListener
+                notificationStreamListener
+        );
+
+        container.receive(
+                Consumer.from("group-dm-" + serverId, "instance-" + serverId),
+                StreamOffset.create(dmStreamKey(), ReadOffset.lastConsumed()),
+                dmStreamListener
         );
 
         container.start();
 
-        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: notification:stream", serverId);
+        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: {}, {}", serverId, streamKey(), dmStreamKey());
 
         return container;
     }

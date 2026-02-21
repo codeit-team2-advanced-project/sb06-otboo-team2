@@ -1,9 +1,10 @@
 package codeit.sb06.otboo.config;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.RecordId;
@@ -20,11 +21,15 @@ public class RedisStreamManager {
     private final StringRedisTemplate redisTemplate;
     private final String serverId;
     private final String streamKey;
+    private final String dmStreamKey;
 
     @PostConstruct
     public void init() {
-        String groupName = "group-noti-" + serverId;
+        createStreamAndGroup(streamKey, "group-noti-" + serverId);
+        createStreamAndGroup(dmStreamKey, "group-dm-" + serverId);
+    }
 
+    private void createStreamAndGroup(String streamKey, String groupName) {
         try {
             // 스트림이 없으면 생성
             if (!redisTemplate.hasKey(streamKey)) {
@@ -45,6 +50,17 @@ public class RedisStreamManager {
             }
         } catch (Exception e) {
             log.error("[Redis Stream] 알 수 없는 오류 발생: {}", e.getMessage());
+        }
+    }
+
+    @EventListener(ContextClosedEvent.class)
+    public void destroyOnShutdown() {
+        try {
+            redisTemplate.opsForStream().destroyGroup(streamKey, "group-noti-" + serverId);
+            redisTemplate.opsForStream().destroyGroup(dmStreamKey, "group-dm-" + serverId);
+            log.debug("[Redis Stream] 서버 종료로 인한 소비자 그룹 삭제 완료");
+        } catch (Exception e) {
+            log.warn("[Redis Stream] 소비자 그룹 삭제 중 예외 발생: {}", e.getMessage());
         }
     }
 }
