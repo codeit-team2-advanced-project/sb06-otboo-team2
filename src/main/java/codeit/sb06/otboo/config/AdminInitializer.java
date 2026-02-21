@@ -34,7 +34,7 @@ public class AdminInitializer implements CommandLineRunner {
         admin.setEncryptPassword(passwordEncoder, ADMIN_PASSWORD);
 
         userRepository.save(admin);
-        profileService.create(admin);
+//        profileService.create(admin);
         log.info("Admin account initialized: {}", ADMIN_EMAIL);
     }
 }
