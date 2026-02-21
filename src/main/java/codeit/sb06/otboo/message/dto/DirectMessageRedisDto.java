@@ -6,8 +6,8 @@ import java.util.UUID;
 
 @Builder
 public record DirectMessageRedisDto(
-        UUID receiverId,
         UUID senderId,
+        UUID receiverId,
         String content,
         String destination
 ) {

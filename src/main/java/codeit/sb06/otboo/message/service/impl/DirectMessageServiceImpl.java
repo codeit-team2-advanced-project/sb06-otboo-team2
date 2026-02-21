@@ -66,8 +66,8 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 request.content());
 
         dmEventPublisher.publishDirectMessageCreatedEvent(
-                receiver.getId(),
                 sender.getId(),
+                receiver.getId(),
                 request.content());
 
         return directMessageMapper.toDto(saved, receiver);
