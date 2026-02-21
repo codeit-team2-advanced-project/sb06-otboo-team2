@@ -1,9 +1,11 @@
 package codeit.sb06.otboo.config;
 
+import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.user.dto.request.UserCreateRequest;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import codeit.sb06.otboo.user.service.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -20,6 +22,7 @@ public class AdminInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfileServiceImpl profileService;
 
     @Override
     public void run(String... args) {
@@ -31,6 +34,7 @@ public class AdminInitializer implements CommandLineRunner {
         admin.setEncryptPassword(passwordEncoder, ADMIN_PASSWORD);
 
         userRepository.save(admin);
+        profileService.create(admin);
         log.info("Admin account initialized: {}", ADMIN_EMAIL);
     }
 }

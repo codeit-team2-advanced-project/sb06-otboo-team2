@@ -22,7 +22,8 @@ class JwtTokenProviderTest {
             "access-secret-01234567890123456789012345678901",
             60_000,
             "refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
 
         UserDto userDto = new UserDto(
@@ -49,7 +50,8 @@ class JwtTokenProviderTest {
             "access-secret-01234567890123456789012345678901",
             60_000,
             "refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
 
         UserDto userDto = new UserDto(
@@ -75,13 +77,15 @@ class JwtTokenProviderTest {
             "access-secret-01234567890123456789012345678901",
             60_000,
             "refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
         JwtTokenProvider providerB = new JwtTokenProvider(
             "different-access-secret-01234567890123456789012345678901",
             60_000,
             "different-refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
 
         UserDto userDto = new UserDto(
@@ -104,7 +108,8 @@ class JwtTokenProviderTest {
             "access-secret-01234567890123456789012345678901",
             60_000,
             "refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
 
         assertNull(provider.getUserId("not-a-jwt"));
@@ -118,7 +123,8 @@ class JwtTokenProviderTest {
             "access-secret-01234567890123456789012345678901",
             60_000,
             "refresh-secret-01234567890123456789012345678901",
-            120_000
+            120_000,
+            true
         );
 
         assertEquals("REFRESH_TOKEN", provider.generateRefreshTokenCookie("token").getName());
