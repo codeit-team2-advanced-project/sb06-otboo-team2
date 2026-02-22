@@ -106,8 +106,10 @@ class DirectMessageServiceImplTest {
 
         given(chatRoomRepository.findByDmKey(anyString()))
                 .willReturn(Optional.of(mockChatRoom));
-        given(directMessageRepository.findByChatRoomWithCursor(
-                mockChatRoom, null, null, PageRequest.of(0, limit)))
+        given(userRepository.findById(myUserId))
+                .willReturn(Optional.of(mock(User.class)));
+        given(directMessageRepository.findFirstPageByChatRoom(
+                mockChatRoom, PageRequest.of(0, limit)))
                 .willReturn(directMessageSlice);
 
         // when
