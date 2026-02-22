@@ -22,7 +22,7 @@ public class DirectMessageMapper {
     public DirectMessageDto toDto(DirectMessage dm, User receiver) {
 
         UserSummary senderSummary = UserSummary.builder()
-                .userId(dm.getId())
+                .userId(dm.getSender().getId())
                 .name(dm.getSender().getName())
                 .profileImageUrl(dm.getSender().getProfileImageUrl())
                 .build();
