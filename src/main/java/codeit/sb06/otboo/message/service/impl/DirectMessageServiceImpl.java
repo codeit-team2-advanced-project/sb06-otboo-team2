@@ -74,13 +74,22 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         ChatRoom chatRoom = chatRoomRepository.findByDmKey(dmKey)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
-        Slice<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
-                chatRoom,
-                cursor,
-                idAfter,
-                // pageable로 원하는 개수만큼 조회
-                PageRequest.of(0, limit)
-        );
+        User receiver = userRepository.findById(myUserId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Slice<DirectMessage> directMessages;
+
+        if(cursor == null && idAfter == null) {
+            directMessages = directMessageRepository.findFirstPageByChatRoom(chatRoom, PageRequest.of(0, limit));
+        } else {
+            directMessages = directMessageRepository.findByChatRoomWithCursor(
+                    chatRoom,
+                    cursor,
+                    idAfter,
+                    // pageable로 원하는 개수만큼 조회
+                    PageRequest.of(0, limit)
+            );
+        }
 
         return directMessageMapper.toDtoCursorResponse(directMessages);
     }
