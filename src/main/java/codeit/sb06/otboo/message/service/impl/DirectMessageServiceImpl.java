@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private final DirectMessageMapper directMessageMapper;
     private final ChatRoomRepository chatRoomRepository;
     private final NotificationEventPublisher notificationEventPublisher;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public DirectMessageDto create(DirectMessageCreateRequest request) {
@@ -62,6 +64,11 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 receiver.getId(),
                 sender.getName(),
                 request.content());
+
+        String dmKey = ChatRoom.generateDmKey(request.senderId(), request.receiverId());
+        String destination = "/sub/direct-messages_" + dmKey;
+
+        messagingTemplate.convertAndSend(destination, directMessageMapper.toDto(dm, receiver));
 
         return directMessageMapper.toDto(saved, receiver);
     }
@@ -91,6 +98,6 @@ public class DirectMessageServiceImpl implements DirectMessageService {
             );
         }
 
-        return directMessageMapper.toDtoCursorResponse(directMessages);
+        return directMessageMapper.toDtoCursorResponse(directMessages, receiver);
     }
 }
