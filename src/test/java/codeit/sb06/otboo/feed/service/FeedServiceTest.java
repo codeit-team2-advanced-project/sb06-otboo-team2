@@ -302,7 +302,7 @@ class FeedServiceTest {
         UUID feedId = UUID.randomUUID();
         when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
 
-        FeedDto result = feedService.update(feedId, author.getId(), "updated");
+        FeedDto result = feedService.update(feedId, author.getId(), new FeedUpdateRequest("updated"));
 
         assertEquals("updated", result.content());
         verify(userRepository, never()).findById(any());
@@ -330,7 +330,7 @@ class FeedServiceTest {
         when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
         when(userRepository.findById(adminId)).thenReturn(Optional.of(admin));
 
-        FeedDto result = feedService.update(feedId, adminId, "updated-by-admin");
+        FeedDto result = feedService.update(feedId, adminId, new FeedUpdateRequest("updated-by-admin"));
 
         assertEquals("updated-by-admin", result.content());
         verify(userRepository, times(1)).findById(adminId);
@@ -341,7 +341,7 @@ class FeedServiceTest {
         UUID feedId = UUID.randomUUID();
         when(feedRepository.findById(feedId)).thenReturn(Optional.empty());
 
-        assertThrows(FeedNotFoundException.class, () -> feedService.update(feedId, author.getId(), "updated"));
+        assertThrows(FeedNotFoundException.class, () -> feedService.update(feedId, author.getId(), new FeedUpdateRequest("updated")));
     }
 
     @Test
@@ -351,7 +351,7 @@ class FeedServiceTest {
         when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
         when(userRepository.findById(otherUserId)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> feedService.update(feedId, otherUserId, "updated"));
+        assertThrows(UserNotFoundException.class, () -> feedService.update(feedId, otherUserId, new FeedUpdateRequest("updated")));
     }
 
     @Test
@@ -376,7 +376,7 @@ class FeedServiceTest {
         when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
         when(userRepository.findById(otherUserId)).thenReturn(Optional.of(otherUser));
 
-        assertThrows(ForbiddenException.class, () -> feedService.update(feedId, otherUserId, "updated"));
+        assertThrows(ForbiddenException.class, () -> feedService.update(feedId, otherUserId, new FeedUpdateRequest("updated")));
     }
 
     @Test
