@@ -52,6 +52,10 @@ public class BasicCommentService implements CommentService {
 
     log.debug("댓글 생성 완료 commentId={}, feedId={}, authorId = {}", savedComment.getId(), feedId, author.getId());
 
+    Long totalCount = commentRepository.countByFeedId(feedId);
+
+    feed.updateCommentCount(totalCount);
+
     return CommentDto.of(
         savedComment,
         AuthorDto.of(author)
@@ -61,6 +65,9 @@ public class BasicCommentService implements CommentService {
   @Override
   public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
       Integer limit) {
+
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(()->  new FeedNotFoundException(feedId));
 
     if (!feedRepository.existsById(feedId)) {
       throw new FeedNotFoundException(feedId);
