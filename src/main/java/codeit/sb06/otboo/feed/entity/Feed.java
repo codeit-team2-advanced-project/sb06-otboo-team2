@@ -95,8 +95,8 @@ public class Feed {
       this.likeCount = this.likeCount - 1;
     }
   }
-  public void updateCommentCount(Long commentCount) {
-    this.commentCount = commentCount;
+  public void incrementCommentCount() {
+    this.commentCount ++;
   }
 
   @PrePersist
