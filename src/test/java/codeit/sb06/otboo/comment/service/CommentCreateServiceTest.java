@@ -122,6 +122,9 @@ public class CommentCreateServiceTest {
     when(commentRepository.save(any(Comment.class)))
         .thenReturn(savedComment);
 
+    when(commentRepository.countByFeedId(feedId))
+        .thenReturn(1L);
+
     //when
 
     CommentDto result = basicCommentService.createComment(feedId,request);
@@ -133,6 +136,8 @@ public class CommentCreateServiceTest {
     assertEquals("테스트 댓글 내용",result.content());
     assertEquals(authorId, result.author().userId());
     assertEquals("test", result.author().name());
+    assertEquals(1L, feed.getCommentCount());
+
   }
 
   // 피드 Id 없을때
