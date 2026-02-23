@@ -4,6 +4,7 @@ import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
 import codeit.sb06.otboo.feed.dto.FeedDtoCursorRequest;
 import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
+import codeit.sb06.otboo.feed.dto.FeedUpdateRequest;
 import codeit.sb06.otboo.feed.service.FeedService;
 import codeit.sb06.otboo.security.resolver.CurrentUserId;
 import jakarta.validation.Valid;
@@ -50,7 +51,7 @@ public class FeedController {
   @PatchMapping("/{feedId}")
   public ResponseEntity<FeedDto> updateFeed(
       @PathVariable UUID feedId,
-      @RequestBody String content,
+      @RequestBody FeedUpdateRequest content,
       @CurrentUserId UUID currentUserId
   ) {
     return ResponseEntity.ok(service.update(feedId, currentUserId, content));

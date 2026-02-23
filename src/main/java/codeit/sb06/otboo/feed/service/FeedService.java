@@ -117,7 +117,7 @@ public class FeedService {
   }
 
   @Transactional
-  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
+  public FeedDto update(UUID feedId, UUID currentUserId, FeedUpdateRequest request) {
     Feed feed = feedRepository.findById(feedId)
         .orElseThrow(() -> new FeedNotFoundException(feedId));
 
