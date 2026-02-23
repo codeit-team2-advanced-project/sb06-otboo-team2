@@ -2,13 +2,18 @@ package codeit.sb06.otboo.feed.controller;
 
 import codeit.sb06.otboo.feed.dto.FeedCreateRequest;
 import codeit.sb06.otboo.feed.dto.FeedDto;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorRequest;
+import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
 import codeit.sb06.otboo.feed.service.FeedService;
 import codeit.sb06.otboo.security.resolver.CurrentUserId;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +31,14 @@ public class FeedController {
   @PostMapping
   public ResponseEntity<FeedDto> createFeed(@RequestBody FeedCreateRequest request) {
     return new ResponseEntity<>(service.create(request), HttpStatus.CREATED);
+  }
+
+  @GetMapping
+  public ResponseEntity<FeedDtoCursorResponse> getFeed(
+      @CurrentUserId UUID id,
+      @Valid @ModelAttribute FeedDtoCursorRequest request
+  ) {
+    return ResponseEntity.ok(service.getFeeds(id, request));
   }
 
   @DeleteMapping("/{feedId}")
