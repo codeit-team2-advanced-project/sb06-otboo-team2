@@ -1,7 +1,6 @@
-package codeit.sb06.otboo.notification.publisher;
+package codeit.sb06.otboo.message.publisher;
 
-import codeit.sb06.otboo.notification.dto.NotificationDto;
-import codeit.sb06.otboo.notification.publisher.impl.RedisNotificationPublisherImpl;
+import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,15 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RedisNotificationPublisherTest {
+class DirectMessageRedisPublisherTest {
 
     private final EasyRandom easyRandom = EasyRandomUtil.getRandom();
 
@@ -35,28 +32,27 @@ class RedisNotificationPublisherTest {
     private ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
-    private String notificationStreamKey;
+    private String dmStreamKey;
 
-    private RedisNotificationPublisherImpl redisNotificationPublisher;
+    private DirectMessageRedisPublisher directMessageRedisPublisher;
 
     @BeforeEach
     void setUp() {
-        notificationStreamKey = "notification:stream";
-        redisNotificationPublisher = new RedisNotificationPublisherImpl(redisTemplate, objectMapper, notificationStreamKey);
+        dmStreamKey = "dm:stream";
+        directMessageRedisPublisher = new DirectMessageRedisPublisher(redisTemplate, objectMapper, dmStreamKey);
         doReturn(streamOps).when(redisTemplate).opsForStream();
     }
 
-
     @Test
-    @DisplayName("알림이 Redis 스트림에 발행된다.")
-    void publishNotificationTest() {
+    @DisplayName("DM이 Redis 스트림에 발행된다.")
+    void publishDirectMessageTest() {
         // given
-        NotificationDto dto = easyRandom.nextObject(NotificationDto.class);
+        DirectMessageDto dto = easyRandom.nextObject(DirectMessageDto.class);
 
         // when
-        redisNotificationPublisher.publish(dto);
+        directMessageRedisPublisher.publish(dto, "destination");
 
         // then
-        verify(streamOps, times(1)).add(any(MapRecord.class));
+        verify(streamOps, times(1)).add(any());
     }
 }

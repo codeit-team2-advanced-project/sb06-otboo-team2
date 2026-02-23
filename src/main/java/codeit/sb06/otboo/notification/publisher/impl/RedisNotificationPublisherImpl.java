@@ -27,7 +27,7 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
     public static final int COUNT = 30000;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-    private final String streamKey;
+    private final String notificationStreamKey;
 
     @Override
     public void publish(NotificationDto dto) {
@@ -37,13 +37,13 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
             Map<String, String> map = Map.of("payload", jsonPayload);
 
             MapRecord<String, String, String> record = StreamRecords.newRecord()
-                    .in(streamKey)
+                    .in(notificationStreamKey)
                     .ofMap(map)
                     .withId(RecordId.autoGenerate());
 
             redisTemplate.opsForStream().add(record);
-            redisTemplate.opsForStream().trim(streamKey, COUNT, true);
-            redisTemplate.expire(streamKey, TIMEOUT, TimeUnit.DAYS);
+            redisTemplate.opsForStream().trim(notificationStreamKey, COUNT, true);
+            redisTemplate.expire(notificationStreamKey, TIMEOUT, TimeUnit.DAYS);
         } catch (JsonProcessingException e) {
             throw new NotificationMappingException();
         }
@@ -68,15 +68,15 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
                     Map<String, String> map = Map.of("payload", jsonPayload);
 
                     MapRecord<String, String, String> record = StreamRecords.newRecord()
-                            .in(streamKey)
+                            .in(notificationStreamKey)
                             .ofMap(map)
                             .withId(RecordId.autoGenerate());
 
                     operations.opsForStream().add(record);
                 }
 
-                operations.opsForStream().trim(streamKey, COUNT, true);
-                operations.expire(streamKey, TIMEOUT, TimeUnit.DAYS);
+                operations.opsForStream().trim(notificationStreamKey, COUNT, true);
+                operations.expire(notificationStreamKey, TIMEOUT, TimeUnit.DAYS);
 
                 return null;
             }

@@ -20,9 +20,7 @@ public class DirectMessageWebSocketController {
     public void sendDirectMessage(
             @Payload @Valid DirectMessageCreateRequest request
     ) {
-
         log.debug("웹소켓 직접 메시지 전송 요청 받음: {}", request);
-
         directMessageService.create(request);
     }
 }

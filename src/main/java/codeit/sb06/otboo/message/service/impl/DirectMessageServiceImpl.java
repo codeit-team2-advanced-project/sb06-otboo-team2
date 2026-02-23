@@ -8,18 +8,18 @@ import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
+import codeit.sb06.otboo.message.publisher.DirectMessageEventPublisher;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
-import codeit.sb06.otboo.user.entity.User;
-import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
-import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.message.service.ChatRoomService;
 import codeit.sb06.otboo.message.service.DirectMessageService;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.user.entity.User;
+import codeit.sb06.otboo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private final DirectMessageMapper directMessageMapper;
     private final ChatRoomRepository chatRoomRepository;
     private final NotificationEventPublisher notificationEventPublisher;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final DirectMessageEventPublisher dmEventPublisher;
 
     @Override
     public DirectMessageDto create(DirectMessageCreateRequest request) {
@@ -65,12 +65,15 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 sender.getName(),
                 request.content());
 
+        DirectMessageDto dto = directMessageMapper.toDto(saved, receiver);
         String dmKey = ChatRoom.generateDmKey(request.senderId(), request.receiverId());
         String destination = "/sub/direct-messages_" + dmKey;
 
-        messagingTemplate.convertAndSend(destination, directMessageMapper.toDto(dm, receiver));
+        dmEventPublisher.publishDirectMessageCreatedEvent(
+                dto,
+                destination);
 
-        return directMessageMapper.toDto(saved, receiver);
+        return dto;
     }
 
     @Override

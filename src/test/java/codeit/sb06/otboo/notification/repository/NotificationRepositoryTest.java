@@ -47,6 +47,11 @@ class NotificationRepositoryTest {
                     .build();
             em.persist(notification);
             em.flush();
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         em.clear();
     }

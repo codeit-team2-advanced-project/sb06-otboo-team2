@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class NotificationStreamListener implements StreamListener<String, MapRecord<String, String, String>> {
 
     private final StringRedisTemplate redisTemplate;
-    private final String streamKey;
+    private final String notificationStreamKey;
     private final String serverId;
     private final SseService sseService;
     private final ObjectMapper objectMapper;
@@ -26,13 +26,13 @@ public class NotificationStreamListener implements StreamListener<String, MapRec
     @PostConstruct
     public void debug() {
         log.debug(">>>> [리스너 체크] 그룹명: group-noti-{}", serverId);
-        log.debug(">>>> [리스너 체크] 스트림 키: {}", streamKey);
+        log.debug(">>>> [리스너 체크] 스트림 키: {}", notificationStreamKey);
     }
 
     @Override
     public void onMessage(MapRecord<String, String, String> record) {
 
-        log.debug("알림 수신: [MessageId: {}, Stream: {}]", record.getId(), streamKey);
+        log.debug("알림 수신: [MessageId: {}, Stream: {}]", record.getId(), notificationStreamKey);
 
         try {
             String json = record.getValue().get("payload");
@@ -40,7 +40,7 @@ public class NotificationStreamListener implements StreamListener<String, MapRec
 
             sseService.send(dto.receiverId(), "notifications", dto);
 
-            redisTemplate.opsForStream().acknowledge(streamKey, "group-noti-" + serverId, record.getId());
+            redisTemplate.opsForStream().acknowledge(notificationStreamKey, "group-noti-" + serverId, record.getId());
             log.debug("알림 전송 및 ACK 완료: [MessageId: {}, ReceiverId: {}]", record.getId(), dto.receiverId());
 
         } catch (Exception e) {

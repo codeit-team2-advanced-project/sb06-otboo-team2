@@ -6,11 +6,12 @@ import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
+import codeit.sb06.otboo.message.publisher.DirectMessageEventPublisher;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.message.service.impl.DirectMessageServiceImpl;
-import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
@@ -24,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +58,7 @@ class DirectMessageServiceImplTest {
     private ChatRoomRepository chatRoomRepository;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private DirectMessageEventPublisher dmEventPublisher;
 
     // 실제 변환을 위해 spy 사용
     @Spy
