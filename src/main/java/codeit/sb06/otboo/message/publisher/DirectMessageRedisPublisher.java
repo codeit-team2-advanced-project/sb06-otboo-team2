@@ -29,10 +29,11 @@ public class DirectMessageRedisPublisher {
 
         try {
             String jsonPayload = objectMapper.writeValueAsString(dto);
-            Map<String, String> map = new HashMap<>();
-            map.put("payload", jsonPayload);
-            map.put("destination", destination);
-            map.put("receiverId", dto.receiver().userId().toString());
+            Map<String, String> map = Map.of(
+                    "payload", jsonPayload,
+                    "destination", destination,
+                    "receiverId", dto.receiver().userId().toString()
+            );
 
             MapRecord<String, String, String> record = StreamRecords.newRecord()
                     .in(dmStreamKey)
