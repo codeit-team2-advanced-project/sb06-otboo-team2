@@ -27,14 +27,17 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         User admin = userRepository.findByEmail(ADMIN_EMAIL)
-            .orElseGet(() -> User.from(new UserCreateRequest("admin", ADMIN_EMAIL, ADMIN_PASSWORD)));
+            .orElseGet(() -> {
+                User newAdmin = User.from(new UserCreateRequest("admin", ADMIN_EMAIL, ADMIN_PASSWORD));
+                newAdmin.changeRole(Role.ADMIN);
+                newAdmin.changeLockStatus(false);
+                newAdmin.setEncryptPassword(passwordEncoder, ADMIN_PASSWORD);
 
-        admin.changeRole(Role.ADMIN);
-        admin.changeLockStatus(false);
-        admin.setEncryptPassword(passwordEncoder, ADMIN_PASSWORD);
+                userRepository.save(newAdmin);
+                profileService.create(newAdmin);
 
-        userRepository.save(admin);
-        profileService.create(admin);
+                return newAdmin;
+            });
         log.info("Admin account initialized: {}", ADMIN_EMAIL);
     }
 }
