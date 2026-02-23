@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,9 @@ class DirectMessageServiceImplTest {
 
     @Mock
     private ChatRoomRepository chatRoomRepository;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
 
     // 실제 변환을 위해 spy 사용
     @Spy
@@ -102,8 +106,10 @@ class DirectMessageServiceImplTest {
 
         given(chatRoomRepository.findByDmKey(anyString()))
                 .willReturn(Optional.of(mockChatRoom));
-        given(directMessageRepository.findByChatRoomWithCursor(
-                mockChatRoom, null, null, PageRequest.of(0, limit)))
+        given(userRepository.findById(myUserId))
+                .willReturn(Optional.of(mock(User.class)));
+        given(directMessageRepository.findFirstPageByChatRoom(
+                mockChatRoom, PageRequest.of(0, limit)))
                 .willReturn(directMessageSlice);
 
         // when

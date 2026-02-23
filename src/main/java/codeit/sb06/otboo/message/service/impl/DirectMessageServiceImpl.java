@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private final DirectMessageMapper directMessageMapper;
     private final ChatRoomRepository chatRoomRepository;
     private final NotificationEventPublisher notificationEventPublisher;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public DirectMessageDto create(DirectMessageCreateRequest request) {
@@ -63,6 +65,11 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 sender.getName(),
                 request.content());
 
+        String dmKey = ChatRoom.generateDmKey(request.senderId(), request.receiverId());
+        String destination = "/sub/direct-messages_" + dmKey;
+
+        messagingTemplate.convertAndSend(destination, directMessageMapper.toDto(dm, receiver));
+
         return directMessageMapper.toDto(saved, receiver);
     }
 
@@ -74,14 +81,23 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         ChatRoom chatRoom = chatRoomRepository.findByDmKey(dmKey)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
-        Slice<DirectMessage> directMessages = directMessageRepository.findByChatRoomWithCursor(
-                chatRoom,
-                cursor,
-                idAfter,
-                // pageable로 원하는 개수만큼 조회
-                PageRequest.of(0, limit)
-        );
+        User receiver = userRepository.findById(myUserId)
+                .orElseThrow(UserNotFoundException::new);
 
-        return directMessageMapper.toDtoCursorResponse(directMessages);
+        Slice<DirectMessage> directMessages;
+
+        if(cursor == null && idAfter == null) {
+            directMessages = directMessageRepository.findFirstPageByChatRoom(chatRoom, PageRequest.of(0, limit));
+        } else {
+            directMessages = directMessageRepository.findByChatRoomWithCursor(
+                    chatRoom,
+                    cursor,
+                    idAfter,
+                    // pageable로 원하는 개수만큼 조회
+                    PageRequest.of(0, limit)
+            );
+        }
+
+        return directMessageMapper.toDtoCursorResponse(directMessages, receiver);
     }
 }
