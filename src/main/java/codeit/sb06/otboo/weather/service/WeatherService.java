@@ -1,7 +1,6 @@
 package codeit.sb06.otboo.weather.service;
 
-import codeit.sb06.otboo.weather.client.KakaoLocationClient;
-import codeit.sb06.otboo.weather.client.OpenWeatherClient;
+import codeit.sb06.otboo.weather.client.WeatherApiClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.*;
@@ -27,8 +26,7 @@ public class WeatherService {
 
   private static final ZoneId FORECAST_ZONE = ZoneId.of("Asia/Seoul");
 
-  private final OpenWeatherClient openWeatherClient;
-  private final KakaoLocationClient kakaoLocationClient;
+  private final WeatherApiClient weatherApiClient;
   private final WeatherRepository weatherRepository;
   private final WeatherMapper weatherMapper;
 
@@ -36,8 +34,8 @@ public class WeatherService {
       throws Exception {
     double normalizedLatitude = round2(latitude);
     double normalizedLongitude = round2(longitude);
-    OpenWeatherForecastApiResponse response = openWeatherClient.fetchForecast(latitude, longitude);
-    LocationDto location = kakaoLocationClient.resolveLocationSafely(longitude, latitude);
+    OpenWeatherForecastApiResponse response = weatherApiClient.fetchForecast(latitude, longitude);
+    LocationDto location = weatherApiClient.resolveLocationSafely(longitude, latitude);
     List<SnapshotCandidate> candidates = aggregateDaily(response, FORECAST_ZONE);
 
     List<LocalDate> dates = candidates.stream()
@@ -58,8 +56,8 @@ public class WeatherService {
   }
 
   public LocationDto getLocation(double longitude, double latitude) throws Exception {
-    KakaoRegionResponse kakao = kakaoLocationClient.fetchRegion(longitude, latitude);
-    return kakaoLocationClient.toLocationDto(latitude, longitude, kakao.documents());
+    KakaoRegionResponse kakao = weatherApiClient.fetchRegion(longitude, latitude);
+    return weatherApiClient.toLocationDto(latitude, longitude, kakao.documents());
   }
 
   public List<SnapshotCandidate> aggregateDaily(

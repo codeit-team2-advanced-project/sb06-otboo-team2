@@ -129,7 +129,7 @@ public class FeedService {
       }
     }
 
-    feed.updateContent(content);
+    feed.updateContent(request.content());
     return FeedDto.from(feed);
   }
 

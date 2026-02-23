@@ -5,8 +5,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-import codeit.sb06.otboo.weather.client.KakaoLocationClient;
-import codeit.sb06.otboo.weather.client.OpenWeatherClient;
+import codeit.sb06.otboo.weather.client.WeatherApiClient;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
 import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse.Metric;
@@ -30,10 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class WeatherServiceTest {
 
   @Mock
-  private OpenWeatherClient openWeatherClient;
-
-  @Mock
-  private KakaoLocationClient kakaoLocationClient;
+  private WeatherApiClient weatherApiClient;
 
   @Mock
   private WeatherRepository weatherRepository;
@@ -83,10 +79,10 @@ class WeatherServiceTest {
         lat, lon, 127.0, 37.5, List.of("서울특별시 중구")
     );
 
-    given(openWeatherClient.fetchForecast(lat, lon))
+    given(weatherApiClient.fetchForecast(lat, lon))
         .willReturn(response);
 
-    given(kakaoLocationClient.resolveLocationSafely(lon, lat))
+    given(weatherApiClient.resolveLocationSafely(lon, lat))
         .willReturn(location);
 
     given(weatherRepository.findByLatitudeAndLongitudeAndDateIn(

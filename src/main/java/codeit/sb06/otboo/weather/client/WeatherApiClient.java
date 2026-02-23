@@ -3,27 +3,35 @@ package codeit.sb06.otboo.weather.client;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionDocument;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoLocationClient {
+public class WeatherApiClient {
+
+  @Value("${openweather.key}")
+  private String openApiKey;
 
   @Value("${kakao.key}")
   private String kakaoKey;
 
-  private final ObjectMapper objectMapper;
-  private final SimpleHttpClient httpClient;
+  private final OpenWeatherFeignClient openWeatherFeignClient;
+  private final KakaoLocationFeignClient kakaoLocationFeignClient;
 
-  public KakaoRegionResponse fetchRegion(double longitude, double latitude) throws Exception {
-    String url = buildCoord2RegionUrl(longitude, latitude);
-    String raw = httpClient.get(url, Map.of("Authorization", "KakaoAK " + kakaoKey));
-    return objectMapper.readValue(raw, KakaoRegionResponse.class);
+  public OpenWeatherForecastApiResponse fetchForecast(double latitude, double longitude) {
+    return openWeatherFeignClient.fetchForecast(latitude, longitude, openApiKey, "metric");
+  }
+
+  public KakaoRegionResponse fetchRegion(double longitude, double latitude) {
+    return kakaoLocationFeignClient.fetchRegion(
+        "KakaoAK " + kakaoKey,
+        longitude,
+        latitude
+    );
   }
 
   public LocationDto resolveLocationSafely(double longitude, double latitude) {
@@ -44,8 +52,11 @@ public class KakaoLocationClient {
         .findFirst()
         .orElse(docs.get(0));
 
-    List<String> locationNames = List.of(picked.region1DepthName(),
-        picked.region2DepthName(), picked.region3DepthName());
+    List<String> locationNames = List.of(
+        picked.region1DepthName(),
+        picked.region2DepthName(),
+        picked.region3DepthName()
+    );
 
     return new LocationDto(
         latitude,
@@ -54,11 +65,5 @@ public class KakaoLocationClient {
         picked.y(),
         locationNames
     );
-  }
-
-  private String buildCoord2RegionUrl(double longitude, double latitude) {
-    return "https://dapi.kakao.com/v2/local/geo/coord2regioncode.json"
-        + "?x=" + longitude
-        + "&y=" + latitude;
   }
 }
