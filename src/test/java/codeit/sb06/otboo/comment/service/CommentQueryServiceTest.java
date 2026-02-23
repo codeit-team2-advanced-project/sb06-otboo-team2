@@ -23,6 +23,7 @@ import codeit.sb06.otboo.weather.entity.Weather;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -107,8 +108,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     when(commentRepository.countByFeedId(feedId))
         .thenReturn(3L);
@@ -140,8 +141,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     when(commentRepository.countByFeedId(feedId))
         .thenReturn(3L);
@@ -180,8 +181,8 @@ public class CommentQueryServiceTest {
     // given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     // 마지막 페이지 c1 기준
     String cursor = c1.getCreatedAt().toString();

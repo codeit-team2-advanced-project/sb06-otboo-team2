@@ -66,12 +66,8 @@ public class BasicCommentService implements CommentService {
   public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
       Integer limit) {
 
-    Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(()->  new FeedNotFoundException(feedId));
-
-    if (!feedRepository.existsById(feedId)) {
-      throw new FeedNotFoundException(feedId);
-    }
+    feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
 
     LocalDateTime lastCreatedAt = null;
 
@@ -106,7 +102,7 @@ public class BasicCommentService implements CommentService {
         .map(c -> CommentDto.of(c,AuthorDto.of(c.getUser())))
         .toList();
 
-    long totalCount = commentRepository.countByFeedId(feedId);
+    Long totalCount = commentRepository.countByFeedId(feedId);
 
     log.debug("댓글 목록 조회 완료: feedId = {}, listSize = {}, hasNext = {}", feedId, data.size(), hasNext);
 
