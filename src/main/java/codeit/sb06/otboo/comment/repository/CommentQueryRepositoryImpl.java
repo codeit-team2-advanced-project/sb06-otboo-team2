@@ -3,6 +3,7 @@ package codeit.sb06.otboo.comment.repository;
 import static codeit.sb06.otboo.comment.entity.QComment.comment;
 
 import codeit.sb06.otboo.comment.entity.Comment;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +19,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
   @Override
   public List<Comment> findCommentListByCursor(UUID feedId, LocalDateTime lastCreatedAt, UUID idAfter, int limit) {
-    var query = jpaQueryFactory.selectFrom(comment)
+    JPAQuery<Comment> query = jpaQueryFactory.selectFrom(comment)
         .where(comment.feed.id.eq(feedId))
         .orderBy(
             comment.createdAt.desc()

@@ -4,6 +4,7 @@ import static codeit.sb06.otboo.follow.entity.QFollow.follow;
 
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.entity.FollowDirection;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +22,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
   public List<Follow> findByCursor(FollowDirection followDirection, UUID userId,
       LocalDateTime lastCreatedAt, UUID idAfter, int limit, String nameLike) {
 
-    var query = queryFactory.selectFrom(follow)
+    JPAQuery<Follow> query = queryFactory.selectFrom(follow)
         .join(follow.followee).fetchJoin()
         .join(follow.follower).fetchJoin()
         .orderBy(
