@@ -122,13 +122,8 @@ public class CommentCreateServiceTest {
     when(commentRepository.save(any(Comment.class)))
         .thenReturn(savedComment);
 
-    when(commentRepository.countByFeedId(feedId))
-        .thenReturn(1L);
-
     //when
-
     CommentDto result = basicCommentService.createComment(feedId,request);
-
 
     //then
     verify(commentRepository).save(any(Comment.class));

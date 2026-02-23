@@ -99,6 +99,10 @@ public class CommentQueryServiceTest {
     ReflectionTestUtils.setField(c1, "id", UUID.randomUUID());
     ReflectionTestUtils.setField(c2, "id", UUID.randomUUID());
     ReflectionTestUtils.setField(c3, "id", UUID.randomUUID());
+
+    feed.incrementCommentCount();
+    feed.incrementCommentCount();
+    feed.incrementCommentCount();
   }
 
   // 첫 페이지 조회 테스트
@@ -110,9 +114,6 @@ public class CommentQueryServiceTest {
 
     when(feedRepository.findById(feedId))
         .thenReturn(Optional.of(feed));
-
-    when(commentRepository.countByFeedId(feedId))
-        .thenReturn(3L);
 
     when(commentRepository.findCommentListByCursor(
         eq(feedId),
@@ -143,9 +144,6 @@ public class CommentQueryServiceTest {
 
     when(feedRepository.findById(feedId))
         .thenReturn(Optional.of(feed));
-
-    when(commentRepository.countByFeedId(feedId))
-        .thenReturn(3L);
 
     // 다음 페이지 기준 c2
     String cursor = c2.getCreatedAt().toString();
