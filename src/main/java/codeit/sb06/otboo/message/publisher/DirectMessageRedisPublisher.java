@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.message.publisher;
 
 import codeit.sb06.otboo.exception.message.DirectMessageMappingException;
-import codeit.sb06.otboo.message.dto.DirectMessageRedisDto;
+import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -25,11 +25,14 @@ public class DirectMessageRedisPublisher {
     private final ObjectMapper objectMapper;
     private final String dmStreamKey;
 
-    public void publish(DirectMessageRedisDto dto) {
+    public void publish(DirectMessageDto dto, String destination) {
 
         try {
             String jsonPayload = objectMapper.writeValueAsString(dto);
-            Map<String, String> map = Collections.singletonMap("payload", jsonPayload);
+            Map<String, String> map = new HashMap<>();
+            map.put("payload", jsonPayload);
+            map.put("destination", destination);
+            map.put("receiverId", dto.receiver().userId().toString());
 
             MapRecord<String, String, String> record = StreamRecords.newRecord()
                     .in(dmStreamKey)

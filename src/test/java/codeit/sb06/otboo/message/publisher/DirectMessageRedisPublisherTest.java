@@ -1,6 +1,6 @@
 package codeit.sb06.otboo.message.publisher;
 
-import codeit.sb06.otboo.message.dto.DirectMessageRedisDto;
+import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -47,10 +47,10 @@ class DirectMessageRedisPublisherTest {
     @DisplayName("DM이 Redis 스트림에 발행된다.")
     void publishDirectMessageTest() {
         // given
-        DirectMessageRedisDto dto = easyRandom.nextObject(DirectMessageRedisDto.class);
+        DirectMessageDto dto = easyRandom.nextObject(DirectMessageDto.class);
 
         // when
-        directMessageRedisPublisher.publish(dto);
+        directMessageRedisPublisher.publish(dto, "destination");
 
         // then
         verify(streamOps, times(1)).add(any());

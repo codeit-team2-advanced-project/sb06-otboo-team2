@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.message.listener;
 
-import codeit.sb06.otboo.message.dto.DirectMessageRedisDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class DirectMessageStreamListener implements StreamListener<String, MapRe
     private final String dmStreamKey;
     private final String serverId;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void debug() {
@@ -35,12 +33,13 @@ public class DirectMessageStreamListener implements StreamListener<String, MapRe
 
         try {
             String json = record.getValue().get("payload");
-            DirectMessageRedisDto dto = objectMapper.readValue(json, DirectMessageRedisDto.class);
+            String destination = record.getValue().get("destination");
+            String receiverId = record.getValue().get("receiverId");
 
-            messagingTemplate.convertAndSend(dto.destination(), dto);
+            messagingTemplate.convertAndSend(destination, json);
 
             redisTemplate.opsForStream().acknowledge(dmStreamKey, "group-dm-" + serverId, record.getId());
-            log.debug("dm 전송 및 ACK 완료: [MessageId: {}, ReceiverId: {}]", record.getId(), dto.receiverId());
+            log.debug("dm 전송 및 ACK 완료: [MessageId: {}, ReceiverId: {}]", record.getId(), receiverId);
 
         } catch (Exception e) {
             log.error("dm 처리 실패: [MessageId: {}], 오류: {}", record.getId(), e.getMessage());

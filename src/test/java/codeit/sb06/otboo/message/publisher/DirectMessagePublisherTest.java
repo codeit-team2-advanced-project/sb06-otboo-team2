@@ -1,7 +1,7 @@
 package codeit.sb06.otboo.message.publisher;
 
 import codeit.sb06.otboo.message.dto.DirectMessageCreatedRedisEvent;
-import codeit.sb06.otboo.message.dto.DirectMessageRedisDto;
+import codeit.sb06.otboo.message.dto.DirectMessageDto;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.DisplayName;
@@ -29,12 +29,11 @@ class DirectMessagePublisherTest {
     @DisplayName("DirectMessageCreatedRedisEvent가 발행된다.")
     void publishDirectMessageEventTest() {
         // given
-        DirectMessageRedisDto dto = easyRandom.nextObject(DirectMessageRedisDto.class);
-        DirectMessageCreatedRedisEvent event = new DirectMessageCreatedRedisEvent(dto);
+        DirectMessageDto dto = easyRandom.nextObject(DirectMessageDto.class);
 
         // when
         directMessageEventPublisher.publishDirectMessageCreatedEvent(
-                event.message().senderId(), event.message().receiverId(), event.message().content());
+                dto, "destination");
 
         // then
         verify(publisher, org.mockito.Mockito.times(1)).publishEvent(org.mockito.ArgumentMatchers.any(DirectMessageCreatedRedisEvent.class));

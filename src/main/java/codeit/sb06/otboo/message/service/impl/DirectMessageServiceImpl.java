@@ -65,12 +65,15 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 sender.getName(),
                 request.content());
 
-        dmEventPublisher.publishDirectMessageCreatedEvent(
-                sender.getId(),
-                receiver.getId(),
-                request.content());
+        DirectMessageDto dto = directMessageMapper.toDto(saved, receiver);
+        String dmKey = ChatRoom.generateDmKey(request.senderId(), request.receiverId());
+        String destination = "/sub/direct-messages_" + dmKey;
 
-        return directMessageMapper.toDto(saved, receiver);
+        dmEventPublisher.publishDirectMessageCreatedEvent(
+                dto,
+                destination);
+
+        return dto;
     }
 
     @Override

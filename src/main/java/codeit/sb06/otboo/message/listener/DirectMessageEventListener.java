@@ -15,6 +15,6 @@ public class DirectMessageEventListener {
     @TransactionalEventListener
     public void handleDirectMessageEvent(DirectMessageCreatedRedisEvent event) {
 
-        directMessageRedisPublisher.publish(event.message());
+        directMessageRedisPublisher.publish(event.message(), event.destination());
     }
 }
