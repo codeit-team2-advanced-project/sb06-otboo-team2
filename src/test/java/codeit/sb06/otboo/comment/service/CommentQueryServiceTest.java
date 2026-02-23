@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
+import codeit.sb06.otboo.comment.dto.CommentDtoCursorResponse;
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.feed.entity.Feed;
@@ -109,6 +110,9 @@ public class CommentQueryServiceTest {
     when(feedRepository.existsById(feedId))
         .thenReturn(true);
 
+    when(commentRepository.countByFeedId(feedId))
+        .thenReturn(3L);
+
     when(commentRepository.findCommentListByCursor(
         eq(feedId),
         isNull(),
@@ -117,7 +121,7 @@ public class CommentQueryServiceTest {
     )).thenReturn(List.of(c3, c2, c1));
 
     //when
-    var response = basicCommentService.getComments(feedId, null, null, limit);
+    CommentDtoCursorResponse response = basicCommentService.getComments(feedId, null, null, limit);
 
     //then
     assertEquals(2, response.data().size());
@@ -127,6 +131,7 @@ public class CommentQueryServiceTest {
     assertEquals(c2.getCreatedAt().toString(), response.nextCursor());
     assertEquals(c2.getId(), response.nextIdAfter());
 
+    assertEquals(3L, response.totalCount());
   }
 
   // 다음 페이지 조회 테스트
@@ -137,6 +142,9 @@ public class CommentQueryServiceTest {
 
     when(feedRepository.existsById(feedId))
         .thenReturn(true);
+
+    when(commentRepository.countByFeedId(feedId))
+        .thenReturn(3L);
 
     // 다음 페이지 기준 c2
     String cursor = c2.getCreatedAt().toString();
@@ -160,6 +168,8 @@ public class CommentQueryServiceTest {
     assertNull(response.nextCursor());
     assertNull(response.nextIdAfter());
     assertFalse(response.hasNext());
+
+    assertEquals(3L, response.totalCount());
 
   }
 
