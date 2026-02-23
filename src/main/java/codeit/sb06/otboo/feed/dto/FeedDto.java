@@ -17,7 +17,7 @@ public record FeedDto(
     List<OotdDto> ootds,
     String content,
     long likeCount,
-    int commentCount,
+    Long commentCount,
     boolean likedByMe
 ) {
   public static FeedDto from(Feed feed) {
