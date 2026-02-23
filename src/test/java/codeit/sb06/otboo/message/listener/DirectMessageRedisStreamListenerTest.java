@@ -20,7 +20,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -44,7 +43,7 @@ class DirectMessageStreamListenerTest {
     void setUp() {
         // 생성자 주입 (Lombok @RequiredArgsConstructor 대응)
         listener = new DirectMessageStreamListener(
-                redisTemplate, streamKey, serverId, messagingTemplate, objectMapper
+                redisTemplate, streamKey, serverId, messagingTemplate
         );
     }
 
@@ -62,7 +61,7 @@ class DirectMessageStreamListenerTest {
 
         MapRecord<String, String, String> record = StreamRecords.newRecord()
                 .in(streamKey)
-                .ofMap(Map.of("payload", jsonPayload))
+                .ofMap(Map.of("payload", jsonPayload, "destination", destination))
                 .withId(recordId);
 
         doReturn(streamOperations).when(redisTemplate).opsForStream();
@@ -71,7 +70,7 @@ class DirectMessageStreamListenerTest {
         listener.onMessage(record);
 
         // 5. 검증 (Verify)
-        verify(messagingTemplate).convertAndSend(eq(destination), any(DirectMessageRedisDto.class));
+        verify(messagingTemplate).convertAndSend(destination, jsonPayload);
         verify(streamOperations).acknowledge(anyString(), anyString(), eq(recordId));
     }
 }
