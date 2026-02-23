@@ -115,6 +115,11 @@ resilience4j:
       notiStreamCircuit:
         baseConfig: default
 
+scheduler:
+  initial-delay:
+    dm: ${random.int[1000,5000]}
+    noti: ${random.int[5000,9000]}
+
 kakao:
   key: ${KAKAO_API_KEY:your-kakao-api-key}
 
