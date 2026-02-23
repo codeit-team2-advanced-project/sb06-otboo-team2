@@ -5,7 +5,7 @@ import codeit.sb06.otboo.clothes.entity.*;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
 import codeit.sb06.otboo.exception.clothes.*;
-import codeit.sb06.otboo.storage.S3Storage;
+import codeit.sb06.otboo.profile.service.S3StorageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ public class ClothesServiceTest {
     private ClothesAttributeDefRepository clothesAttributeDefRepository;
 
     @Mock
-    private S3Storage s3Storage;
+    private S3StorageService s3StorageService;
 
     @InjectMocks
     private ClothesService clothesService;
@@ -242,6 +242,8 @@ public class ClothesServiceTest {
         when(clothesRepository.save(any(Clothes.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
+        when(s3StorageService.getPresignedUrl("old-url")).thenReturn("presigned-old-url");
+
         // when
         UUID currentUserId = ownerId;
         ClothesDto result = clothesService.update(clothesId,currentUserId, req, null);
@@ -252,6 +254,7 @@ public class ClothesServiceTest {
         assertThat(result.attributes()).hasSize(1);
         assertThat(result.attributes().get(0).definitionId()).isEqualTo(defId);
         assertThat(result.attributes().get(0).value()).isEqualTo("Black");
+        assertThat(result.imageUrl()).isEqualTo("presigned-old-url");
 
         verify(clothesAttributeDefRepository, never()).findAllById(anyList());
         verify(clothesRepository).save(any(Clothes.class));
@@ -282,6 +285,8 @@ public class ClothesServiceTest {
         when(clothesRepository.save(any(Clothes.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
+        when(s3StorageService.getPresignedUrl("old-url")).thenReturn("presigned-old-url");
+
 
         // when
         UUID currentUserId = ownerId;
@@ -290,6 +295,7 @@ public class ClothesServiceTest {
         // then
         assertThat(result.name()).isEqualTo("수정 티셔츠");
         assertThat(result.attributes()).isEmpty();
+        assertThat(result.imageUrl()).isEqualTo("presigned-old-url");
 
         verify(clothesAttributeDefRepository, never()).findAllById(anyList());
         verify(clothesRepository).save(any(Clothes.class));
@@ -332,6 +338,7 @@ public class ClothesServiceTest {
 
         when(clothesRepository.save(any(Clothes.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
+
 
         // when
         UUID currentUserId = ownerId;
@@ -425,6 +432,7 @@ public class ClothesServiceTest {
         UUID ownerId = UUID.randomUUID();
 
         Clothes found = mock(Clothes.class);
+        when(found.getImageUrl()).thenReturn("some-key");
 
         when(clothesRepository.findByIdAndOwnerId(clothesId, ownerId))
                 .thenReturn(Optional.of(found));
@@ -435,6 +443,7 @@ public class ClothesServiceTest {
         // then
         verify(clothesRepository).findByIdAndOwnerId(clothesId, ownerId);
         verify(clothesRepository).delete(found);
+        verify(s3StorageService).deleteObject("some-key");
     }
 
     @Test
