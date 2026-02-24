@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DmStreamRecoveryScheduler {
 
-    public static final Duration MIN_IDLE_TIME = Duration.ofMinutes(1);
+    public static final Duration MIN_IDLE_TIME = Duration.ofSeconds(10);
     private final StringRedisTemplate redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
     private final CircuitBreakerRegistry circuitBreakerRegistry;
@@ -69,7 +69,7 @@ public class DmStreamRecoveryScheduler {
     }
 
     private void processPendingMessage(PendingMessage msg) {
-        if (msg.getElapsedTimeSinceLastDelivery().toMillis() >= 60000) {
+        if (msg.getElapsedTimeSinceLastDelivery().toMillis() >= MIN_IDLE_TIME.toMillis()) {
             if (msg.getTotalDeliveryCount() > 5) {
                 log.warn("DM 메시지 {}가 {}회 이상 재전송 실패하여 ACK 처리", msg.getId(), msg.getTotalDeliveryCount());
                 redisTemplate.opsForStream().acknowledge(dmStreamKey, groupName, msg.getId());
