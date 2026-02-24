@@ -102,6 +102,6 @@ public class DmStreamRecoveryScheduler {
     }
 
     public void fallbackRecover(Exception e) {
-        log.error(">>>> [CIRCUIT OPEN] Redis 장애로 인해 dm recover 스케줄러가 차단되었습니다. {}", e.getMessage());
+        log.trace(">>>> [CIRCUIT OPEN] Redis 장애로 dm recovery 스케줄러 일시 정지 상태: {}", e.getMessage());
     }
 }
