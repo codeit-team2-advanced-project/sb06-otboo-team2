@@ -4,6 +4,7 @@ import codeit.sb06.otboo.weather.dto.location.KakaoRegionDocument;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.OpenWeatherForecastApiResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +23,12 @@ public class WeatherApiClient {
   private final OpenWeatherFeignClient openWeatherFeignClient;
   private final KakaoLocationFeignClient kakaoLocationFeignClient;
 
+  @CircuitBreaker(name = "openWeatherApi", fallbackMethod = "fetchForecastFallback")
   public OpenWeatherForecastApiResponse fetchForecast(double latitude, double longitude) {
     return openWeatherFeignClient.fetchForecast(latitude, longitude, openApiKey, "metric");
   }
 
+  @CircuitBreaker(name = "kakaoLocationApi", fallbackMethod = "fetchRegionFallback")
   public KakaoRegionResponse fetchRegion(double longitude, double latitude) {
     return kakaoLocationFeignClient.fetchRegion(
         "KakaoAK " + kakaoKey,
@@ -65,5 +68,21 @@ public class WeatherApiClient {
         picked.y(),
         locationNames
     );
+  }
+
+  private OpenWeatherForecastApiResponse fetchForecastFallback(
+      double latitude,
+      double longitude,
+      Throwable throwable
+  ) {
+    return new OpenWeatherForecastApiResponse(List.of());
+  }
+
+  private KakaoRegionResponse fetchRegionFallback(
+      double longitude,
+      double latitude,
+      Throwable throwable
+  ) {
+    return new KakaoRegionResponse(List.of());
   }
 }
