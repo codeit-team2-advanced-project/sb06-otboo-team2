@@ -166,7 +166,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus, metrics, health
+        include: prometheus, metrics, health, circuitbreakers, circuitbreakerevents
+  endpoint:
+    circuitbreakers:
+      enabled: true
+    circuitbreakerevents:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
