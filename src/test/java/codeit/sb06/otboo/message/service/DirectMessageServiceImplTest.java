@@ -6,11 +6,12 @@ import codeit.sb06.otboo.message.dto.response.DirectMessageDtoCursorResponse;
 import codeit.sb06.otboo.message.entity.ChatRoom;
 import codeit.sb06.otboo.message.entity.DirectMessage;
 import codeit.sb06.otboo.message.mapper.DirectMessageMapper;
+import codeit.sb06.otboo.message.publisher.DirectMessageEventPublisher;
 import codeit.sb06.otboo.message.repository.ChatRoomRepository;
 import codeit.sb06.otboo.message.repository.DirectMessageRepository;
 import codeit.sb06.otboo.message.service.impl.DirectMessageServiceImpl;
-import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.util.EasyRandomUtil;
 import org.jeasy.random.EasyRandom;
@@ -55,6 +56,9 @@ class DirectMessageServiceImplTest {
 
     @Mock
     private ChatRoomRepository chatRoomRepository;
+
+    @Mock
+    private DirectMessageEventPublisher dmEventPublisher;
 
     // 실제 변환을 위해 spy 사용
     @Spy
@@ -102,8 +106,10 @@ class DirectMessageServiceImplTest {
 
         given(chatRoomRepository.findByDmKey(anyString()))
                 .willReturn(Optional.of(mockChatRoom));
-        given(directMessageRepository.findByChatRoomWithCursor(
-                mockChatRoom, null, null, PageRequest.of(0, limit)))
+        given(userRepository.findById(myUserId))
+                .willReturn(Optional.of(mock(User.class)));
+        given(directMessageRepository.findFirstPageByChatRoom(
+                mockChatRoom, PageRequest.of(0, limit)))
                 .willReturn(directMessageSlice);
 
         // when

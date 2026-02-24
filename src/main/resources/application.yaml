@@ -64,11 +64,19 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:localhost}
       port: 6379
-      password: ${REDIS_PASSWORD:temporary_password}
+      password: ${REDIS_PASSWORD:}
       repositories:
         enabled: false
+      connect-timeout: 5s
+      timeout: 2s
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
 
   websocket:
     pool:
@@ -87,6 +95,35 @@ spring:
         await-termination-seconds: 10
         period: 10000
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        registerHealthIndicator: true
+        recordExceptions:
+          - org.springframework.dao.QueryTimeoutException
+          - io.lettuce.core.RedisCommandTimeoutException
+          - org.springframework.data.redis.RedisSystemException
+          - org.springframework.data.redis.RedisConnectionFailureException
+          - io.lettuce.core.RedisException
+          - java.net.ConnectException
+    instances:
+      dmStreamCircuit:
+        baseConfig: default
+      notiStreamCircuit:
+        baseConfig: default
+
+scheduler:
+  initial-delay:
+    dm: ${random.int[1000,5000]}
+    noti: ${random.int[5000,9000]}
+
 kakao:
   key: ${KAKAO_API_KEY:your-kakao-api-key}
 
@@ -101,6 +138,7 @@ otboo:
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+      cookie-secure: ${JWT_REFRESH_COOKIE_SECURE:true}
 
   mail:
     from: ${MAIL_FROM:no-reply@otboo.com}

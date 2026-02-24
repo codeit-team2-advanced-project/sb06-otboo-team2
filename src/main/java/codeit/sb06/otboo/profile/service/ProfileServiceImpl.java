@@ -32,6 +32,7 @@ public class ProfileServiceImpl {
     private final S3StorageService s3StorageService;
     private final LocationRepository locationRepository;
 
+    @Transactional
     public ProfileDto create(User user){
         log.debug("create profile start: {}", user.getId());
         if(userRepository.findByEmail(user.getEmail()).isEmpty()){
@@ -40,7 +41,7 @@ public class ProfileServiceImpl {
 
         Profile profile = Profile.from(user);
         Profile savedProfile = profileRepository.save(profile);
-        return ProfileDto.from(savedProfile, findLocationNames(savedProfile));
+        return ProfileDto.from(savedProfile, findLocationNames(savedProfile), s3StorageService);
     }
 
     public ProfileDto getProfileByUserId(UUID userId){
@@ -51,7 +52,7 @@ public class ProfileServiceImpl {
         Profile profile = profileRepository.findByUserId(user)
                 .orElseThrow(ProfileNotFoundException::new);
 
-        return ProfileDto.from(profile, findLocationNames(profile));
+        return ProfileDto.from(profile, findLocationNames(profile), s3StorageService);
     }
 
     @Transactional
@@ -84,7 +85,7 @@ public class ProfileServiceImpl {
         }
 
         Profile updatedProfile = profileRepository.save(profile);
-        return ProfileDto.from(updatedProfile, findLocationNames(updatedProfile));
+        return ProfileDto.from(updatedProfile, findLocationNames(updatedProfile), s3StorageService);
     }
 
     private List<String> findLocationNames(Profile profile) {

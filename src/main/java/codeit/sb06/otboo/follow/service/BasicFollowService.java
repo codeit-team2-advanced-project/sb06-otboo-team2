@@ -15,6 +15,7 @@ import codeit.sb06.otboo.follow.entity.FollowDirection;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.profile.repository.ProfileRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class BasicFollowService implements FollowService {
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
   private final ProfileRepository profileRepository;
+  private final NotificationEventPublisher notificationEventPublisher;
 
   @Transactional
   @Override
@@ -64,6 +66,8 @@ public class BasicFollowService implements FollowService {
     FollowerDto followerDto = new FollowerDto(follower.getId(), follower.getName(),follower.getProfileImageUrl());
 
     log.debug("팔로우 생성 완료 followId={}", follow.getId());
+
+    notificationEventPublisher.publishFollowedEvent(followee.getId(), follower.getName());
 
     return FollowDto.of(follow, followeeDto, followerDto);
   }

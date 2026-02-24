@@ -15,6 +15,9 @@ import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
+import codeit.sb06.otboo.follow.entity.Follow;
+import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
@@ -39,6 +42,8 @@ public class FeedService {
   private final ClothesRepository clothesRepository;
   private final FeedRepository feedRepository;
   private final FeedLikeRepository feedLikeRepository;
+  private final FollowRepository followRepository;
+  private final NotificationEventPublisher notificationEventPublisher;
 
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
@@ -53,6 +58,16 @@ public class FeedService {
 
     Feed feed = Feed.create(author, weather, clothes, request.content());
     Feed saved = feedRepository.save(feed);
+
+    followRepository.findByFolloweeId(author.getId())
+            .stream()
+            .map(Follow::getFollower)
+            .forEach(follower -> notificationEventPublisher.publishFolloweeFeedPostedEvent(
+                    follower.getId(),
+                    author.getName(),
+                    feed.getContent().substring(0, Math.min(10, feed.getContent().length()))
+            ));
+
     return FeedDto.from(saved);
   }
 
@@ -129,6 +144,12 @@ public class FeedService {
 
     feedLikeRepository.save(FeedLike.create(user, feed));
     feed.incrementLikeCount();
+
+    notificationEventPublisher.publishFeedLikedEvent(
+            feed.getUser().getId(),
+            feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
+            user.getName()
+    );
   }
 
   @Transactional

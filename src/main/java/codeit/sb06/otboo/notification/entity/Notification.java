@@ -37,6 +37,7 @@ public class Notification {
     private String content;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     @Column(nullable = false)
     private NotificationLevel level;
 }

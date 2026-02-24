@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import codeit.sb06.otboo.profile.service.ProfileServiceImpl;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;
@@ -29,6 +30,8 @@ class AdminInitializerTest {
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private ProfileServiceImpl profileService;
 
     @InjectMocks
     private AdminInitializer adminInitializer;
@@ -43,6 +46,7 @@ class AdminInitializerTest {
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
+        verify(profileService).create(any(User.class));
         User saved = captor.getValue();
         assertEquals("admin@admin.com", saved.getEmail());
         assertEquals(Role.ADMIN, saved.getRole());
@@ -72,6 +76,7 @@ class AdminInitializerTest {
         adminInitializer.run();
 
         verify(userRepository).save(existing);
+        verify(profileService).create(existing);
         verify(passwordEncoder).encode(eq("admin1!"));
         assertEquals(Role.ADMIN, existing.getRole());
         assertFalse(existing.isLocked());
