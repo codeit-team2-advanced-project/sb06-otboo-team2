@@ -1,6 +1,8 @@
 package codeit.sb06.otboo.follow.service;
 
 import codeit.sb06.otboo.exception.follow.FollowCancelFailException;
+import codeit.sb06.otboo.exception.follow.FollowNotFoundException;
+import codeit.sb06.otboo.exception.profile.ProfileNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
@@ -11,6 +13,8 @@ import codeit.sb06.otboo.follow.dto.FollowerDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.entity.FollowDirection;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.profile.entity.Profile;
+import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -30,6 +34,7 @@ public class BasicFollowService implements FollowService {
 
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
+  private final ProfileRepository profileRepository;
 
   @Transactional
   @Override
@@ -42,7 +47,18 @@ public class BasicFollowService implements FollowService {
 
     Follow follow = Follow.of(follower,followee);
 
+    // 저장
     followRepository.save(follow);
+
+    Profile followerProfile = profileRepository.findByUserId(follower)
+        .orElseThrow(ProfileNotFoundException::new);
+    Profile followeeProfile = profileRepository.findByUserId(followee)
+        .orElseThrow(ProfileNotFoundException::new);
+
+    // 팔로우 하는 사람의 팔로잉 수 증가
+    followerProfile.increaseFollowingCount();
+    // 팔로우 당하는 사람의 팔로워 수 증가
+    followeeProfile.increaseFollowerCount();
 
     FolloweeDto followeeDto = new FolloweeDto(followee.getId(),followee.getName(), followee.getProfileImageUrl());
     FollowerDto followerDto = new FollowerDto(follower.getId(), follower.getName(),follower.getProfileImageUrl());
@@ -55,14 +71,18 @@ public class BasicFollowService implements FollowService {
   @Override
   public FollowSummaryDto getFollowSummary(UUID targetId, UUID myId) {
 
-    userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
+    User target = userRepository.findById(targetId)
+        .orElseThrow(UserNotFoundException::new);
+
+    Profile profile = profileRepository.findByUserId(target)
+        .orElseThrow(ProfileNotFoundException::new);
 
     //팔로위 팔로우 당하는거, 팔로워 팔로우 거는거
 
     //팔로워 수. 팔로워? -> 내가 팔로우하는
-    Long followerCount = followRepository.countByFollowerId(targetId);
+    Long followerCount = profile.getFollowerCount();
     //팔로잉 수  팔로잉 -> 나를 팔로우하는
-    Long followCount = followRepository.countByFolloweeId(targetId);
+    Long followingCount = profile.getFollowingCount();
 
     // 나에의해 팔로우되었는지
     Optional<Follow>  followedByMe= followRepository.findByFollowerIdAndFolloweeId(myId, targetId);
@@ -73,7 +93,7 @@ public class BasicFollowService implements FollowService {
     return FollowSummaryDto.of(
         targetId,
         followerCount,
-        followCount,
+        followingCount,
         followedByMe,
         followingMe
 
@@ -156,17 +176,29 @@ public class BasicFollowService implements FollowService {
   @Override
   public void deleteFollow(UUID followId) {
 
+    Follow follow =  followRepository.findById(followId)
+        .orElseThrow(() -> new FollowCancelFailException(new FollowNotFoundException()));
+
     try {
 
-    boolean exists = followRepository.existsById(followId);
+      User follower = follow.getFollower();
+      User followee = follow.getFollowee();
 
-    if (!exists) {
-      throw new FollowCancelFailException(new UserNotFoundException());
-    }
-    followRepository.deleteById(followId);
+      Profile followerProfile = profileRepository.findByUserId(follower)
+              .orElseThrow(ProfileNotFoundException::new);
+
+      Profile followeeProfile = profileRepository.findByUserId(followee)
+              .orElseThrow(ProfileNotFoundException::new);
+
+      followRepository.deleteById(followId);
+
+      log.debug("팔로우 삭제 완료 followId={}", followId);
+
+      followerProfile.decreaseFollowingCount();
+      followeeProfile.decreaseFollowerCount();
+
   } catch (Exception e) {
     throw new FollowCancelFailException(e);
     }
-    log.debug("팔로우 삭제 완료 followId={}", followId);
   }
 }
