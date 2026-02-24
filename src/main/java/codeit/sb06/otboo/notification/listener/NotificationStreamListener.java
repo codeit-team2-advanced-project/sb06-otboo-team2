@@ -12,6 +12,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,7 +23,6 @@ public class NotificationStreamListener implements StreamListener<String, MapRec
     private final String notificationStreamKey;
     private final String serverId;
     private final SseService sseService;
-    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void debug() {
@@ -36,12 +37,12 @@ public class NotificationStreamListener implements StreamListener<String, MapRec
 
         try {
             String json = record.getValue().get("payload");
-            NotificationDto dto = objectMapper.readValue(json, NotificationDto.class);
+            String receiverId = record.getValue().get("receiverId");
 
-            sseService.send(dto.receiverId(), "notifications", dto);
+            sseService.send(UUID.fromString(receiverId), "notifications", json);
 
             redisTemplate.opsForStream().acknowledge(notificationStreamKey, "group-noti-" + serverId, record.getId());
-            log.debug("알림 전송 및 ACK 완료: [MessageId: {}, ReceiverId: {}]", record.getId(), dto.receiverId());
+            log.debug("알림 전송 및 ACK 완료: [MessageId: {}, ReceiverId: {}]", record.getId(), receiverId);
 
         } catch (Exception e) {
             log.error("알림 처리 실패: [MessageId: {}], 오류: {}", record.getId(), e.getMessage());

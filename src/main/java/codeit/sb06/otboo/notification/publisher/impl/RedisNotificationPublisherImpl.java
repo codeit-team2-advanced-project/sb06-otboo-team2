@@ -34,7 +34,9 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
 
         try {
             String jsonPayload = objectMapper.writeValueAsString(dto);
-            Map<String, String> map = Map.of("payload", jsonPayload);
+            Map<String, String> map = Map.of(
+                    "payload", jsonPayload,
+                    "receiverId", dto.receiverId().toString());
 
             MapRecord<String, String, String> record = StreamRecords.newRecord()
                     .in(notificationStreamKey)
