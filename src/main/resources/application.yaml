@@ -69,6 +69,8 @@ spring:
       password: ${REDIS_PASSWORD:}
       repositories:
         enabled: false
+      connect-timeout: 5s
+      timeout: 2s
 
   batch:
     jdbc:
@@ -98,13 +100,15 @@ resilience4j:
     configs:
       default:
         slidingWindowSize: 10
-        minimumNumberOfCalls: 5
+        minimumNumberOfCalls: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 20s
         permittedNumberOfCallsInHalfOpenState: 3
         slidingWindowType: COUNT_BASED
         registerHealthIndicator: true
         recordExceptions:
+          - org.springframework.dao.QueryTimeoutException
+          - io.lettuce.core.RedisCommandTimeoutException
           - org.springframework.data.redis.RedisSystemException
           - org.springframework.data.redis.RedisConnectionFailureException
           - io.lettuce.core.RedisException
