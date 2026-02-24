@@ -7,6 +7,8 @@ import codeit.sb06.otboo.clothes.entity.ClothesAttribute;
 import codeit.sb06.otboo.clothes.entity.ClothesAttributeDef;
 import codeit.sb06.otboo.clothes.entity.ClothesType;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
+import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.user.entity.User;
@@ -188,6 +190,89 @@ public class RecommendationServiceTest {
                 .collect(Collectors.toSet());
 
         assertThat(types).contains("OUTER");
+    }
+
+    @Test
+    @DisplayName("getRecommendation: weatherId가 없으면 WeatherNotFoundException")
+    void getRecommendation_throws_whenWeatherNotFound() {
+        UUID weatherId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(weatherRepository.findById(weatherId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> recommendationService.getRecommendation(weatherId, userId))
+                .isInstanceOf(WeatherNotFoundException.class);
+
+        verify(weatherRepository).findById(weatherId);
+        verifyNoInteractions(userRepository, profileRepository, clothesRepository);
+    }
+
+    @Test
+    @DisplayName("getRecommendation: userId가 없으면 UserNotFoundException")
+    void getRecommendation_throws_whenUserNotFound() {
+        UUID weatherId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Weather w = mockWeather(weatherId, 20, 1, 50, PrecipitationType.NONE, SkyStatus.CLEAR);
+
+        when(weatherRepository.findById(weatherId)).thenReturn(Optional.of(w));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> recommendationService.getRecommendation(weatherId, userId))
+                .isInstanceOf(UserNotFoundException.class);
+
+        verify(weatherRepository).findById(weatherId);
+        verify(userRepository).findById(userId);
+        verifyNoInteractions(profileRepository, clothesRepository);
+    }
+
+    @Test
+    @DisplayName("getRecommendation: 두께감 속성이 없어도 추천은 동작하고 메인 착장을 포함한다")
+    void getRecommendation_works_whenThicknessMissing() {
+        UUID weatherId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Weather w = mockWeather(weatherId, 30.0, 0.0, 50.0, PrecipitationType.NONE, SkyStatus.CLEAR);
+        User user = mock(User.class);
+
+        when(weatherRepository.findById(weatherId)).thenReturn(Optional.of(w));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(profileRepository.findByUserId(user)).thenReturn(Optional.empty());
+
+        // 두께감 속성 없이 색상만 or 아예 속성 없이도 OK
+        Clothes top = mockClothes(UUID.randomUUID(), userId, ClothesType.TOP, List.of(attr("색상", "검정")));
+        Clothes bottom = mockClothes(UUID.randomUUID(), userId, ClothesType.BOTTOM, List.of());
+        when(clothesRepository.findAllByOwnerId(userId)).thenReturn(List.of(top, bottom));
+
+        RecommendationDto dto = recommendationService.getRecommendation(weatherId, userId);
+
+        Set<String> types = dto.clothes().stream().map(RecommendedClothesDto::type).collect(Collectors.toSet());
+        assertThat(types).contains("TOP", "BOTTOM");
+    }
+
+    @Test
+    @DisplayName("getRecommendation: 비/눈일 때 HAT이 있어도 추천 결과에 HAT이 포함되지 않는다")
+    void getRecommendation_doesNotIncludeHat_whenWet() {
+        UUID weatherId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Weather w = mockWeather(weatherId, 25.0, 0.0, 50.0, PrecipitationType.RAIN, SkyStatus.CLEAR);
+        User user = mock(User.class);
+
+        when(weatherRepository.findById(weatherId)).thenReturn(Optional.of(w));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(profileRepository.findByUserId(user)).thenReturn(Optional.empty());
+
+        Clothes top = mockClothes(UUID.randomUUID(), userId, ClothesType.TOP, attrsWithThickness("보통"));
+        Clothes bottom = mockClothes(UUID.randomUUID(), userId, ClothesType.BOTTOM, attrsWithThickness("보통"));
+        Clothes hat = mockClothes(UUID.randomUUID(), userId, ClothesType.HAT, List.of());
+
+        when(clothesRepository.findAllByOwnerId(userId)).thenReturn(List.of(top, bottom, hat));
+
+        RecommendationDto dto = recommendationService.getRecommendation(weatherId, userId);
+
+        assertThat(dto.clothes().stream().map(RecommendedClothesDto::type))
+                .doesNotContain("HAT");
     }
 
 
