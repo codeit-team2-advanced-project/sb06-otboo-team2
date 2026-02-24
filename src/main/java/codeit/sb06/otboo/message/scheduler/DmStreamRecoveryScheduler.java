@@ -55,7 +55,7 @@ public class DmStreamRecoveryScheduler {
                 });
     }
 
-    @Scheduled(fixedDelay = 10000, initialDelayString = "${scheduler.initial-delay.dm}")
+    @Scheduled(fixedDelay = 3000, initialDelayString = "${scheduler.initial-delay.dm}")
     @CircuitBreaker(name = "dmStreamCircuit", fallbackMethod = "fallbackRecover")
     public void recoverDmMessages() {
         // id 범위는 unbounded로 설정하여 모든 대기 메시지를 조회
