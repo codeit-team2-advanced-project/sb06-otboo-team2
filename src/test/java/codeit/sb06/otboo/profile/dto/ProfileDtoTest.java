@@ -41,8 +41,8 @@ class ProfileDtoTest {
             Gender.ETC,
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
-            1,
-            2,
+            1L,
+            2L,
             user
         );
 

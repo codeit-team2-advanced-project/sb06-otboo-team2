@@ -46,8 +46,8 @@ public class Profile {
     private LocalDateTime updatedAt;
 
 
-    private int followerCount;
-    private int followingCount;
+    private Long followerCount;
+    private Long followingCount;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -63,8 +63,8 @@ public class Profile {
             .gender(null)
             .imageUrl(null)
             .userId(user)
-            .followerCount(0)
-            .followingCount(0)
+            .followerCount(0L)
+            .followingCount(0L)
             .build();
     }
 
@@ -89,4 +89,27 @@ public class Profile {
         this.imageUrl = imageUrl;
     }
 
+
+    /**
+     * 팔로워, 팔로잉 수 증감 메서드 추가
+     * */
+    public void increaseFollowerCount() {
+        this.followerCount++;
+    }
+
+    public void increaseFollowingCount() {
+        this.followingCount++;
+    }
+
+    public void decreaseFollowerCount() {
+        if(this.followerCount>0){
+            this.followerCount--;
+        }
+    }
+
+    public void decreaseFollowingCount() {
+        if(this.followingCount>0){
+            this.followingCount--;
+        }
+    }
 }
