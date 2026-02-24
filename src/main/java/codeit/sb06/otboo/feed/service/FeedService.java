@@ -11,6 +11,7 @@ import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
 import codeit.sb06.otboo.feed.dto.FeedSortBy;
 import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
+import codeit.sb06.otboo.feed.dto.FeedUpdateRequest;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;

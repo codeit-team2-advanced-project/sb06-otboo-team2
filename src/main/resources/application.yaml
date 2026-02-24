@@ -133,6 +133,10 @@ resilience4j:
         baseConfig: default
       notiStreamCircuit:
         baseConfig: default
+      openWeatherApi:
+        baseConfig: default
+      kakaoLocationApi:
+        baseConfig: default
 
 scheduler:
   initial-delay:
@@ -166,23 +170,3 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      openWeatherApi:
-        register-health-indicator: true
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 20
-        minimum-number-of-calls: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 3
-      kakaoLocationApi:
-        register-health-indicator: true
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 20
-        minimum-number-of-calls: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 3
