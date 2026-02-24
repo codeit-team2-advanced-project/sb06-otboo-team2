@@ -1,6 +1,8 @@
 package codeit.sb06.otboo.message.scheduler;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import static io.github.resilience4j.circuitbreaker.CircuitBreaker.*;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ public class DmStreamRecoveryScheduler {
     public static final Duration MIN_IDLE_TIME = Duration.ofMinutes(1);
     private final StringRedisTemplate redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
     private final String dmStreamKey;
     private final String serverId;
     private String groupName;
@@ -33,6 +36,23 @@ public class DmStreamRecoveryScheduler {
     @PostConstruct
     public void init() {
         groupName = "group-dm-" + serverId;
+
+        circuitBreakerRegistry.circuitBreaker("dmStreamCircuit")
+                .getEventPublisher()
+                .onStateTransition(event -> {
+                    StateTransition transition = event.getStateTransition();
+                    // CLOSED -> OPEN, HALF_OPEN -> OPEN
+                    if (transition.getToState() == State.OPEN) {
+                        log.debug("DM 스트림 회로 차단됨 (OPEN), 시각: {}", event.getCreationTime());
+                        // 관리자 이메일에 알림 전송
+                    }
+                    // OPEN -> HALF_OPEN -> CLOSED
+                    else if (transition.getToState() == State.CLOSED &&
+                            transition.getFromState() == State.HALF_OPEN) {
+                        log.debug("DM 스트림 회로 복구됨 (CLOSED), 시각: {}", event.getCreationTime());
+                        // 관리자 이메일에 알림 전송
+                    }
+                });
     }
 
     @Scheduled(fixedDelay = 10000, initialDelayString = "${scheduler.initial-delay.dm}")
