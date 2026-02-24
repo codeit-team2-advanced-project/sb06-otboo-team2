@@ -8,6 +8,7 @@ import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class BasicCommentService implements CommentService {
   private final CommentRepository commentRepository;
   private final FeedRepository feedRepository;
   private final UserRepository userRepository;
+  private final NotificationEventPublisher notificationEventPublisher;
 
   @Transactional
   @Override
@@ -45,6 +47,12 @@ public class BasicCommentService implements CommentService {
         ;
 
     log.debug("댓글 생성 '{}'", feedId);
+
+    notificationEventPublisher.publishFeedCommentedEvent(
+            feed.getUser().getId(),
+            author.getName(),
+            feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
+            commentCreateRequest.content());
 
     return CommentDto.of(
         commentRepository.save(comment),

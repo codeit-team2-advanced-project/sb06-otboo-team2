@@ -1,6 +1,7 @@
 package codeit.sb06.otboo.follow.service;
 
 import codeit.sb06.otboo.exception.RootException;
+import codeit.sb06.otboo.exception.follow.FollowCancelFailException;
 import codeit.sb06.otboo.exception.user.UserException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
@@ -12,6 +13,7 @@ import codeit.sb06.otboo.follow.dto.FollowerDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.entity.FollowDirection;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ public class BasicFollowService implements FollowService {
 
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
+  private final NotificationEventPublisher notificationEventPublisher;
 
   @Transactional
   @Override
@@ -45,6 +48,8 @@ public class BasicFollowService implements FollowService {
 
     FolloweeDto followeeDto = new FolloweeDto(followee.getId(),followee.getName(), followee.getProfileImageUrl());
     FollowerDto followerDto = new FollowerDto(follower.getId(), follower.getName(),follower.getProfileImageUrl());
+
+    notificationEventPublisher.publishFollowedEvent(followee.getId(), follower.getName());
 
     return FollowDto.of(follow, followeeDto, followerDto);
   }
@@ -148,4 +153,19 @@ public class BasicFollowService implements FollowService {
     );
   }
 
+  @Override
+  public void deleteFollow(UUID followId) {
+
+    try {
+
+    boolean exists = followRepository.existsById(followId);
+
+    if (!exists) {
+      throw new FollowCancelFailException(new UserNotFoundException());
+    }
+    followRepository.deleteById(followId);
+  } catch (Exception e) {
+    throw new FollowCancelFailException(e);
+    }
+  }
 }

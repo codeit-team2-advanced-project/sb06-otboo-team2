@@ -22,7 +22,7 @@ public class DirectMessageMapper {
     public DirectMessageDto toDto(DirectMessage dm, User receiver) {
 
         UserSummary senderSummary = UserSummary.builder()
-                .userId(dm.getId())
+                .userId(dm.getSender().getId())
                 .name(dm.getSender().getName())
                 .profileImageUrl(dm.getSender().getProfileImageUrl())
                 .build();
@@ -42,20 +42,25 @@ public class DirectMessageMapper {
                 .build();
     }
 
-    public DirectMessageDtoCursorResponse toDtoCursorResponse(Slice<DirectMessage> directMessages) {
+    public DirectMessageDtoCursorResponse toDtoCursorResponse(Slice<DirectMessage> directMessages, User receiver) {
 
-        List<DirectMessage> content = directMessages.getContent();
         boolean hasNext = directMessages.hasNext();
         LocalDateTime nextCursor = null;
         UUID nextIdAfter = null;
+
+        List<DirectMessageDto> content = directMessages.getContent()
+                .stream()
+                .map(dm -> toDto(dm, receiver))
+                .toList();
+
         if (!content.isEmpty() && hasNext) {
-            DirectMessage lastMessage = content.get(content.size() - 1);
-            nextCursor = lastMessage.getCreatedAt();
-            nextIdAfter = lastMessage.getId();
+            DirectMessageDto lastMessage = content.get(content.size() - 1);
+            nextCursor = lastMessage.createdAt();
+            nextIdAfter = lastMessage.id();
         }
 
         return DirectMessageDtoCursorResponse.builder()
-                .data(directMessages.getContent())
+                .data(content)
                 .nextCursor(nextCursor)
                 .nextIdAfter(nextIdAfter)
                 .hasNext(hasNext)

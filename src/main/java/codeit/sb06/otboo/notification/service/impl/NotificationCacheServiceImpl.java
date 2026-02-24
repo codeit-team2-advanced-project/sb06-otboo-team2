@@ -6,11 +6,13 @@ import codeit.sb06.otboo.notification.mapper.NotificationMapper;
 import codeit.sb06.otboo.notification.repository.NotificationRepository;
 import codeit.sb06.otboo.notification.service.NotificationCacheService;
 import codeit.sb06.otboo.notification.util.SseEventIdGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,14 +39,34 @@ public class NotificationCacheServiceImpl implements NotificationCacheService {
     public void save(NotificationDto dto) {
 
         String key = KEY_PREFIX + dto.receiverId();
-        try {
-            redisTemplate.opsForList().leftPush(key, objectMapper.writeValueAsString(dto));
-            redisTemplate.opsForList().trim(key, 0, MAX_NOTIFICATIONS - 1L);
-            redisTemplate.expire(key, TIMEOUT, TimeUnit.DAYS);
-        } catch (JsonProcessingException e) {
-            log.error("Redis 직렬화 오류", e);
-            throw new NotificationMappingException();
-        }
+
+        redisTemplate.opsForList().leftPush(key, toJson(dto));
+        redisTemplate.opsForList().trim(key, 0, MAX_NOTIFICATIONS - 1L);
+        redisTemplate.expire(key, TIMEOUT, TimeUnit.DAYS);
+    }
+
+    @Override
+    public void saveAll(List<NotificationDto> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) return;
+
+        // 파이프라인을 열어 명령어들을 모아 한 번에 전송
+        redisTemplate.executePipelined(new SessionCallback<Object>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Object execute(@NonNull RedisOperations operations) {
+
+                for (NotificationDto dto : dtoList) {
+
+                    String key = KEY_PREFIX + dto.receiverId();
+                    String json = toJson(dto);
+
+                    operations.opsForList().leftPush(key, json);
+                    operations.opsForList().trim(key, 0, MAX_NOTIFICATIONS - 1L);
+                    operations.expire(key, TIMEOUT, TimeUnit.DAYS);
+                }
+                return null;
+            }
+        });
     }
 
     @Override

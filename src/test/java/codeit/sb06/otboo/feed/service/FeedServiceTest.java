@@ -28,6 +28,8 @@ import codeit.sb06.otboo.feed.entity.FeedClothes;
 import codeit.sb06.otboo.feed.entity.FeedLike;
 import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
+import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;
@@ -38,10 +40,7 @@ import codeit.sb06.otboo.weather.dto.weather.WindStrength;
 import codeit.sb06.otboo.weather.entity.Weather;
 import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,6 +71,12 @@ class FeedServiceTest {
 
     @Mock
     private FeedLikeRepository feedLikeRepository;
+
+    @Mock
+    private FollowRepository followRepository;
+
+    @Mock
+    private NotificationEventPublisher notificationEventPublisher;
 
     private UUID authorId;
     private UUID weatherId;
@@ -136,6 +141,7 @@ class FeedServiceTest {
         when(weatherRepository.findById(weatherId)).thenReturn(Optional.of(weather));
         when(clothesRepository.findAllById(any())).thenReturn(List.of(clothes1, clothes2));
         when(feedRepository.save(any(Feed.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(followRepository.findByFolloweeId(any())).thenReturn(Collections.emptyList());
 
     FeedDto result = feedService.create(request);
 

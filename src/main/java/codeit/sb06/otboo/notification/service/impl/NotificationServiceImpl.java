@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public NotificationDto create(UUID receiverId, String title, String content, NotificationLevel level) {
 
@@ -34,8 +36,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .title(title)
                 .content(content)
                 .level(level)
-                // bug: createdAt 자동 생성 안됨
-                .createdAt(LocalDateTime.now())
                 .build();
 
         Notification saved = notificationRepository.save(notification);

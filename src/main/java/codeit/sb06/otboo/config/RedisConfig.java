@@ -1,9 +1,12 @@
 package codeit.sb06.otboo.config;
 
+import codeit.sb06.otboo.message.listener.DirectMessageStreamListener;
 import codeit.sb06.otboo.notification.listener.NotificationStreamListener;
+import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -37,21 +40,36 @@ public class RedisConfig {
     }
 
     @Bean
-    public String streamKey() {
+    public String notificationStreamKey() {
         return "notification:stream";
+    }
+
+    @Bean
+    public String dmStreamKey() {
+        return "direct-message:stream";
     }
 
     @Bean
     public StreamMessageListenerContainer<String, MapRecord<String, String, String>> notificationContainer(
             RedisConnectionFactory connectionFactory,
-            NotificationStreamListener streamListener,
+            NotificationStreamListener notificationStreamListener,
+            DirectMessageStreamListener dmStreamListener,
             String serverId) {
 
         var options =
                 StreamMessageListenerContainer.StreamMessageListenerContainerOptions
                         .builder()
                         .pollTimeout(Duration.ofMillis(100))
-                        .errorHandler(e -> log.error("[Redis Stream Error]", e))
+                        .errorHandler(t -> {
+                            if (t instanceof RedisSystemException &&
+                                t.getCause() instanceof RedisCommandExecutionException &&
+                                t.getCause().getMessage().contains("NOGROUP")
+                            ) {
+                                log.debug("[Redis Stream] 소비자 그룹이 존재하지 않아 폴링을 종료합니다.");
+                                return;
+                            }
+                            log.error("[Redis Stream Error] ", t);
+                        })
                         .build();
 
         var container =
@@ -59,13 +77,19 @@ public class RedisConfig {
 
         container.receive(
                 Consumer.from("group-noti-" + serverId, "instance-" + serverId),
-                StreamOffset.create(streamKey(), ReadOffset.lastConsumed()),
-                streamListener
+                StreamOffset.create(notificationStreamKey(), ReadOffset.lastConsumed()),
+                notificationStreamListener
+        );
+
+        container.receive(
+                Consumer.from("group-dm-" + serverId, "instance-" + serverId),
+                StreamOffset.create(dmStreamKey(), ReadOffset.lastConsumed()),
+                dmStreamListener
         );
 
         container.start();
 
-        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: notification:stream", serverId);
+        log.debug("[리스너 시작] 그룹명: group-noti-{}, 스트림 키: {}, {}", serverId, notificationStreamKey(), dmStreamKey());
 
         return container;
     }
