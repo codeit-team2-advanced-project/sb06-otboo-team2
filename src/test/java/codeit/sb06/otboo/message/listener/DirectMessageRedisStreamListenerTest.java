@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DirectMessageStreamListenerTest {
+class DirectMessageRedisStreamListenerTest {
 
     private final String streamKey = "dm:stream";
     private final String serverId = "node-1";
