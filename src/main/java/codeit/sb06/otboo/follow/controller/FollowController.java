@@ -57,13 +57,13 @@ public class FollowController {
   })
   @GetMapping("/follows/summary")
   public ResponseEntity<FollowSummaryDto> getFollowSummary(
-      @RequestParam UUID targetId,
+      @RequestParam UUID userId,
       @CurrentUserId UUID myId
 
   ){
-    FollowSummaryDto response = followService.getFollowSummary(targetId, myId);
+    FollowSummaryDto response = followService.getFollowSummary(userId, myId);
 
-    log.debug("팔로우 요약 조회 완료 targetId={}", targetId);
+    log.debug("팔로우 요약 조회 완료 targetId={}", userId);
 
     return ResponseEntity.ok(response);
   }

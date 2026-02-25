@@ -113,7 +113,7 @@ public class FollowGetSummaryResponseTest {
 
     //then
     mockMvc.perform(get("/api/follows/summary")
-            .param("targetId", String.valueOf(targetId))
+            .param("userId", String.valueOf(targetId))
         )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.followeeId").value(targetId.toString()))

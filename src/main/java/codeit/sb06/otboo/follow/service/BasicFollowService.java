@@ -75,8 +75,13 @@ public class BasicFollowService implements FollowService {
   @Override
   public FollowSummaryDto getFollowSummary(UUID targetId, UUID myId) {
 
+    log.info("팔로우 요약 정보 실행 targetId={}, myId={}", targetId, myId);
+
     User target = userRepository.findById(targetId)
         .orElseThrow(UserNotFoundException::new);
+
+    log.debug("사용자 찾음 - id={}, name={}", target.getId(), target.getName());
+
 
     Profile profile = profileRepository.findByUserId(target)
         .orElseThrow(ProfileNotFoundException::new);
@@ -93,6 +98,8 @@ public class BasicFollowService implements FollowService {
 
     // 나를 팔로우하는지
     Optional<Follow> followingMe= followRepository.findByFollowerIdAndFolloweeId(targetId, myId);
+
+    log.info("팔로우 요약 정보 조회 성공 - targetId={}", targetId);
 
     return FollowSummaryDto.of(
         targetId,
@@ -177,6 +184,7 @@ public class BasicFollowService implements FollowService {
     );
   }
 
+  @Transactional
   @Override
   public void deleteFollow(UUID followId) {
 
