@@ -2,8 +2,9 @@ package codeit.sb06.otboo.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +56,7 @@ class AdminInitializerTest {
     }
 
     @Test
-    void runUpdatesExistingAdmin() {
+    void runSkipsInitializationWhenAdminAlreadyExists() {
         User existing = new User(
             UUID.randomUUID(),
             "admin@admin.com",
@@ -71,15 +72,15 @@ class AdminInitializerTest {
             null
         );
         when(userRepository.findByEmail("admin@admin.com")).thenReturn(Optional.of(existing));
-        when(passwordEncoder.encode("admin1!")).thenReturn("encoded-admin-password");
 
         adminInitializer.run();
 
-        verify(userRepository).save(existing);
-        verify(profileService).create(existing);
-        verify(passwordEncoder).encode(eq("admin1!"));
-        assertEquals(Role.ADMIN, existing.getRole());
-        assertFalse(existing.isLocked());
-        assertEquals("encoded-admin-password", existing.getPassword());
+        verify(userRepository).findByEmail("admin@admin.com");
+        verify(userRepository, never()).save(any(User.class));
+        verify(profileService, never()).create(any(User.class));
+        verify(passwordEncoder, never()).encode(any(String.class));
+        assertEquals(Role.USER, existing.getRole());
+        assertEquals("old-password", existing.getPassword());
+        assertTrue(existing.isLocked());
     }
 }
