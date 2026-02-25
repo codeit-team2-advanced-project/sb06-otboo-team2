@@ -19,7 +19,7 @@ public class FeignClientConfig {
   @Bean
   public Retryer feignRetryer() {
     // POST/PUT과 같은 상태 변경 요청은 멱등성이 보장될 때만 재시도해야 한다.
-    return new Retryer.Default(200, 1000, 3);
+    return new CustomFeignRetryer(200, 1000, 3);
   }
 
   @Bean
