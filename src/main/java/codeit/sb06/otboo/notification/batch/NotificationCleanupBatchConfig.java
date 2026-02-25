@@ -56,7 +56,7 @@ public class NotificationCleanupBatchConfig {
         return new JpaCursorItemReaderBuilder<Notification>()
                 .name("expiredNotificationReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT n FROM Notification n WHERE n.createdAt < :date ORDER BY n.id ASC")
+                .queryString("SELECT n FROM Notification n WHERE n.createdAt < :date")
                 .parameterValues(Map.of("date", date))
                 .build();
     }

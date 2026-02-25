@@ -135,7 +135,7 @@ public class UserActivityNotificationBatchConfig {
         return new JpaCursorItemReaderBuilder<Notification>()
                 .name("pendingNotificationReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT n FROM Notification n WHERE n.level = :level ORDER BY n.id ASC")
+                .queryString("SELECT n FROM Notification n WHERE n.level = :level")
                 .parameterValues(Map.of("level", NotificationLevel.PENDING))
                 .build();
     }
