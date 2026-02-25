@@ -6,6 +6,8 @@ import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
 import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.entity.Comment;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
@@ -36,9 +38,11 @@ public class BasicCommentService implements CommentService {
   public CommentDto createComment(UUID feedId, CommentCreateRequest commentCreateRequest) {
 
     Feed feed = feedRepository.findById(feedId)
-        .orElseThrow();
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
+
     User author = userRepository.findById(commentCreateRequest.authorId())
-        .orElseThrow();
+        .orElseThrow(UserNotFoundException::new);
+
     Comment comment = Comment.builder()
         .content(commentCreateRequest.content())
         .feed(feed)
@@ -46,7 +50,11 @@ public class BasicCommentService implements CommentService {
         .build()
         ;
 
-    log.debug("댓글 생성 '{}'", feedId);
+    Comment savedComment = commentRepository.save(comment);
+
+    log.debug("댓글 생성 완료 commentId={}, feedId={}, authorId = {}", savedComment.getId(), feedId, author.getId());
+
+    feed.incrementCommentCount();
 
     notificationEventPublisher.publishFeedCommentedEvent(
             feed.getUser().getId(),
@@ -55,7 +63,7 @@ public class BasicCommentService implements CommentService {
             commentCreateRequest.content());
 
     return CommentDto.of(
-        commentRepository.save(comment),
+        savedComment,
         AuthorDto.of(author)
     );
   }
@@ -64,17 +72,16 @@ public class BasicCommentService implements CommentService {
   public CommentDtoCursorResponse getComments(UUID feedId, String cursor, UUID idAfter,
       Integer limit) {
 
-    if (!feedRepository.existsById(feedId)) {
-      throw new IllegalArgumentException();
-    }
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(() -> new FeedNotFoundException(feedId));
 
     LocalDateTime lastCreatedAt = null;
 
     if(cursor!= null){
       lastCreatedAt = LocalDateTime.parse(cursor);
     }
-    List<Comment> commentList = commentRepository.findCommentListByCursor(feedId,lastCreatedAt, idAfter, limit+1);
 
+    List<Comment> commentList = commentRepository.findCommentListByCursor(feedId,lastCreatedAt, idAfter, limit+1);
 
     boolean hasNext = commentList.size() > limit;
 
@@ -101,9 +108,10 @@ public class BasicCommentService implements CommentService {
         .map(c -> CommentDto.of(c,AuthorDto.of(c.getUser())))
         .toList();
 
-    long totalCount = commentRepository.countByFeedId(feedId);
+    Long totalCount = feed.getCommentCount();
 
-    log.debug("댓글 목록 조회 완료");
+    log.debug("댓글 목록 조회 완료: feedId = {}, listSize = {}, hasNext = {}", feedId, data.size(), hasNext);
+
     return new CommentDtoCursorResponse(
         data,
         nextCursor,

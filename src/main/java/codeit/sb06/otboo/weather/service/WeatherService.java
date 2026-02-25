@@ -1,7 +1,6 @@
 package codeit.sb06.otboo.weather.service;
 
-import codeit.sb06.otboo.weather.client.KakaoLocationClient;
-import codeit.sb06.otboo.weather.client.OpenWeatherClient;
+import codeit.sb06.otboo.weather.client.WeatherApiClient;
 import codeit.sb06.otboo.weather.dto.location.KakaoRegionResponse;
 import codeit.sb06.otboo.weather.dto.location.LocationDto;
 import codeit.sb06.otboo.weather.dto.weather.*;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +26,7 @@ public class WeatherService {
 
   private static final ZoneId FORECAST_ZONE = ZoneId.of("Asia/Seoul");
 
-  private final OpenWeatherClient openWeatherClient;
-  private final KakaoLocationClient kakaoLocationClient;
+  private final WeatherApiClient weatherApiClient;
   private final WeatherRepository weatherRepository;
   private final WeatherMapper weatherMapper;
 
@@ -35,12 +34,14 @@ public class WeatherService {
       throws Exception {
     double normalizedLatitude = round2(latitude);
     double normalizedLongitude = round2(longitude);
-    OpenWeatherForecastApiResponse response = openWeatherClient.fetchForecast(latitude, longitude);
-    LocationDto location = kakaoLocationClient.resolveLocationSafely(longitude, latitude);
+    OpenWeatherForecastApiResponse response = weatherApiClient.fetchForecast(latitude, longitude);
+    LocationDto location = weatherApiClient.resolveLocationSafely(longitude, latitude);
     List<SnapshotCandidate> candidates = aggregateDaily(response, FORECAST_ZONE);
 
     List<LocalDate> dates = candidates.stream()
         .map(SnapshotCandidate::date)
+        .flatMap(date -> Stream.of(date, date.minusDays(1)))
+        .distinct()
         .toList();
 
     Map<LocalDate, Weather> existingByDate =
@@ -50,13 +51,13 @@ public class WeatherService {
     return candidates.stream()
         .map(c -> existingByDate.get(c.date()))
         .filter(s -> s != null)
-        .map(s -> WeatherDto.from(s, location))
+        .map(s -> toDtoWithDiff(s, existingByDate, location))
         .toList();
   }
 
   public LocationDto getLocation(double longitude, double latitude) throws Exception {
-    KakaoRegionResponse kakao = kakaoLocationClient.fetchRegion(longitude, latitude);
-    return kakaoLocationClient.toLocationDto(latitude, longitude, kakao.documents());
+    KakaoRegionResponse kakao = weatherApiClient.fetchRegion(longitude, latitude);
+    return weatherApiClient.toLocationDto(latitude, longitude, kakao.documents());
   }
 
   public List<SnapshotCandidate> aggregateDaily(
@@ -187,6 +188,27 @@ public class WeatherService {
 
   private double round2(double v) {
     return Math.round(v * 100.0) / 100.0;
+  }
+
+  private WeatherDto toDtoWithDiff(
+      Weather current,
+      Map<LocalDate, Weather> existingByDate,
+      LocationDto location
+  ) {
+    Weather previous = existingByDate.get(current.getDate().minusDays(1));
+    double humidityDiff = 0.0;
+    double tempDiff = 0.0;
+    if (previous != null) {
+      humidityDiff = current.getHumidity() - previous.getHumidity();
+      tempDiff = current.getTempCurrent() - previous.getTempCurrent();
+    }
+
+    return WeatherDto.from(
+        current,
+        location,
+        round1(humidityDiff),
+        round1(tempDiff)
+    );
   }
 
   private SkyStatus mapSkyStatus(String condition) {

@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
+import codeit.sb06.otboo.comment.dto.CommentDtoCursorResponse;
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
 import codeit.sb06.otboo.feed.entity.Feed;
@@ -22,6 +23,7 @@ import codeit.sb06.otboo.weather.entity.Weather;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,6 +99,10 @@ public class CommentQueryServiceTest {
     ReflectionTestUtils.setField(c1, "id", UUID.randomUUID());
     ReflectionTestUtils.setField(c2, "id", UUID.randomUUID());
     ReflectionTestUtils.setField(c3, "id", UUID.randomUUID());
+
+    feed.incrementCommentCount();
+    feed.incrementCommentCount();
+    feed.incrementCommentCount();
   }
 
   // 첫 페이지 조회 테스트
@@ -106,8 +112,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     when(commentRepository.findCommentListByCursor(
         eq(feedId),
@@ -117,7 +123,7 @@ public class CommentQueryServiceTest {
     )).thenReturn(List.of(c3, c2, c1));
 
     //when
-    var response = basicCommentService.getComments(feedId, null, null, limit);
+    CommentDtoCursorResponse response = basicCommentService.getComments(feedId, null, null, limit);
 
     //then
     assertEquals(2, response.data().size());
@@ -127,6 +133,7 @@ public class CommentQueryServiceTest {
     assertEquals(c2.getCreatedAt().toString(), response.nextCursor());
     assertEquals(c2.getId(), response.nextIdAfter());
 
+    assertEquals(3L, response.totalCount());
   }
 
   // 다음 페이지 조회 테스트
@@ -135,8 +142,8 @@ public class CommentQueryServiceTest {
     //given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     // 다음 페이지 기준 c2
     String cursor = c2.getCreatedAt().toString();
@@ -161,6 +168,8 @@ public class CommentQueryServiceTest {
     assertNull(response.nextIdAfter());
     assertFalse(response.hasNext());
 
+    assertEquals(3L, response.totalCount());
+
   }
 
   // 페이지 없을 때
@@ -170,8 +179,8 @@ public class CommentQueryServiceTest {
     // given
     int limit = 2;
 
-    when(feedRepository.existsById(feedId))
-        .thenReturn(true);
+    when(feedRepository.findById(feedId))
+        .thenReturn(Optional.of(feed));
 
     // 마지막 페이지 c1 기준
     String cursor = c1.getCreatedAt().toString();

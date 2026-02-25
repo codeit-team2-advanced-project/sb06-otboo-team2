@@ -38,4 +38,32 @@ public record WeatherDto(
         new WindSpeedDto(s.getWindSpeed(), s.getWindStrength())
     );
   }
+
+  public static WeatherDto from(
+      Weather s,
+      LocationDto location,
+      double humidityComparedToDayBefore,
+      double temperatureComparedToDayBefore
+  ) {
+    return new WeatherDto(
+        s.getId(),
+        s.getCreatedAt() != null ? s.getCreatedAt() : LocalDateTime.now(),
+        s.getForecastAt(),
+        location,
+        s.getSkyStatus(),
+        new PrecipitationDto(
+            s.getPrecipitationType(),
+            s.getPrecipitationAmount(),
+            s.getPrecipitationProbability()
+        ),
+        new HumidityDto(s.getHumidity(), humidityComparedToDayBefore),
+        new TemperatureDto(
+            s.getTempCurrent(),
+            temperatureComparedToDayBefore,
+            s.getTempMin(),
+            s.getTempMax()
+        ),
+        new WindSpeedDto(s.getWindSpeed(), s.getWindStrength())
+    );
+  }
 }

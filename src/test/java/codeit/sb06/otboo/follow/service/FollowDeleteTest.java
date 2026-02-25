@@ -4,12 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import codeit.sb06.otboo.exception.follow.FollowCancelFailException;
+import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.profile.entity.Profile;
+import codeit.sb06.otboo.profile.repository.ProfileRepository;
+import codeit.sb06.otboo.user.entity.User;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,13 +33,30 @@ public class FollowDeleteTest {
   @Mock
   private FollowRepository followRepository;
 
+  @Mock
+  private ProfileRepository profileRepository;
+
   @Test
   void deleteFollow_success() {
 
     //given
     UUID followId = UUID.randomUUID();
 
-    when(followRepository.existsById(followId)).thenReturn(true);
+    Follow follow = mock(Follow.class);
+    User follower = mock(User.class);
+    User followee = mock(User.class);
+    Profile followerProfile = mock(Profile.class);
+    Profile followeeProfile = mock(Profile.class);
+
+    when(followRepository.findById(followId)).thenReturn(Optional.of(follow));
+    when(follow.getFollower()).thenReturn(follower);
+    when(follow.getFollowee()).thenReturn(followee);
+
+    when(profileRepository.findByUserId(follower))
+        .thenReturn(Optional.of(followerProfile));
+
+    when(profileRepository.findByUserId(followee))
+        .thenReturn(Optional.of(followeeProfile));
 
     doNothing().when(followRepository).deleteById(followId);
 
@@ -40,7 +64,9 @@ public class FollowDeleteTest {
     basicFollowService.deleteFollow(followId);
 
     //then
-    verify(followRepository).deleteById(followId);
+    verify(followRepository,times(1)).deleteById(followId);
+    verify(followerProfile,times(1)).decreaseFollowingCount();
+    verify(followeeProfile,times(1)).decreaseFollowerCount();
   }
 
   @Test
@@ -49,7 +75,7 @@ public class FollowDeleteTest {
     // given
     UUID followId = UUID.randomUUID();
 
-    when(followRepository.existsById(followId)).thenReturn(false);
+    when(followRepository.findById(followId)).thenReturn(Optional.empty());
 
     // when
     FollowCancelFailException exception  = assertThrows(
