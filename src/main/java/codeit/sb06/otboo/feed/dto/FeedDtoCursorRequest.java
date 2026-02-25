@@ -8,7 +8,7 @@ public record FeedDtoCursorRequest(
     String cursor,
     UUID idAfter,
     int limit,
-    FeedSortBy sortBy,
+    String sortBy,
     FeedSortDirection sortDirection,
     String keywordLike,
     SkyStatus skyStatusEqual,
@@ -19,11 +19,12 @@ public record FeedDtoCursorRequest(
     if (limit <= 0) {
       limit = 10;
     }
-    if (sortBy == null) {
-      sortBy = FeedSortBy.createdAt;
-    }
     if (sortDirection == null) {
       sortDirection = FeedSortDirection.DESCENDING;
     }
+  }
+
+  public FeedSortBy resolveSortBy() {
+    return FeedSortBy.from(sortBy);
   }
 }

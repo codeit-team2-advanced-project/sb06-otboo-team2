@@ -33,7 +33,7 @@ public record FeedDtoCursorResponse(
         nextIdAfter,
         hasNext,
         totalCount,
-        sortBy.name(),
+        sortBy.apiValue(),
         sortDirection.name()
     );
   }

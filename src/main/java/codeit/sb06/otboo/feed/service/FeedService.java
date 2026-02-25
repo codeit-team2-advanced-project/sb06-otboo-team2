@@ -11,6 +11,7 @@ import codeit.sb06.otboo.feed.dto.FeedDtoCursorResponse;
 import codeit.sb06.otboo.feed.dto.FeedSortBy;
 import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
+import codeit.sb06.otboo.feed.dto.FeedUpdateRequest;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;
@@ -74,7 +75,7 @@ public class FeedService {
   @Transactional(readOnly = true)
   public FeedDtoCursorResponse getFeeds(UUID currentUserId, FeedDtoCursorRequest request) {
     int limit = request.limit();
-    FeedSortBy sortBy = request.sortBy();
+    FeedSortBy sortBy = request.resolveSortBy();
     FeedSortDirection sortDirection = request.sortDirection();
 
     List<Feed> feeds = feedRepository.findFeedListByCursor(request, limit + 1);
@@ -117,7 +118,7 @@ public class FeedService {
   }
 
   @Transactional
-  public FeedDto update(UUID feedId, UUID currentUserId, String content) {
+  public FeedDto update(UUID feedId, UUID currentUserId, FeedUpdateRequest request) {
     Feed feed = feedRepository.findById(feedId)
         .orElseThrow(() -> new FeedNotFoundException(feedId));
 
@@ -129,7 +130,7 @@ public class FeedService {
       }
     }
 
-    feed.updateContent(content);
+    feed.updateContent(request.content());
     return FeedDto.from(feed);
   }
 
@@ -192,7 +193,7 @@ public class FeedService {
   }
 
   private String cursorValue(Feed feed, FeedSortBy sortBy) {
-    if (sortBy == FeedSortBy.likeCount) {
+    if (sortBy == FeedSortBy.LIKECOUNT) {
       return String.valueOf(feed.getLikeCount());
     }
     return feed.getCreatedAt().toString();

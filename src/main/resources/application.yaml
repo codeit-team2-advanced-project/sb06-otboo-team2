@@ -13,6 +13,21 @@ spring:
         bucket: ${AWS_S3_BUCKET:your-s3-bucket-name}
         presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:PT10H}
         log-bucket: ${AWS_S3_LOG_BUCKET:otboo-logs}
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      httpclient:
+        hc5:
+          enabled: true
+          max-connections: 200
+          max-connections-per-route: 50
+          time-to-live: 900s
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: full
 
   security:
     oauth2:
@@ -118,6 +133,10 @@ resilience4j:
         baseConfig: default
       notiStreamCircuit:
         baseConfig: default
+      openWeatherApi:
+        baseConfig: default
+      kakaoLocationApi:
+        baseConfig: default
 
 scheduler:
   initial-delay:
@@ -147,7 +166,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus, metrics, health
+        include: prometheus, metrics, health, circuitbreakers, circuitbreakerevents
+  endpoint:
+    circuitbreakers:
+      enabled: true
+    circuitbreakerevents:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
