@@ -13,3 +13,6 @@ spring:
   data:
     redis:
       password:
+  batch:
+    jdbc:
+      initialize-schema: always
