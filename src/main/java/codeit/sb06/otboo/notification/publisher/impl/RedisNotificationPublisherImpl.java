@@ -67,7 +67,9 @@ public class RedisNotificationPublisherImpl implements RedisNotificationPublishe
                     } catch (JsonProcessingException e) {
                         throw new NotificationMappingException();
                     }
-                    Map<String, String> map = Map.of("payload", jsonPayload);
+                    Map<String, String> map = Map.of(
+                            "payload", jsonPayload,
+                            "receiverId", dto.receiverId().toString());
 
                     MapRecord<String, String, String> record = StreamRecords.newRecord()
                             .in(notificationStreamKey)

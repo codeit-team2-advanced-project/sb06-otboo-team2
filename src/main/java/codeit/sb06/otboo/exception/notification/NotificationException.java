@@ -6,4 +6,8 @@ public class NotificationException extends RootException {
     public NotificationException(String message, int status) {
         super(message, status);
     }
+
+    public NotificationException(String message, Throwable cause, int status) {
+        super(message, cause, status);
+    }
 }
