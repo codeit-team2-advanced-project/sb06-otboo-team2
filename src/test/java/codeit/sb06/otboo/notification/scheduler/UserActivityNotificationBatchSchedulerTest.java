@@ -32,7 +32,7 @@ class UserActivityNotificationBatchSchedulerTest {
     @DisplayName("성공적으로 배치 실행: JobLauncher가 정상적으로 호출되는지 확인")
     void runDailyJob_Success() throws Exception {
         // when
-        scheduler.runDailyJob();
+        scheduler.runWeeklyJob();
 
         // then
         verify(jobLauncher).run(eq(userActivityStatNotificationJob), any(JobParameters.class));
@@ -46,6 +46,6 @@ class UserActivityNotificationBatchSchedulerTest {
                 .willThrow(new RuntimeException("Batch Execution Failed"));
 
         // when & then
-        assertThrows(NotificationBatchException.class, () -> scheduler.runDailyJob());
+        assertThrows(NotificationBatchException.class, () -> scheduler.runWeeklyJob());
     }
 }

@@ -19,9 +19,9 @@ public class UserActivityNotificationBatchScheduler {
     private final JobLauncher jobLauncher;
     private final Job userActivityStatNotificationJob;
 
-    @Scheduled(cron = "0 30 0 * * ?")
-    @SchedulerLock(name = "UserActivityNotificationBatchSchedulerLock", lockAtMostFor = "PT30M", lockAtLeastFor = "PT10M")
-    public void runDailyJob() {
+    @Scheduled(cron = "0 00 1 * * MON")
+    @SchedulerLock(name = "UserActivityNotificationBatchSchedulerLock", lockAtMostFor = "PT1H", lockAtLeastFor = "PT10M")
+    public void runWeeklyJob() {
 
         try {
             JobParameters params = new JobParametersBuilder()
