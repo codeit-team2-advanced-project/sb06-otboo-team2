@@ -45,7 +45,7 @@ public class Feed {
   private Long likeCount = 0L;
 
   @Column(name = "comment_count", nullable = false)
-  private int commentCount = 0;
+  private Long commentCount = 0L;
 
   // MARK: - 유저 삭제 시 게시물 삭제 여부 (cascade)
   @ManyToOne(fetch = FetchType.LAZY)
@@ -94,6 +94,9 @@ public class Feed {
     if (this.likeCount > 0) {
       this.likeCount = this.likeCount - 1;
     }
+  }
+  public void incrementCommentCount() {
+    this.commentCount ++;
   }
 
   @PrePersist

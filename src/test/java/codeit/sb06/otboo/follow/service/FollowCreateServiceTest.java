@@ -14,6 +14,8 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.profile.entity.Profile;
+import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
@@ -37,6 +39,15 @@ public class FollowCreateServiceTest {
 
   @Mock
   private UserRepository userRepository;
+
+  @Mock
+  private ProfileRepository profileRepository;
+
+  @Mock
+  private Profile followerProfile;
+
+  @Mock
+  private Profile followeeProfile;
 
   @Mock
   private NotificationEventPublisher notificationEventPublisher;
@@ -69,6 +80,12 @@ public class FollowCreateServiceTest {
 
     when(userRepository.findById(followeeId)).thenReturn(Optional.of(followee));
     when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
+
+    when(profileRepository.findByUserId(follower))
+        .thenReturn(Optional.of(followerProfile));
+    when(profileRepository.findByUserId(followee))
+        .thenReturn(Optional.of(followeeProfile));
+
     when(followRepository.save(any(Follow.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     //when
@@ -82,6 +99,10 @@ public class FollowCreateServiceTest {
     assertEquals(followerId, result.follower().userId());
     // 딱 한번 호출됬는지
     verify(followRepository,times(1)).save(any(Follow.class));
+
+    // 증감이 한번씩 호출되었는지
+    verify(followerProfile, times(1)).increaseFollowingCount();
+    verify(followeeProfile, times(1)).increaseFollowerCount();
   }
 
   @Test

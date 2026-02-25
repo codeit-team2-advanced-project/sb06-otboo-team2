@@ -9,6 +9,8 @@ import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
+import codeit.sb06.otboo.profile.entity.Profile;
+import codeit.sb06.otboo.profile.repository.ProfileRepository;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import java.util.Optional;
@@ -31,6 +33,9 @@ public class FollowGetSummaryServiceTest {
   @Mock
   private UserRepository userRepository;
 
+  @Mock
+  private ProfileRepository profileRepository;
+
   // 스웨거와 프로토타입의 차이느 나를 힘들게한다...
 
   /***
@@ -45,9 +50,16 @@ public class FollowGetSummaryServiceTest {
     UUID myId = UUID.randomUUID();
 
     User targetUser = mock(User.class);
+    Profile profile = mock(Profile.class);
 
     when(userRepository.findById(targetId))
         .thenReturn(Optional.of(targetUser));
+
+    when(profileRepository.findByUserId(targetUser))
+        .thenReturn(Optional.of(profile));
+
+    when(profile.getFollowerCount()).thenReturn(1L);
+    when(profile.getFollowingCount()).thenReturn(0L);
 
     Follow followedByMe = mock(Follow.class);
 
@@ -86,11 +98,17 @@ public class FollowGetSummaryServiceTest {
     UUID myId = UUID.randomUUID();
 
     User targetUser = mock(User.class);
-
-    Follow followedByTarget = mock(Follow.class);
+    Profile profile  = mock(Profile.class);
 
     when(userRepository.findById(targetId))
         .thenReturn(Optional.of(targetUser));
+    when(profileRepository.findByUserId(targetUser))
+        .thenReturn(Optional.of(profile));
+
+    when(profile.getFollowerCount()).thenReturn(0L);
+    when(profile.getFollowingCount()).thenReturn(1L);
+
+    Follow followedByTarget = mock(Follow.class);
 
     when(followRepository.findByFollowerIdAndFolloweeId(myId, targetId))
         .thenReturn(Optional.empty());
@@ -122,15 +140,21 @@ public class FollowGetSummaryServiceTest {
     UUID myId = UUID.randomUUID();
 
     User targetUser = mock(User.class);
+    Profile profile =  mock(Profile.class);
+
+    when(userRepository.findById(targetId))
+        .thenReturn(Optional.of(targetUser));
+    when(profileRepository.findByUserId(targetUser))
+        .thenReturn(Optional.of(profile));
+
+    when(profile.getFollowerCount()).thenReturn(1L);
+    when(profile.getFollowingCount()).thenReturn(1L);
 
     Follow followedByMe = mock(Follow.class);
     Follow followedByTarget = mock(Follow.class);
 
     UUID followId = UUID.randomUUID();
     when(followedByMe.getId()).thenReturn(followId);
-
-    when(userRepository.findById(targetId))
-        .thenReturn(Optional.of(targetUser));
 
     when(followRepository.findByFollowerIdAndFolloweeId(myId, targetId))
         .thenReturn(Optional.of(followedByMe));
@@ -163,19 +187,21 @@ public class FollowGetSummaryServiceTest {
     UUID myId = UUID.randomUUID();
 
     User targetUser = mock(User.class);
+    Profile profile =  mock(Profile.class);
 
     when(userRepository.findById(targetId))
         .thenReturn(Optional.of(targetUser));
+
+    when(profileRepository.findByUserId(targetUser))
+        .thenReturn(Optional.of(profile));
+
+    when(profile.getFollowerCount()).thenReturn(123L);
+    when(profile.getFollowingCount()).thenReturn(45L);
 
     when(followRepository.findByFollowerIdAndFolloweeId(myId, targetId))
         .thenReturn(Optional.empty());
     when(followRepository.findByFollowerIdAndFolloweeId(targetId, myId))
         .thenReturn(Optional.empty());
-
-    when(followRepository.countByFollowerId(targetId))
-        .thenReturn(123L);
-    when(followRepository.countByFolloweeId(targetId))
-        .thenReturn(45L);
 
     //when
     FollowSummaryDto result = basicFollowService.getFollowSummary(targetId, myId);

@@ -228,8 +228,8 @@ class ProfileServiceImplTest {
             Gender.ETC,
             LocalDateTime.of(2026, 1, 1, 0, 0),
             LocalDateTime.of(2026, 1, 1, 0, 0),
-            0,
-            0,
+            0L,
+            0L,
             user
         );
     }

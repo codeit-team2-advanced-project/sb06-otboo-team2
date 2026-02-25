@@ -12,6 +12,8 @@ import codeit.sb06.otboo.comment.dto.CommentCreateRequest;
 import codeit.sb06.otboo.comment.dto.CommentDto;
 import codeit.sb06.otboo.comment.entity.Comment;
 import codeit.sb06.otboo.comment.repository.CommentRepository;
+import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
+import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.feed.entity.Feed;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
@@ -125,9 +127,7 @@ public class CommentCreateServiceTest {
         .thenReturn(savedComment);
 
     //when
-
     CommentDto result = basicCommentService.createComment(feedId,request);
-
 
     //then
     verify(commentRepository).save(any(Comment.class));
@@ -135,6 +135,8 @@ public class CommentCreateServiceTest {
     assertEquals("테스트 댓글 내용",result.content());
     assertEquals(authorId, result.author().userId());
     assertEquals("test", result.author().name());
+    assertEquals(1L, feed.getCommentCount());
+
   }
 
   // 피드 Id 없을때
@@ -152,7 +154,7 @@ public class CommentCreateServiceTest {
 
     //then
     assertThrows(
-        RuntimeException.class,
+        FeedNotFoundException.class,
         () -> basicCommentService.createComment(feedId, request)
     );
   }
@@ -174,7 +176,7 @@ public class CommentCreateServiceTest {
 
     // then
     assertThrows(
-        RuntimeException.class,
+        UserNotFoundException.class,
         () -> basicCommentService.createComment(feedId, request)
     );
   }

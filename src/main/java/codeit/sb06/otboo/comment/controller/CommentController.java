@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/feeds")
@@ -40,7 +42,14 @@ public class CommentController{
       @PathVariable UUID feedId,
       @RequestBody CommentCreateRequest commentCreateRequest
   ){
+
+    log.debug("댓글 생성 요청 feedId={}, authorId={}",
+        feedId, commentCreateRequest.authorId());
+
     CommentDto response = commentService.createComment(feedId, commentCreateRequest);
+
+    log.debug("댓글 생성 완료 commentId={}", response.id());
+
     return ResponseEntity.ok(response);
   }
 
@@ -58,8 +67,15 @@ public class CommentController{
       @RequestParam(required = false) UUID idAfter,
       @RequestParam Integer limit
   ){
+
+    log.debug("댓글 조회 요청 feedId={}, cursor={}, idAfter={}, limit={}",
+        feedId, cursor, idAfter, limit);
+
     CommentDtoCursorResponse response = commentService.getComments(feedId, cursor, idAfter, limit);
+
+    log.debug("댓글 조회 완료 feedId={}, size={}, hasNext={}",
+        feedId, response.data().size(), response.hasNext());
+
     return ResponseEntity.ok(response);
   }
-
 }

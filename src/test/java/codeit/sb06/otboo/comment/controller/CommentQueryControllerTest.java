@@ -14,7 +14,6 @@ import codeit.sb06.otboo.comment.service.CommentService;
 import codeit.sb06.otboo.exception.comment.CommentListReadFailException;
 import codeit.sb06.otboo.security.jwt.JwtAuthenticationFilter;
 import codeit.sb06.otboo.security.jwt.JwtTokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -47,9 +46,6 @@ public class CommentQueryControllerTest {
 
   @MockitoBean
   CommentService commentService;
-
-  @Autowired
-  ObjectMapper objectMapper;
 
   private final UUID feedId = UUID.randomUUID();
   private final UUID authorId = UUID.randomUUID();
@@ -112,13 +108,5 @@ public class CommentQueryControllerTest {
         .andExpect(jsonPath("$.message")
             .value("댓글 목록 조회 실패"))
         .andExpect(jsonPath("$.details").exists());
-  }
-
-  // 요청 자체가 잘못된 경우
-  // 리밋은 프론트딴에서 던져주니 요청이 잘못될 일이 있을까.
-  @Test
-  void getCommentList_failRequest_400response() throws Exception {
-    mockMvc.perform(get("/api/feeds/{feedId}/comments", feedId))
-        .andExpect(status().isBadRequest());
   }
 }

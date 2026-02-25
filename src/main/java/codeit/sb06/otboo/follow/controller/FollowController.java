@@ -4,8 +4,6 @@ import codeit.sb06.otboo.follow.dto.FollowCreateRequest;
 import codeit.sb06.otboo.follow.dto.FollowDto;
 import codeit.sb06.otboo.follow.dto.FollowListResponse;
 import codeit.sb06.otboo.follow.dto.FollowSummaryDto;
-import codeit.sb06.otboo.follow.dto.FolloweeDto;
-import codeit.sb06.otboo.follow.dto.FollowerDto;
 import codeit.sb06.otboo.follow.entity.FollowDirection;
 import codeit.sb06.otboo.follow.service.FollowService;
 import codeit.sb06.otboo.security.resolver.CurrentUserId;
@@ -13,9 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -44,6 +43,9 @@ public class FollowController {
       @RequestBody FollowCreateRequest followCreateRequest) {
 
     FollowDto response = followService.createFollow(followCreateRequest);
+
+    log.debug("팔로우 생성 완료 followId={}", response.id());
+
     return ResponseEntity.status(201)
         .body(response);
   }
@@ -60,6 +62,9 @@ public class FollowController {
 
   ){
     FollowSummaryDto response = followService.getFollowSummary(targetId, myId);
+
+    log.debug("팔로우 요약 조회 완료 targetId={}", targetId);
+
     return ResponseEntity.ok(response);
   }
 
@@ -86,6 +91,9 @@ public class FollowController {
             limit,
             nameLike
         );
+    log.debug("팔로잉 목록 조회 완료 followerId={}, size={}, hasNext={}",
+        followerId, response.data().size(), response.hasNext());
+
     return ResponseEntity.ok(response);
   }
 
@@ -111,6 +119,10 @@ public class FollowController {
             limit,
             nameLike
         );
+
+    log.debug("팔로워 목록 조회 완료 followeeId={}, size={}, hasNext={}",
+        followeeId, response.data().size(), response.hasNext());
+
     return ResponseEntity.ok(response);
   }
 
@@ -124,6 +136,9 @@ public class FollowController {
       @PathVariable UUID followId
   ){
     followService.deleteFollow(followId);
+
+    log.debug("팔로우 취소 완료 followId={}", followId);
+
     return ResponseEntity.noContent().build();
   }
 }
