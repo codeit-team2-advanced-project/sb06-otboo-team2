@@ -70,7 +70,7 @@ spring:
       repositories:
         enabled: false
       connect-timeout: 5s
-      timeout: 2s
+      timeout: 3s
 
   batch:
     jdbc:

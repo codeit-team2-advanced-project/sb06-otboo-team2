@@ -50,7 +50,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> notificationContainer(
+    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> container(
             RedisConnectionFactory connectionFactory,
             NotificationStreamListener notificationStreamListener,
             DirectMessageStreamListener dmStreamListener,
