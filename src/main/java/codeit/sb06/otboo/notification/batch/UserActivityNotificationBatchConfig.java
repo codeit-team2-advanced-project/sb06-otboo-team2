@@ -84,13 +84,11 @@ public class UserActivityNotificationBatchConfig {
                         SELECT new codeit.sb06.otboo.notification.dto.StatNotificationDTO(
                             u.id,
                             (SELECT COUNT(f) FROM Feed f WHERE f.user.id = u.id AND f.createdAt >= :startDate),
-                            (SELECT COUNT(fl) FROM FeedLike fl WHERE fl.user.id = u.id AND fl.createdAt >= :startDate),
-                            (SELECT COUNT(c) FROM Comment c WHERE c.user.id = u.id AND c.createdAt >= :startDate)
+                            (SELECT COUNT(fl) FROM FeedLike fl WHERE fl.feed.user.id = u.id AND fl.user.id != u.id AND fl.createdAt >= :startDate),
+                            (SELECT COUNT(c) FROM Comment c WHERE c.feed.user.id = u.id AND c.user.id != u.id AND c.createdAt >= :startDate)
                         )
                         FROM User u
                         WHERE EXISTS (SELECT 1 FROM Feed f WHERE f.user.id = u.id AND f.createdAt >= :startDate)
-                           OR EXISTS (SELECT 1 FROM FeedLike fl WHERE fl.user.id = u.id AND fl.createdAt >= :startDate)
-                            OR EXISTS (SELECT 1 FROM Comment c WHERE c.user.id = u.id AND c.createdAt >= :startDate)
                         ORDER BY u.id ASC
                         """)
                 .pageSize(100)
