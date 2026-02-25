@@ -8,6 +8,6 @@ public class NotificationBatchException extends NotificationException {
     }
 
     public NotificationBatchException(Throwable cause) {
-        super(DEFAULT_MESSAGE, cause, 404);
+        super(DEFAULT_MESSAGE, cause, 500);
     }
 }
