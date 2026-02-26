@@ -103,7 +103,7 @@ class NotificationListenerTest {
         // then
         verify(notificationService, times(1)).create(
                 event.targetId(),
-                event.feedTitle() + " 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.",
+                "\"" +event.feedTitle() + "...\" 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.",
                 "",
                 NotificationLevel.INFO
         );
