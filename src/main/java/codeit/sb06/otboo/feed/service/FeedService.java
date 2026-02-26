@@ -146,11 +146,13 @@ public class FeedService {
     feedLikeRepository.save(FeedLike.create(user, feed));
     feed.incrementLikeCount();
 
-    notificationEventPublisher.publishFeedLikedEvent(
-            feed.getUser().getId(),
-            feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
-            user.getName()
-    );
+    if(!feed.getUser().getId().equals(currentUserId)) {
+      notificationEventPublisher.publishFeedLikedEvent(
+              feed.getUser().getId(),
+              feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
+              user.getName()
+      );
+    }
   }
 
   @Transactional
