@@ -11,6 +11,7 @@ import codeit.sb06.otboo.exception.user.UserNotFoundException;
 import codeit.sb06.otboo.exception.weather.WeatherNotFoundException;
 import codeit.sb06.otboo.profile.entity.Profile;
 import codeit.sb06.otboo.profile.repository.ProfileRepository;
+import codeit.sb06.otboo.profile.service.S3StorageService;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
 import codeit.sb06.otboo.weather.dto.weather.PrecipitationType;
@@ -52,6 +53,7 @@ public class RecommendationService {
     private final ClothesRepository clothesRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final S3StorageService s3StorageService;
     private final Random rnd = new Random();
 
     public RecommendationDto getRecommendation(UUID weatherId, UUID userId) {
@@ -138,8 +140,17 @@ public class RecommendationService {
         return new RecommendationDto(
                 weather.getId(),
                 userId,
-                result.stream().map(RecommendedClothesDto::from).toList()
+                result.stream().map(this::toRecommendedDtoWithPresignedUrl).toList()
         );
+    }
+
+    private RecommendedClothesDto toRecommendedDtoWithPresignedUrl(Clothes clothes) {
+        String key = clothes.getImageUrl();
+        String presignedUrl = null;
+        if (key != null && !key.isBlank()) {
+            presignedUrl = s3StorageService.getPresignedUrl(key);
+        }
+        return RecommendedClothesDto.from(clothes, presignedUrl);
     }
 
 

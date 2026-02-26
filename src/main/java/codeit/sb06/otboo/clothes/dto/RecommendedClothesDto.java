@@ -15,11 +15,15 @@ public record RecommendedClothesDto(
         List<ClothesAttributeWithDefDto> attributes
 ) {
     public static RecommendedClothesDto from(Clothes clothes) {
+        return from(clothes, clothes.getImageUrl());
+    }
+
+    public static RecommendedClothesDto from(Clothes clothes, String imageUrl) {
         return new RecommendedClothesDto(
                 clothes.getId(),
                 clothes.getOwnerId(),
                 clothes.getName(),
-                clothes.getImageUrl(),
+                imageUrl,
                 clothes.getType().name(),
                 clothes.getAttributes().stream()
                         .map(attr -> new ClothesAttributeWithDefDto(

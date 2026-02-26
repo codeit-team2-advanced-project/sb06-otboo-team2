@@ -31,6 +31,7 @@ import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.profile.service.S3StorageService;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.entity.Provider;
@@ -79,6 +80,9 @@ class FeedServiceTest {
     @Mock
     private NotificationEventPublisher notificationEventPublisher;
 
+    @Mock
+    private S3StorageService s3StorageService;
+
     private UUID authorId;
     private UUID weatherId;
     private User author;
@@ -124,6 +128,7 @@ class FeedServiceTest {
 
     @Test
     void createFeed_success() {
+        stubPresignedUrl();
         UUID clothesId1 = UUID.randomUUID();
         UUID clothesId2 = UUID.randomUUID();
         List<UUID> clothesIds = List.of(clothesId1, clothesId2);
@@ -155,6 +160,7 @@ class FeedServiceTest {
 
     @Test
     void createFeed_mapsFeedClothesToJoinEntities() {
+        stubPresignedUrl();
         UUID clothesId1 = UUID.randomUUID();
         UUID clothesId2 = UUID.randomUUID();
         List<UUID> clothesIds = List.of(clothesId1, clothesId2);
@@ -189,6 +195,7 @@ class FeedServiceTest {
 
     @Test
     void createFeed_allowsDuplicateClothesIds() {
+        stubPresignedUrl();
         UUID clothesId1 = UUID.randomUUID();
         List<UUID> clothesIds = List.of(clothesId1, clothesId1);
 
@@ -507,5 +514,9 @@ class FeedServiceTest {
         ReflectionTestUtils.setField(created, "createdAt", createdAt);
         ReflectionTestUtils.setField(created, "updatedAt", createdAt);
         return created;
+    }
+
+    private void stubPresignedUrl() {
+        when(s3StorageService.getPresignedUrl(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 }

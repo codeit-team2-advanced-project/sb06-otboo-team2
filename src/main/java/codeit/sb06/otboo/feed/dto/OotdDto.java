@@ -13,10 +13,14 @@ public record OotdDto(
     List<ClothesAttributeWithDefDto> attributes
 ) {
     public static OotdDto from(Clothes clothes) {
+        return from(clothes, clothes.getImageUrl());
+    }
+
+    public static OotdDto from(Clothes clothes, String imageUrl) {
         return new OotdDto(
                 clothes.getId(),
                 clothes.getName(),
-                clothes.getImageUrl(),
+                imageUrl,
                 clothes.getType().name(),
                 clothes.getAttributes().stream()
                         .map(ClothesAttributeWithDefDto::from)
