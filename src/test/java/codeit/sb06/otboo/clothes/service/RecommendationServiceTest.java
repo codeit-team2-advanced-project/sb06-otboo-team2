@@ -272,6 +272,7 @@ public class RecommendationServiceTest {
         RecommendationDto dto = recommendationService.getRecommendation(weatherId, userId);
 
         assertThat(dto.clothes().stream().map(RecommendedClothesDto::type))
+                .isNotEmpty()
                 .doesNotContain("HAT");
     }
 

@@ -1,6 +1,5 @@
 package codeit.sb06.otboo.clothes.service;
 
-import codeit.sb06.otboo.clothes.dto.ClothesDto;
 import codeit.sb06.otboo.clothes.dto.RecommendationDto;
 import codeit.sb06.otboo.clothes.dto.RecommendedClothesDto;
 import codeit.sb06.otboo.clothes.entity.Clothes;
@@ -21,8 +20,8 @@ import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,6 +53,7 @@ public class RecommendationService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final S3StorageService s3StorageService;
+    private final Random rnd = new SecureRandom();
 
     public RecommendationDto getRecommendation(UUID weatherId, UUID userId) {
 
@@ -74,9 +74,6 @@ public class RecommendationService {
         }
 
         RecommendationContext ctx = RecommendationContext.from(weather, sensitivity);
-
-        // 호출마다 다른 결과가 나오도록 랜덤 고정 안 함
-        Random rnd = new Random();
 
         Map<ClothesType, List<Clothes>> byType =
                 all.stream().collect(Collectors.groupingBy(Clothes::getType));
