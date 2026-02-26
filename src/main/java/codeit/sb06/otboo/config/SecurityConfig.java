@@ -104,7 +104,7 @@ public class SecurityConfig {
         ApplicationEventPublisher eventPublisher,
         StringRedisTemplate redisTemplate
     ) {
-        return new InMemoryJwtRegistry(1, jwtTokenProvider);
+        return new RedisJwtRegistry(redisTemplate, jwtTokenProvider, 1);
     }
 
     @Bean
