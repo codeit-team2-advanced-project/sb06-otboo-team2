@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -53,6 +54,14 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, @Nullable Exception ex) {
+
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+        // HEARTBEAT 메시지는 로그 제외
+        if (accessor != null && SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
+            return;
+        }
+
         if (ex != null) {
             log.error("웹소켓 메시지 전송 중 에러 발생: {}", ex.getMessage());
         } else if (!sent) {
