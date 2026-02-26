@@ -52,6 +52,7 @@ public class RecommendationService {
     private final ClothesRepository clothesRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final Random rnd = new Random();
 
     public RecommendationDto getRecommendation(UUID weatherId, UUID userId) {
 
@@ -72,9 +73,6 @@ public class RecommendationService {
         }
 
         RecommendationContext ctx = RecommendationContext.from(weather, sensitivity);
-
-        // 호출마다 다른 결과가 나오도록 랜덤 고정 안 함
-        Random rnd = new Random();
 
         Map<ClothesType, List<Clothes>> byType =
                 all.stream().collect(Collectors.groupingBy(Clothes::getType));
