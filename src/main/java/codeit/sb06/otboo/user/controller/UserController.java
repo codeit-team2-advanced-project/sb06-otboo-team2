@@ -76,7 +76,7 @@ public class UserController {
         return ResponseEntity.ok(profileDto);
     }
 
-    @PostMapping("/{userId}/password")
+    @PatchMapping("/{userId}/password")
     public ResponseEntity<Void> changePassword(@PathVariable UUID userId, @RequestBody
         ChangePasswordRequest changePasswordRequest){
         log.info("Change password requested for userId: {}", userId);
