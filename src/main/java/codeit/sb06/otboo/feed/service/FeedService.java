@@ -1,5 +1,6 @@
 package codeit.sb06.otboo.feed.service;
 
+import codeit.sb06.otboo.comment.dto.AuthorDto;
 import codeit.sb06.otboo.exception.auth.ForbiddenException;
 import codeit.sb06.otboo.exception.feed.FeedNotFoundException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
@@ -12,20 +13,25 @@ import codeit.sb06.otboo.feed.dto.FeedSortBy;
 import codeit.sb06.otboo.feed.dto.FeedSortDirection;
 import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
 import codeit.sb06.otboo.feed.dto.FeedUpdateRequest;
+import codeit.sb06.otboo.feed.dto.OotdDto;
 import codeit.sb06.otboo.feed.entity.Feed;
+import codeit.sb06.otboo.feed.entity.FeedClothes;
 import codeit.sb06.otboo.feed.repository.FeedRepository;
 import codeit.sb06.otboo.clothes.entity.Clothes;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
 import codeit.sb06.otboo.follow.entity.Follow;
 import codeit.sb06.otboo.follow.repository.FollowRepository;
 import codeit.sb06.otboo.notification.publisher.NotificationEventPublisher;
+import codeit.sb06.otboo.profile.service.S3StorageService;
 import codeit.sb06.otboo.user.entity.Role;
 import codeit.sb06.otboo.user.entity.User;
 import codeit.sb06.otboo.user.repository.UserRepository;
+import codeit.sb06.otboo.weather.dto.weather.WeatherSummaryDto;
 import codeit.sb06.otboo.weather.entity.Weather;
 import codeit.sb06.otboo.weather.repository.WeatherRepository;
 import codeit.sb06.otboo.feed.entity.FeedLike;
 import codeit.sb06.otboo.feed.repository.FeedLikeRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -45,6 +51,7 @@ public class FeedService {
   private final FeedLikeRepository feedLikeRepository;
   private final FollowRepository followRepository;
   private final NotificationEventPublisher notificationEventPublisher;
+  private final S3StorageService s3StorageService;
 
   @Transactional
   public FeedDto create(FeedCreateRequest request) {
@@ -69,7 +76,7 @@ public class FeedService {
                     feed.getContent().substring(0, Math.min(10, feed.getContent().length()))
             ));
 
-    return FeedDto.from(saved);
+    return toFeedDtoWithPresignedUrls(saved, false);
   }
 
   @Transactional(readOnly = true)
@@ -98,15 +105,18 @@ public class FeedService {
     }
 
     long totalCount = feedRepository.countFeedList(request);
-    return FeedDtoCursorResponse.of(
-        feeds,
-        likedFeedIds,
+    List<FeedDto> data = feeds.stream()
+        .map(feed -> toFeedDtoWithPresignedUrls(feed, likedFeedIds.contains(feed.getId())))
+        .toList();
+
+    return new FeedDtoCursorResponse(
+        data,
         nextCursor,
         nextIdAfter,
         hasNext,
         totalCount,
-        sortBy,
-        sortDirection
+        sortBy.apiValue(),
+        sortDirection.name()
     );
   }
 
@@ -131,7 +141,8 @@ public class FeedService {
     }
 
     feed.updateContent(request.content());
-    return FeedDto.from(feed);
+    boolean likedByMe = feedLikeRepository.existsByFeedIdAndUserId(feedId, currentUserId);
+    return toFeedDtoWithPresignedUrls(feed, likedByMe);
   }
 
   @Transactional
@@ -199,5 +210,38 @@ public class FeedService {
       return String.valueOf(feed.getLikeCount());
     }
     return feed.getCreatedAt().toString();
+  }
+
+  private FeedDto toFeedDtoWithPresignedUrls(Feed feed, boolean likedByMe) {
+    LocalDateTime created = feed.getCreatedAt();
+    LocalDateTime updated = feed.getUpdatedAt();
+    AuthorDto author = AuthorDto.of(feed.getUser());
+
+    List<OotdDto> ootds = feed.getFeedClothes().stream()
+        .map(FeedClothes::getClothes)
+        .map(this::toOotdDtoWithPresignedUrl)
+        .toList();
+
+    return new FeedDto(
+        feed.getId(),
+        created,
+        updated,
+        author,
+        WeatherSummaryDto.from(feed.getWeather()),
+        ootds,
+        feed.getContent(),
+        feed.getLikeCount(),
+        feed.getCommentCount(),
+        likedByMe
+    );
+  }
+
+  private OotdDto toOotdDtoWithPresignedUrl(Clothes clothes) {
+    String key = clothes.getImageUrl();
+    String presignedUrl = null;
+    if (key != null && !key.isBlank()) {
+      presignedUrl = s3StorageService.getPresignedUrl(key);
+    }
+    return OotdDto.from(clothes, presignedUrl);
   }
 }

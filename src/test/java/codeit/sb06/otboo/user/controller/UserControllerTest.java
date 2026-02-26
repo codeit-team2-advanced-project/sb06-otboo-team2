@@ -214,7 +214,7 @@ class UserControllerTest {
         UUID userId = UUID.randomUUID();
 
         mockMvc.perform(
-                post("/api/users/{userId}/password", userId)
+                patch("/api/users/{userId}/password", userId)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{\"password\":\"new-password\"}")
             )
