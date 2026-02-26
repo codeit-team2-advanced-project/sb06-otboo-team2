@@ -56,11 +56,13 @@ public class BasicCommentService implements CommentService {
 
     feed.incrementCommentCount();
 
-    notificationEventPublisher.publishFeedCommentedEvent(
-            feed.getUser().getId(),
-            author.getName(),
-            feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
-            commentCreateRequest.content());
+    if(!feed.getUser().getId().equals(author.getId())) {
+      notificationEventPublisher.publishFeedCommentedEvent(
+              feed.getUser().getId(),
+              author.getName(),
+              feed.getContent().substring(0, Math.min(10, feed.getContent().length())),
+              commentCreateRequest.content());
+    }
 
     return CommentDto.of(
         savedComment,
