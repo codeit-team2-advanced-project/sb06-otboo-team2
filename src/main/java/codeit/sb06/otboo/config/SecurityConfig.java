@@ -80,6 +80,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/clothes/attribute-defs/**").hasRole("ADMIN")
+                    .requestMatchers("/api/clothes/**").hasRole("USER")
                     .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                     .anyRequest().permitAll()
             )

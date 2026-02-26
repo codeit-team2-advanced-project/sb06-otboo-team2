@@ -5,17 +5,17 @@ import codeit.sb06.otboo.clothes.dto.*;
 import codeit.sb06.otboo.clothes.entity.*;
 import codeit.sb06.otboo.clothes.repository.ClothesAttributeDefRepository;
 import codeit.sb06.otboo.clothes.repository.ClothesRepository;
-import codeit.sb06.otboo.exception.clothes.ClothesAttributeDefNotFoundException;
-import codeit.sb06.otboo.exception.clothes.ClothesNotFoundException;
-import codeit.sb06.otboo.exception.clothes.InvalidClothesAttributeValueException;
-import codeit.sb06.otboo.exception.clothes.InvalidClothesTypeException;
+import codeit.sb06.otboo.exception.clothes.*;
+import codeit.sb06.otboo.exception.storage.StorageUploadFailedException;
+import codeit.sb06.otboo.profile.service.S3StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,11 +29,23 @@ public class ClothesService {
 
     private final ClothesRepository clothesRepository;
     private final ClothesAttributeDefRepository clothesAttributeDefRepository;
+    private final S3StorageService s3StorageService;
 
-    // todo : s3 적용후 코드 가독성과 책임 분리를 위해 리팩터링 예정
-    public ClothesDto create(ClothesCreateRequest request, MultipartFile image) {
 
-        UUID ownerId = UUID.fromString(request.ownerId().trim());
+    public ClothesDto create(UUID currentUserId, ClothesCreateRequest request, MultipartFile image) {
+        UUID ownerIdFromRequest;
+        try {
+            ownerIdFromRequest = UUID.fromString(request.ownerId().trim());
+        } catch (Exception e) {
+            throw new ClothesBadRequestException("ownerId 형식이 올바르지 않습니다.", e);
+        }
+
+        if (!currentUserId.equals(ownerIdFromRequest)) {
+            throw new AccessDeniedException("ownerId mismatch");
+        }
+
+        UUID ownerId = currentUserId;
+
         String name = request.name().trim();
 
         ClothesType type;
@@ -43,10 +55,17 @@ public class ClothesService {
             throw new InvalidClothesTypeException(request.type(), e);
         }
 
-        // todo : s3 적용후 imageUrl 로직 추가 예정
-        String imageUrl = null;
+        String imageKey = null;
+        if (image != null && !image.isEmpty()) {
+            imageKey = String.valueOf(UUID.randomUUID());
+            try {
+                s3StorageService.putObject(imageKey, image.getBytes());
+            } catch (IOException e) {
+                throw new StorageUploadFailedException(imageKey, "IO_ERROR", e);
+            }
+        }
 
-        Clothes clothes = new Clothes(ownerId, name, imageUrl, type);
+        Clothes clothes = new Clothes(ownerId, name, imageKey, type);
 
         List<ClothesAttributeDto> attrs =
                 (request.attributes() == null) ? List.of() : request.attributes();
@@ -84,13 +103,17 @@ public class ClothesService {
 
         Clothes saved = clothesRepository.save(clothes);
 
-        return ClothesDto.from(saved);
+        return toDtoWithPresignedUrl(saved);
     }
 
-    public ClothesDto update(UUID clothesId, ClothesUpdateRequest request, MultipartFile image) {
+    public ClothesDto update(UUID clothesId,UUID currentUserId, ClothesUpdateRequest request, MultipartFile image) {
 
         Clothes clothes = clothesRepository.findWithAttributesById(clothesId)
                 .orElseThrow(() -> new ClothesNotFoundException(clothesId));
+
+        if (!clothes.getOwnerId().equals(currentUserId)) {
+            throw new ClothesNotFoundException(clothesId);
+        }
 
         String name = request.name().trim();
         clothes.changeName(name);
@@ -103,10 +126,19 @@ public class ClothesService {
         }
         clothes.changeType(type);
 
+        String oldKey = clothes.getImageUrl();
+        String newKey = null;
+
         if (image != null && !image.isEmpty()) {
-            String imageUrl = null;
-            clothes.changeImageUrl(imageUrl);
+            newKey = String.valueOf(UUID.randomUUID());
+            try {
+                s3StorageService.putObject(newKey, image.getBytes());
+            } catch (IOException e) {
+                throw new StorageUploadFailedException(newKey, "IO_ERROR", e);
+            }
+            clothes.changeImageUrl(newKey);
         }
+
 
         List<ClothesAttributeDto> attrs = request.attributes();
         if (attrs != null) {
@@ -149,15 +181,38 @@ public class ClothesService {
             }
         }
 
-        Clothes saved = clothesRepository.save(clothes);
-        return ClothesDto.from(saved);
+        try {
+            Clothes saved = clothesRepository.save(clothes);
+
+            if (newKey != null && oldKey != null && !oldKey.isBlank() && !oldKey.equals(newKey)) {
+                s3StorageService.deleteObject(oldKey);
+            }
+
+            return toDtoWithPresignedUrl(saved);
+
+        } catch (RuntimeException e) {
+            if (newKey != null) {
+                try {
+                    s3StorageService.deleteObject(newKey);
+                } catch (RuntimeException ignore) {
+
+                }
+            }
+            throw e;
+        }
     }
 
     public void delete(UUID clothesId, UUID ownerId) {
         Clothes clothes = clothesRepository.findByIdAndOwnerId(clothesId, ownerId)
                 .orElseThrow(() -> new ClothesNotFoundException(clothesId));
 
+        String key = clothes.getImageUrl();
+
         clothesRepository.delete(clothes);
+
+        if (key != null && !key.isBlank()) {
+            s3StorageService.deleteObject(key);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -167,7 +222,7 @@ public class ClothesService {
                                             String typeEqual,
                                             UUID ownerId) {
 
-        if (limit <= 0) throw new IllegalArgumentException("limit은 1 이상이어야 합니다.");
+        if (limit <= 0) throw new ClothesBadRequestException("limit은 1 이상이어야 합니다.");
 
         ClothesType type = null;
         if (typeEqual != null && !typeEqual.isBlank()) {
@@ -180,9 +235,12 @@ public class ClothesService {
 
         LocalDateTime cursorCreatedAt = null;
         if (cursor != null && !cursor.isBlank()) {
-            cursorCreatedAt = LocalDateTime.parse(cursor.trim()); // ISO_LOCAL_DATE_TIME 기준
+            try {
+                cursorCreatedAt = LocalDateTime.parse(cursor.trim());
+            } catch (Exception e) {
+                throw new ClothesBadRequestException("cursor 형식이 올바르지 않습니다.", e);
+            }
         }
-
         List<UUID> ids = clothesRepository.findIdsByCursor(
                 ownerId, type, cursorCreatedAt, idAfter, limit + 1
         );
@@ -195,7 +253,7 @@ public class ClothesService {
         List<Clothes> clothesList = clothesRepository.findWithAllByIds(ids);
 
         List<ClothesDto> data = clothesList.stream()
-                .map(ClothesDto::from)
+                .map(this::toDtoWithPresignedUrl)
                 .toList();
 
         String nextCursor = null;
@@ -217,5 +275,16 @@ public class ClothesService {
                 "createdAt",
                 "DESCENDING"
         );
+    }
+
+    private ClothesDto toDtoWithPresignedUrl(Clothes clothes) {
+        String key = clothes.getImageUrl();
+        String presignedUrl = null;
+
+        if (key != null && !key.isBlank()) {
+            presignedUrl = s3StorageService.getPresignedUrl(key);
+        }
+
+        return ClothesDto.from(clothes, presignedUrl);
     }
 }

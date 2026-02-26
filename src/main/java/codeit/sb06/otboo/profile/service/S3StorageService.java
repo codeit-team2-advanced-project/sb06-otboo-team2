@@ -72,5 +72,4 @@ public class S3StorageService {
             throw new ProfileS3NotFound();
         }
     }
-
 }
