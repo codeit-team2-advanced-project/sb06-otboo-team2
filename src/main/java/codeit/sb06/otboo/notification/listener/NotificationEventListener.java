@@ -47,7 +47,7 @@ public class NotificationEventListener {
     @TransactionalEventListener
     public void handleFeedLikedEvent(FeedLikedEvent event) {
 
-        String title = event.feedTitle() + " 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.";
+        String title = "\"" +event.feedTitle() + "...\" 피드에 " + event.likerName() + "님이 좋아요를 눌렀습니다.";
 
         createAndSend(event.targetId(), title, "");
     }
