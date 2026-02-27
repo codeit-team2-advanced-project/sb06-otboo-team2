@@ -4,7 +4,7 @@
 
 ## 팀원 구성
 - 이호건 ([Github 링크](https://github.com/HOGUN00))
-- 김태헌
+- 김태헌 ([Github 링크](https://github.com/Taehun88))
 - 서경원 ([Github 링크](https://github.com/SeoGyeongWon))
 - 이현욱
 - 조동현
@@ -53,7 +53,18 @@
 ---
 
 ### 김태헌
-- 
+### 1. 로그인 기능 및 SecurityConfig 설정
+* **로그인 기능 및 OAuth2기반 로그인 기능 개발**:기초적인 회원가입을 통한 로그인 기능 및 OAuth2 기반 소셜 로그인 기능 개발
+* **OAuth2와 OIDC 단일 모듈화**: Kakao와 Google 로그인 방식이 달라 하나의 모듈을 기반으로 OAuth2와 OIDC에 맞춰서 대응할 수 있게 개발
+* **Security 설정으로 권한 관리**: USER와 ADMIN일 때 사용 가능한 Method를 Security에서 관리하고, AOP에서 추가적으로 확인해서 사용 가능한 Method를 분리
+
+### 2. Profile 기능 개발
+* **S3 모듈 개발**: S3에 대한 모듈을 구현, 이후 S3를 사용하는 기능에 적용 가능하게 모듈화
+* **Profile 에 대한 CRUD 구현**
+
+### 3. AWS Infrastructure
+* **ECS, ECR에 대한 CD Pipeline 구현**: main branch에 merge 될 때 동작하여 자동으로 배포되는 환경 구현
+* **ECS Fargate 환경 구성**: 현재 단계에서는 빠른 배포 및 확인이 필요하다고 생각하여 Fargate 환경 배포를 선택
 
 ---
 
