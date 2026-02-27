@@ -28,6 +28,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: chmod +x gradlew
+        run: chmod +x ./gradlew
+
       - name: Build application
         run: ./gradlew bootJar -x test
 
