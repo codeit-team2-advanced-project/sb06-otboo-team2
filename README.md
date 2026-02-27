@@ -5,7 +5,7 @@
 ## 팀원 구성
 - 이호건 ([Github 링크](https://github.com/HOGUN00))
 - 김태헌
-- 서경원
+- 서경원 ([Github 링크](https://github.com/SeoGyeongWon))
 - 이현욱
 - 조동현
 
@@ -20,8 +20,8 @@
 
 ## 기술 스택
 
--
--
+- SpringBoot
+- PostgreSQL
 -
 
 ---
@@ -58,7 +58,9 @@
 ---
 
 ### 서경원
-- 
+### 1. 댓글 생성 및 목록 조회
+
+### 2. 팔로우 생성 취소 및 팔로워 팔로잉 목록 조회
   
 ---
 
