@@ -13,18 +13,18 @@ public record ProfileDto(
     String name,
     String gender,
     String birthDate,
-    List<String> locations,
+    LocationDto location,
     int temperatureSensitivity,
     String profileImageUrl
 ) {
 
-    public static ProfileDto from(Profile profile, List<String> locations, S3StorageService s3StorageService) {
+    public static ProfileDto from(Profile profile, LocationDto locationDto, S3StorageService s3StorageService) {
         return ProfileDto.builder()
             .userId(profile.getUserId().getId())
             .name(profile.getName())
             .gender(profile.getGender() == null ? null : profile.getGender().name())
             .birthDate(profile.getBirthday())
-            .locations(locations)
+            .location(locationDto)
             .temperatureSensitivity(profile.getSensitivity())
             .profileImageUrl(profile.getImageUrl() == null ? null : s3StorageService.getPresignedUrl(profile.getImageUrl()))
             .build();

@@ -12,7 +12,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import codeit.sb06.otboo.profile.dto.LocationDto;
 import codeit.sb06.otboo.profile.dto.ProfileDto;
+import codeit.sb06.otboo.profile.entity.Location;
 import codeit.sb06.otboo.user.dto.UserDto;
 import codeit.sb06.otboo.user.dto.response.UserDtoCursorResponse;
 import codeit.sb06.otboo.user.entity.Role;
@@ -231,7 +233,7 @@ class UserControllerTest {
             "new-name",
             "ETC",
             "2000-01-01",
-            List.of("seoul"),
+            LocationDto.from(new Location(UUID.randomUUID(), 37.5, 126.9, 60, 127, List.of("seoul"), null)),
             3,
             "s3-key"
         );
