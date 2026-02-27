@@ -3,6 +3,7 @@ package codeit.sb06.otboo.profile.service;
 import codeit.sb06.otboo.exception.profile.ProfileNotFoundException;
 import codeit.sb06.otboo.exception.profile.S3UploadFailedException;
 import codeit.sb06.otboo.exception.user.UserNotFoundException;
+import codeit.sb06.otboo.profile.dto.LocationDto;
 import codeit.sb06.otboo.profile.dto.ProfileDto;
 import codeit.sb06.otboo.profile.dto.ProfileUpdateRequest;
 import codeit.sb06.otboo.profile.entity.Location;
@@ -62,13 +63,13 @@ public class ProfileServiceImpl {
         Profile profile = profileRepository.findByUserId(user).orElseThrow(ProfileNotFoundException::new);
         profile.updateProfile(profileUpdateRequest);
 
-        if(profileUpdateRequest.locationDto() != null) {
+        if(profileUpdateRequest.location() != null) {
             Location location = locationRepository.findByProfile(profile).orElse(null);
             if(location == null) {
-                Location newLocation = Location.from(profileUpdateRequest.locationDto(), profile);
+                Location newLocation = Location.from(profileUpdateRequest.location(), profile);
                 locationRepository.save(newLocation);
             } else {
-                location.updateLocation(profileUpdateRequest.locationDto());
+                location.updateLocation(profileUpdateRequest.location());
                 locationRepository.save(location);
             }
         }
@@ -88,9 +89,7 @@ public class ProfileServiceImpl {
         return ProfileDto.from(updatedProfile, findLocationNames(updatedProfile), s3StorageService);
     }
 
-    private List<String> findLocationNames(Profile profile) {
-        return locationRepository.findByProfile(profile)
-            .map(Location::getLocationDetails)
-            .orElse(List.of());
+    private LocationDto findLocationNames(Profile profile) {
+        return LocationDto.from(locationRepository.findByProfile(profile).orElse(null));
     }
 }

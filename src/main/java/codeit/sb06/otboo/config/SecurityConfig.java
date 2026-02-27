@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -79,6 +80,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/clothes/attribute-defs").hasRole("USER")
                     .requestMatchers("/api/clothes/attribute-defs/**").hasRole("ADMIN")
                     .requestMatchers("/api/clothes/**").hasRole("USER")
                     .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
