@@ -116,6 +116,9 @@
 
 ## 파일 구조
 
+<details>
+<summary>📌 파일구조 상세 보기</summary>
+
 ```text
 otboo/
 ├── gradle/
@@ -678,6 +681,11 @@ otboo/
 └── settings.gradle
 
 ```
+
+</details>
+
+
+
 
 ---
 
