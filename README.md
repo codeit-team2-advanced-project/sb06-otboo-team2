@@ -50,7 +50,7 @@
 | **PR 규칙** | 2명 이상 Approve 시 Merge (컨벤션, 이슈) |
 | **PR 컨벤션** | feat, fix, refactor, merge |
 | **PR 단위** | 이슈별로 PR |
-| **디벨롭 테스트 커버리지** | 80% (DTO, config 제외) |
+| **테스트 커버리지** | 80% (DTO, config 제외) |
 | **소통** | 출석하지 못할떄는 전날에 말해준다, PR 올렸을 때 디스코드에 알려주기 |
 
 </details>
