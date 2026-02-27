@@ -12,6 +12,10 @@ public record LocationDto(
 ) {
 
     public static LocationDto from(Location location) {
+        if (location == null) {
+            return null;
+        }
+
         return new LocationDto(
             location.getLatitude(),
             location.getLongitude(),
