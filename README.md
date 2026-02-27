@@ -20,9 +20,14 @@
 
 ## 기술 스택
 
-- SpringBoot
-- PostgreSQL
--
+- Backend: Java 17, Spring Boot 3.5.10, Spring Security, Spring WebFlux, Spring Batch, WebSocket
+- Database: PostgreSQL, Redis (List & Stream)
+- Data Access: Spring Data JPA, QueryDSL
+- Cloud: AWS S3, Spring Cloud OpenFeign
+- Reliability: Resilience4j, ShedLock
+- Test: Easy Random
+- API Docs: Swagger (Springdoc)
+- 공통 Tool: Git & GitHub, Discord
 
 ---
 
@@ -81,7 +86,7 @@
 ---
  
 ### 조동현
-- 
+- 의상, 의상 속성, 의상 추천 CRUD
 ---
 
 ## 파일 구조
