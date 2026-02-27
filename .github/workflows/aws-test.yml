@@ -1,7 +1,11 @@
 name: AWS Connection Test
 
+# trigger
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - develop
 
 jobs:
   test-aws-connection:

@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: otboo
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;
+    username: sa
+    password:
+    driver-class-name:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      password:
+  batch:
+    jdbc:
+      initialize-schema: always

@@ -1,0 +1,177 @@
+spring:
+  application:
+    name: otboo
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_S3_ACCESS_KEY:your-aws-access-key}
+        secret-key: ${AWS_S3_SECRET_KEY:your-aws-secret-key}
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      s3:
+        bucket: ${AWS_S3_BUCKET:your-s3-bucket-name}
+        presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:PT10H}
+        log-bucket: ${AWS_S3_LOG_BUCKET:otboo-logs}
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      httpclient:
+        hc5:
+          enabled: true
+          max-connections: 200
+          max-connections-per-route: 50
+          time-to-live: 900s
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: full
+
+  security:
+    oauth2:
+      client:
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+        registration:
+          kakao:
+            client-id: ${KAKAO_LOGIN_API_KEY:your-kakao-login-api-key}
+            client-secret: ${KAKAO_LOGIN_CLIENT_SECRET:your-kakao-login-client-secret}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/login/oauth2/code/kakao}
+            scope: profile_nickname, profile_image, account_email
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+            scope: openid, profile, email
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/otboo}
+    username: ${SPRING_DATASOURCE_USERNAME:otboo}
+    password: ${SPRING_DATASOURCE_PASSWORD:otboo}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+        mail:
+            smtp:
+                auth: true
+                starttls:
+                  enable: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:temporary_password}
+      repositories:
+        enabled: false
+      connect-timeout: 5s
+      timeout: 3s
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+  websocket:
+    pool:
+      inbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      outbound:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 200
+        await-termination-seconds: 10
+      heartbeat:
+        pool-size: 1
+        await-termination-seconds: 10
+        period: 10000
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        registerHealthIndicator: true
+        recordExceptions:
+          - org.springframework.dao.QueryTimeoutException
+          - io.lettuce.core.RedisCommandTimeoutException
+          - org.springframework.data.redis.RedisSystemException
+          - org.springframework.data.redis.RedisConnectionFailureException
+          - io.lettuce.core.RedisException
+          - java.net.ConnectException
+    instances:
+      dmStreamCircuit:
+        baseConfig: default
+      notiStreamCircuit:
+        baseConfig: default
+      openWeatherApi:
+        baseConfig: default
+      kakaoLocationApi:
+        baseConfig: default
+
+scheduler:
+  initial-delay:
+    dm: ${random.int[1000,5000]}
+    noti: ${random.int[5000,9000]}
+
+kakao:
+  key: ${KAKAO_API_KEY:your-kakao-api-key}
+
+openweather:
+  key: ${OPENWEATHER_API_KEY:your-openweather-api-key}
+
+otboo:
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000}
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+      cookie-secure: ${JWT_REFRESH_COOKIE_SECURE:true}
+
+  mail:
+    from: ${MAIL_FROM:no-reply@otboo.com}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, metrics, health, circuitbreakers, circuitbreakerevents
+  endpoint:
+    circuitbreakers:
+      enabled: true
+    circuitbreakerevents:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
