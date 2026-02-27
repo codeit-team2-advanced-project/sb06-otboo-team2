@@ -88,7 +88,9 @@
 
 ## 팀원별 구현 기능 상세
 
-### 이호건
+<details>
+<summary>이호건</summary>
+
 ### 1. 실시간 DM 및 알림 시스템 구축
 * **통신 목적에 따른 프로토콜 이원화**: 양방향성이 중요한 DM에는 WebSocket을, 단방향성 알림에는 가벼운 SSE를 채택하여 서버 리소스 및 통신 효율 최적화
 * **분산 환경 세션 불일치 해결**: 로드밸런싱 환경에서 발생하는 인메모리 세션(SseEmitter, WebSocketSession) 공유 문제를 메시지 브로커로 해결
@@ -110,9 +112,13 @@
    - GitHub Actions를 연동하여 PR 단위로 **테스트 커버리지 80%** 및 빌드 통과를 강제하여 코드 품질 상향 평준화
 * **상호 보완적 코드 리뷰**: 기계적 검증은 SonarQube에 맡기고, 팀원 리뷰 시에는 도메인 로직의 정합성과 더 나은 설계 제안에 집중
 
+</details>
+
 ---
 
-### 김태헌
+<details>
+<summary>김태헌</summary>
+
 ### 1. 로그인 기능 및 SecurityConfig 설정
 * **로그인 기능 및 OAuth2기반 로그인 기능 개발**:기초적인 회원가입을 통한 로그인 기능 및 OAuth2 기반 소셜 로그인 기능 개발
 * **OAuth2와 OIDC 단일 모듈화**: Kakao와 Google 로그인 방식이 달라 하나의 모듈을 기반으로 OAuth2와 OIDC에 맞춰서 대응할 수 있게 개발
@@ -126,9 +132,13 @@
 * **ECS, ECR에 대한 CD Pipeline 구현**: main branch에 merge 될 때 동작하여 자동으로 배포되는 환경 구현
 * **ECS Fargate 환경 구성**: 현재 단계에서는 빠른 배포 및 확인이 필요하다고 생각하여 Fargate 환경 배포를 선택
 
+</details>
+
 ---
 
-### 서경원
+<details>
+<summary>서경원</summary>
+
 ### 1. 댓글 생성 및 목록 조회
 * **Comment에 대한 CRUD 구현**
 * **댓글 목록 조회**를 위한 QueryDsl 기반 커서페이지 네이션 구현
@@ -139,16 +149,25 @@
 * **팔로워 팔로잉 리스트 조회**를 위한 QueryDsl 기반 커서페이지 네이션 구현
   * 날짜별 최신순으로 댓글이 조회되도록 정렬 조건 추가 + 같은 시각일때 id 조합하여 구분
 * Follow 엔티티에 follower_id, followee_id로 유니크 제약조건을 추가하여 한 사용자가 다른 동일한 사용자에게 한 번만 팔로우 할수 있도록 설정
+   
+</details>
 
 ---
 
-### 이현욱
-- 
+<details>
+<summary>이현욱</summary>
+
+</details>
 
 ---
- 
-### 조동현
+
+<details>
+<summary>조동현</summary>
+
 - 의상, 의상 속성, 의상 추천 CRUD
+
+</details>
+
 ---
 
 ## 파일 구조
