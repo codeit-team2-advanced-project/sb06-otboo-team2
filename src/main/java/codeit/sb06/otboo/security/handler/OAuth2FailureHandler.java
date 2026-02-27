@@ -28,6 +28,6 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         response.setCharacterEncoding("UTF-8");
 
         ErrorResponse errorResponse = new ErrorResponse(exception);
-        response.getWriter().print(objectMapper.writeValueAsString(errorResponse));
+        response.sendRedirect("/");
     }
 }
