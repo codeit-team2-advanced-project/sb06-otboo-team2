@@ -60,7 +60,8 @@ class ProfileServiceImplTest {
 
         when(userRepository.findByEmail(eq(user.getEmail()))).thenReturn(Optional.of(user));
         when(profileRepository.save(any(Profile.class))).thenReturn(savedProfile);
-        when(locationRepository.findByProfile(savedProfile)).thenReturn(Optional.empty());
+        when(locationRepository.findByProfile(savedProfile))
+            .thenReturn(Optional.of(Location.from(emptyLocationDto(), savedProfile)));
 
         ProfileDto result = profileService.create(user);
 
@@ -68,7 +69,7 @@ class ProfileServiceImplTest {
         assertNotNull(result);
         assertEquals(user.getId(), result.userId());
         assertEquals("name", result.name());
-        assertEquals(List.of(), result.locations());
+        assertEquals(List.of(), result.location().locationNames());
     }
 
     @Test
@@ -93,7 +94,7 @@ class ProfileServiceImplTest {
 
         assertEquals(user.getId(), result.userId());
         assertEquals("name", result.name());
-        assertEquals(List.of("seoul", "gangnam"), result.locations());
+        assertEquals(List.of("seoul", "gangnam"), result.location().locationNames());
     }
 
     @Test
@@ -133,7 +134,8 @@ class ProfileServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(profileRepository.findByUserId(user)).thenReturn(Optional.of(profile));
-        when(locationRepository.findByProfile(profile)).thenReturn(Optional.empty(), Optional.empty());
+        when(locationRepository.findByProfile(profile))
+            .thenReturn(Optional.empty(), Optional.of(Location.from(emptyLocationDto(), profile)));
         when(s3StorageService.putObject(any(String.class), any(byte[].class))).thenReturn("s3-key");
         when(s3StorageService.getPresignedUrl("s3-key")).thenReturn("https://example.com/s3-key");
         when(profileRepository.save(profile)).thenReturn(profile);
@@ -146,7 +148,7 @@ class ProfileServiceImplTest {
         assertEquals("ETC", result.gender());
         assertEquals("1999-01-01", result.birthDate());
         assertEquals("https://example.com/s3-key", result.profileImageUrl());
-        assertEquals(List.of(), result.locations());
+        assertEquals(List.of(), result.location().locationNames());
     }
 
     @Test
@@ -177,7 +179,7 @@ class ProfileServiceImplTest {
         assertEquals("new-name", result.name());
         assertEquals("MALE", result.gender());
         assertEquals("2001-02-03", result.birthDate());
-        assertEquals(List.of("seoul", "gangnam"), result.locations());
+        assertEquals(List.of("seoul", "gangnam"), result.location().locationNames());
     }
 
     @Test
@@ -236,5 +238,9 @@ class ProfileServiceImplTest {
 
     private LocationDto createLocationDto() {
         return new LocationDto(37.5665, 126.9780, 60, 127, List.of("seoul", "gangnam"));
+    }
+
+    private LocationDto emptyLocationDto() {
+        return new LocationDto(0.0, 0.0, 0, 0, List.of());
     }
 }

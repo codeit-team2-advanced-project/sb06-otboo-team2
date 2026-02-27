@@ -51,14 +51,18 @@ class ProfileDtoTest {
 
         S3StorageService s3StorageService = mock(S3StorageService.class);
         when(s3StorageService.getPresignedUrl("image")).thenReturn("https://example.com/image");
-        ProfileDto dto = ProfileDto.from(profile, List.of("seoul"), s3StorageService);
+        ProfileDto dto = ProfileDto.from(
+            profile,
+            new LocationDto(37.5665, 126.9780, 60, 127, List.of("seoul")),
+            s3StorageService
+        );
 
         assertNotNull(dto);
         assertEquals(user.getId(), dto.userId());
         assertEquals("name", dto.name());
         assertEquals("ETC", dto.gender());
         assertEquals("2000-01-01", dto.birthDate());
-        assertEquals(List.of("seoul"), dto.locations());
+        assertEquals(List.of("seoul"), dto.location().locationNames());
         assertEquals(2, dto.temperatureSensitivity());
         assertEquals("https://example.com/image", dto.profileImageUrl());
     }
