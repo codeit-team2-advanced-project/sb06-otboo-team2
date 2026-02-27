@@ -30,6 +30,13 @@
 - 공통 Tool: Git & GitHub, Discord
 
 ---
+
+<details>
+<summary>📌 ERD 상세 보기</summary>
+<img width="2730" height="1172" alt="otboo (1)" src="https://github.com/user-attachments/assets/d9c6354a-85d3-459a-a25e-6297ca057a08" />
+</details>
+
+---
 ## R&R
 
 | 팀원 | 주요 담당 |
