@@ -664,10 +664,10 @@ otboo/
 ---
 
 ## 구현 홈페이지  
-(개발한 홈페이지에 대한 링크 게시)  
+http://otboo-alb-1790211223.ap-northeast-2.elb.amazonaws.com/
 
 
 ---
 
 ## 프로젝트 회고록  
-(제작한 발표자료 링크 혹은 첨부파일 첨부)
+https://www.notion.so/codeit/2-30c6fd228e8d80fdb16fd96faba318ff
