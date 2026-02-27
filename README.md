@@ -6,8 +6,8 @@
 - 이호건 ([Github 링크](https://github.com/HOGUN00))
 - 김태헌 ([Github 링크](https://github.com/Taehun88))
 - 서경원 ([Github 링크](https://github.com/SeoGyeongWon))
-- 이현욱
-- 조동현
+- 이현욱 ([Github 링크](https://github.com/hyunwook13))
+- 조동현 ([Github 링크](https://github.com/donghyun999))
 
 ---
 
@@ -81,7 +81,7 @@
 | 이호건 | 알림, dm |
 | 김태헌 |  |
 | 서경원 |  |
-| 이현욱 |  |
+| 이현욱 | 피드, 날씨 |
 | 조동현 | 의상 |
 
 ---
@@ -159,6 +159,15 @@ https://www.notion.so/312203c86c5980dbafc7f1961b01eda4
 
 <details>
 <summary>이현욱</summary>
+
+### 1. 피드 생성 및 목록 조회
+- **Feed CRUD 구현**
+- **작성일 기준 최신순 정렬 적용** 및 동일 시각 데이터에 대해 **id 조건을 추가하여 정렬 일관성 확보**
+
+### 2. 날씨 정보 조회 기능 구현
+- 외부 날씨 API 연동을 기존 RestTemplate 방식에서 **OpenFeign 기반 구조로 전환**
+- Feign Client에 **타임아웃, 로깅, 재시도 정책, 예외 디코더 적용**
+- **Resilience4j CircuitBreaker + fallback 구성**으로 외부 API 장애 시 **장애 전파 차단**
 
 </details>
 
